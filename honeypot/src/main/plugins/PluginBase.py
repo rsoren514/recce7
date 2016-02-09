@@ -45,12 +45,14 @@ class PluginBase():
             pkt = p.command()
             layers = re.split('\/', pkt)
             for l in layers:
-                layer = re.match('(\w+)[\(]', l)
-                if layer != None and layer != 'Raw':
-                    layer = layer.group(1)
-                    print(layer)
-                # else:
-                #     print('Error Printing, LAYER:\n' +layer + '\nPACKET:\n' + pkt)
+                layerTitle = re.match('(\w+)[\(]', l)
+                layerBody = re.match('[\w+\(](.*)[\w+\(]', l)
+                if layerTitle != None and layerTitle != 'Raw':
+                    layerTitle = layerTitle.group(1)
+                    print(layerTitle)
+                    if layerBody != None:
+                        layerBody = layerBody.group(1)
+                        print(layerBody)
 
             print(pkt)
 
