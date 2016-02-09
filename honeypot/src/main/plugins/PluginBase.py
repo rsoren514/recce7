@@ -43,11 +43,13 @@ class PluginBase():
         # Use scapy to break packets into appropriate pieces, change values of variables
         packets_dict = None
         for p in packets:
-            layer_pattern = re.compile('###[(A-Za-z)]###(.*?)None', re.MULTILINE)
-            layer_title = layer_pattern.match(p).group(0)
-            print(layer_title)
-            layer_kvs = layer_pattern.match(p).group(1)
-            print(layer_kvs)
+            pkt = p.command()
+            layers = re.split('\/', pkt)
+            for l in layers:
+                layer = re.match('(\w+)', l).group(1)
+                print(layer)
+
+            print(pkt)
 
         return packets_dict
 
