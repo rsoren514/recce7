@@ -21,9 +21,8 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-from scapy import layers
+
 from scapy.all import *
-from scapy.layers.inet import IP, TCP
 
 
 class PluginBase():
@@ -46,8 +45,12 @@ class PluginBase():
             pkt = p.command()
             layers = re.split('\/', pkt)
             for l in layers:
-                layer = re.match('(\w+)', l).group(1)
-                print(layer)
+                layer = re.match('(\w+)[\(]', l)
+                if layer != None and layer != 'Raw':
+                    layer = layer.group(1)
+                    print(layer)
+                # else:
+                #     print('Error Printing, LAYER:\n' +layer + '\nPACKET:\n' + pkt)
 
             print(pkt)
 
