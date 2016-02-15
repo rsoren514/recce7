@@ -1,10 +1,14 @@
-import DB_Init
-import Table_Init
-import Table_Insert
+from honeypot.src.database import DB_Init
+from honeypot.src.database import Table_Init
+from honeypot.src.database import Table_Insert
 import sqlite3
 import unittest
 import shutil
 
+#unit tests
+'''This test checks that the insert_data function works. Note: this will need to change
+   because the group decided they want to use a dictionary with names (as columns) mapped
+   to values'''
 class table_insert_test_case(unittest.TestCase):
     def setUp(self):
         table_cols = []
@@ -28,7 +32,8 @@ class table_insert_test_case(unittest.TestCase):
         data2.append('Yellow')
         Table_Insert.insert_data(table,data)
         Table_Insert.insert_data(table,data2)
-        connection = sqlite3.connect('./honeyDB/honeyDB.sqlite')
+        connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
+                                     DB_Init.get_database_config_name())
         cursor = connection.cursor()
         result = cursor.execute('select * from TEST1 where ID = 1').fetchall()[0]
         result2 = cursor.execute('select * from TEST1 where ID = 2').fetchall()[0]
@@ -38,7 +43,7 @@ class table_insert_test_case(unittest.TestCase):
         self.assertEquals(result2,result2_check)
 
     def tearDown(self):
-        shutil.rmtree('./honeyDB')
+        shutil.rmtree(DB_Init.get_home_dir() + DB_Init.get_home_config_path())
 
 
 
