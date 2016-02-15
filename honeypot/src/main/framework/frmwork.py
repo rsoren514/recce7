@@ -1,9 +1,11 @@
-__author__ = 'jessenelson'
+__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
+             'Randy Sorensen <sorensra@msudenver.edu>'
+
 import configparser
 import os
 
 # from main.plugins.BasePlugin import *
-from main.framework.networklistener import NetworkListener
+from networklistener import NetworkListener
 from importlib import import_module
 
 sub_dir = '/config/plugins.cfg'
@@ -36,7 +38,7 @@ class Framework:
         return (port, module, config_object)
 
     def create_import_entry(self, port, name):
-        imp = import_module('main.plugins.' + name)
+        imp = import_module('plugins.' + name)
         self.plugin_imports[port] = getattr(imp, name)
 
     def read_config(self, plugin_cfg):
