@@ -21,9 +21,17 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-from honeypot.src.main.plugins.PluginBase import PluginBase
+from main.plugins.BasePlugin import BasePlugin
 
 
-class TelNet(PluginBase):
-    PluginBase.parse_packet()
-    pass
+class TelNet(BasePlugin):
+    def __init__(self, socket):
+        BasePlugin.__init__(self, socket)
+        print('Spawned team!')
+
+    def do_track(self):
+        while True:
+            data = self._skt.recv(1024)
+            if not data:
+                break
+            self._skt.sendall(data)
