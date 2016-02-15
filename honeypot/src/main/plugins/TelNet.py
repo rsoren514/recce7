@@ -25,4 +25,5 @@ from honeypot.src.main.plugins.PluginBase import PluginBase
 
 
 class TelNet(PluginBase):
+    PluginBase.parse_packet()
     pass

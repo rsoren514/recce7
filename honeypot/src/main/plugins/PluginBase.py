@@ -27,14 +27,14 @@ from scapy.all import *
 
 class PluginBase():
     # Variables passed in from Framework
+    socket = None
+    framework = None
     rawPacket = None
-    portNumber = None
-    callbackMethod = None
 
-    def __init__(self, rawPacket=None, portNumber=None, callBack=None):
+    def __init__(self, socket=None, framework=None, rawPacket=None):
+        self.portNumber = socket
+        self.callbackMethod = framework
         self.rawPacket = rawPacket
-        self.portNumber = portNumber
-        self.callbackMethod = callBack
         self.parse_packet(rawPacket)
         # Logic to check port number in config file and start plugin from info there
 
@@ -42,28 +42,22 @@ class PluginBase():
         # Use scapy to break packets into appropriate pieces, change values of variables
         packets_dict = None
         for p in packets:
-            pkt = p.command()
-            layers = re.split('\/', pkt)
-            for l in layers:
-                layerTitle = re.match('(\w+)[\(]', l)
-                layerBody = re.match('[\w+\(](.*)[\w+\(]', l)
-                if layerTitle != None and layerTitle != 'Raw':
-                    layerTitle = layerTitle.group(1)
-                    print(layerTitle)
-                    if layerBody != None:
-                        layerBody = layerBody.group(1)
-                        print(layerBody)
+            parsed = tdecode(p)
+            # pkt = p.command()
+            # layers = re.split('\/', pkt)
+            # for l in layers:
+            #     layerTitle = re.match('(\w+)[\(]', l)
+            #     layerBody = re.match('[\w+\(](.*)[\)]', l)
+            #     if layerTitle != None and layerTitle != 'Raw':
+            #         layerTitle = layerTitle.group(1)
+            #         print(layerTitle)
+            #         if layerBody != None:
+            #             layerBody = layerBody.group(1)
+            #             print(layerBody)
 
-            print(pkt)
+            print(parsed)
 
         return packets_dict
-
-
-    def getIpDatagram(self):
-        return self.ipDatagramVars
-
-    def getTcpSegment(self):
-        return self.tcpSegmentVars
 
     def verify_insert_statement(self):
         # Read from config how insert statemnt should be and verify against a REGEX
