@@ -39,25 +39,21 @@ class NetworkListenerTest(unittest.TestCase):
         listener.connection_count = 5
         self.assertEqual(5, listener.connection_count)
 
-    @patch('networklistener.socket.socket.accept',
-           return_value=(socket.socket(), '0.0.0.0'))
     @patch.object(Framework, 'spawn')
-    @patch('frmwork.Framework.spawn')
-    def test_start_listening(self, mock_accept, mock_framework, mock_spawn):
+    def test_start_listening(self, mock_spawn):
         mock_config = make_mock_config(8082, 'HTTPPlugin')
-        listener = NetworkListener(mock_config, mock_framework())
-        listener.start_listening(socket.socket())
+        with patch('networklistener.socket.socket.accept') as mock_accept:
+            mock_accept.return_value = (socket.socket(), '192.168.1.1')
+            listener = NetworkListener(mock_config, mock_spawn)
+            listener.start_listening(socket.socket())
         self.assertTrue(mock_accept.called)
-        self.assertTrue(mock_spawn.called)
+        self.assertTrue(mock_spawn.spawn.called)
 
-    @patch('networklistener.socket.socket.accept',
-           return_value=(socket.socket(), '0.0.0.0'))
-    @patch.object(Framework, 'spawn')
-    def test_start_listening_exception(self, mock_accept, mock_framework):
+    def test_start_listening_exception(self):
         mock_config = make_mock_config(8082, 'HTTPPlugin')
-        listener = NetworkListener(mock_config, mock_framework)
-        listener.start_listening(None)
-        self.assertTrue(mock_accept.called)
+        listener = NetworkListener(mock_config, None)
+        self.assertRaises(Exception, listener.start_listening, None)
+
 
     def tearDown(self):
         pass

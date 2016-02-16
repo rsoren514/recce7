@@ -49,6 +49,7 @@ class NetworkListener(Thread):
 
         except Exception as e:
             print("Error on connection: ", e)
+            raise e
 
     def stop(self):
         self.running = False
