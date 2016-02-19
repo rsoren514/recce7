@@ -1,7 +1,7 @@
 class PortManager ():
-    fakePortData = {"port": "some port data"}
+    fakePortDataWithTime = {"port": "some port data couched by time"}
 
-    def getPort(self,portNumber):
-        return self.fakePortData
 
+    def getPort(self,portNumber, uom, unit):
+        return self.fakePortDataWithTime
 
