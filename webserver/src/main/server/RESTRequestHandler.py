@@ -9,6 +9,8 @@ import json
 
 fakejson = {"test": "something"}
 
+class UnitOfMeasure:
+    HOUR, DAY, WEEK = range(3)
 
 class RESTRequestHandler (BaseHTTPRequestHandler):
 
@@ -29,13 +31,14 @@ class RESTRequestHandler (BaseHTTPRequestHandler):
         self.sendJsonResponse("Not Found")
 
     def getPort(self, portnumber):
+        self.getPortByTime(portnumber, UnitOfMeasure.DAY, 1)
+
+    def getPortByTime(self, portnumber, uom, unit):
         portmgr = PortManager()
-        portjsondata = portmgr.getPort(portnumber)
+        portjsondata = portmgr.getPort(portnumber, uom, unit)
         #send response code:
         self.send_response(200)
         self.sendJsonResponse(portjsondata)
-
-
 
     def sendJsonResponse(self, payload):
         self.send_header("Content-type:", "text/html")
