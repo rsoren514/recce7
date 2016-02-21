@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+from server.UnitOfMeasure import UnitOfMeasure
 
 class Utilities:
     def getIntValue(self, givenStr):
@@ -9,3 +11,16 @@ class Utilities:
             print("received invalid string to convert to int: " + givenStr)
             print (str(e))
             return int(0)
+
+    def getDateRange(self, uom, units):
+        currentTime = datetime.now()
+
+        if (uom == UnitOfMeasure.DAY):
+            timeBegin = self.getXDaysAgo(currentTime, units)
+        #TODO:  implement week, month
+
+        dateList=[timeBegin,currentTime]
+        return dateList
+
+    def getXDaysAgo(self, fromTime, units):
+        return fromTime - timedelta(days=units);

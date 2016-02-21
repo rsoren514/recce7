@@ -1,5 +1,6 @@
 from manager.PortManager import PortManager
 from server.RestRequestHandler import RestRequestHandler
+from server.UnitOfMeasure import UnitOfMeasure
 import json
 
 #todo:  get json from database data
@@ -7,9 +8,6 @@ import json
 #todo:  decide what we want for path names (what the api will be)
 
 
-
-class UnitOfMeasure:
-    HOUR, DAY, WEEK = range(3)
 
 class PortsServiceHandler (RestRequestHandler):
 
