@@ -1,49 +1,63 @@
-from BaseHTTPServer import HTTPServer
-from BaseHTTPServer import BaseHTTPRequestHandler
-from manager.PortManager import PortManager
+from http.server import BaseHTTPRequestHandler
+from server.Utilities import Utilities
 import json
 
-#todo:  get json from database data
-#todo:  set up method for each path
-#todo:  decide what we want for path names (what the api will be)
+notFoundPayload = {
+    'port': "",
+    'error': 'not found'}
 
-fakejson = {"test": "something"}
+badRequestPayload = {
+    'port': '',
+    'error': 'bad request'}
 
-class UnitOfMeasure:
-    HOUR, DAY, WEEK = range(3)
-
-class RESTRequestHandler (BaseHTTPRequestHandler):
+class RestRequestHandler (BaseHTTPRequestHandler):
 
     def do_GET(self) :
 
-        print self.path.split('/')
+        tokens = self.path.split('/')
+        print(tokens)
 
-        if self.path == "/analytics/ports" :
-            self.getPort(80)
-        else :
+        utils = Utilities()
+        if self.path.startswith("/analytics/ports"):
+            if (len(tokens) >= 4) :
+                portNbr = utils.getIntValue(tokens[3])
+                print("requested: " + str(portNbr))
+                if ( 0 < portNbr and portNbr < 9000):
+                    self.getPortData(portNbr)
+                else:
+                    self.badRequest()
+            else:
+                self.badRequest()
+        else:
             self.notFound()
 
 
-##
     def notFound(self):
         #send response code:
-        self.send_response(404)
-        self.sendJsonResponse("Not Found")
+        self.sendJsonResponse(notFoundPayload,404)
 
-    def getPort(self, portnumber):
-        self.getPortByTime(portnumber, UnitOfMeasure.DAY, 1)
-
-    def getPortByTime(self, portnumber, uom, unit):
-        portmgr = PortManager()
-        portjsondata = portmgr.getPort(portnumber, uom, unit)
+    def badRequest(self):
         #send response code:
-        self.send_response(200)
-        self.sendJsonResponse(portjsondata)
+        self.sendJsonResponse(badRequestPayload,400)
 
-    def sendJsonResponse(self, payload):
-        self.send_header("Content-type:", "text/html")
-        # send a blank line to end headers:
-        self.wfile.write("\n")
-        #send response:
-        json.dump(payload, self.wfile)
+    def sendJsonResponse(self, payload, responseCode):
+        jsonString = json.dumps(payload);
+
+        self.send_header('Allow','GET')
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(jsonString))
+        if responseCode != 200:
+            self.send_error(responseCode)
+        else:
+            self.send_response(responseCode)
+        self.end_headers()
+        self.flush_headers()
+
+
+        self.wfile.write(bytes(jsonString, "utf-8"))
+        self.wfile.flush()
+        return
+
+
+
 
