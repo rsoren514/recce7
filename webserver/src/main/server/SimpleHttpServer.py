@@ -1,19 +1,32 @@
-import BaseHTTPServer
+from http.server import HTTPServer
+import time
 
-from RESTRequestHandler import *
+from PortsServiceHandler import *
 
+# TODO: configure these params somewhere else to be edited by admin installer
+
+HOST_NAME="localhost";
+PORT_NUMBER=8080;
+
+#Create and start the HTTP Server
 
 class SimpleHttpServer():
     def setupAndStart(self):
-        # configure these params somewhere else
-        server_addr = ('localhost', 8000)
-        #request_handler = SimpleHTTPServer.SimpleHTTPRequestHandler
 
-        request_handler = RESTRequestHandler
+        server_addr = (HOST_NAME, PORT_NUMBER)
+
+        request_handler = PortsServiceHandler
 
         # instantiate a server object
-        httpd = BaseHTTPServer.HTTPServer (server_addr, request_handler)
+        httpd = HTTPServer (server_addr, request_handler)
+        print(time.asctime(), "Server Starting - %s:%s" % (HOST_NAME, PORT_NUMBER))
 
-        # start serving pages
-        httpd.serve_forever ()
+        try:
+            # start serving pages
+            httpd.serve_forever ()
+        except KeyboardInterrupt:
+            pass
 
+
+        httpd.server_close()
+        print(time.asctime(), "Server Stopped - %s:%s" % (HOST_NAME, PORT_NUMBER))
