@@ -4,9 +4,10 @@ from threading import Thread
 
 
 class BasePlugin(Thread):
-    def __init__(self, socket):
+    def __init__(self, socket, framework):
         Thread.__init__(self)
         self._skt = socket
+        self._framework = framework
         pass
 
     def run(self):
