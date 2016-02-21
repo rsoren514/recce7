@@ -46,10 +46,8 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         self.send_header('Allow','GET')
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', len(jsonString))
-        if responseCode != 200:
-            self.send_error(responseCode)
-        else:
-            self.send_response(responseCode)
+
+        self.send_response(responseCode)
         self.end_headers()
         self.flush_headers()
 
