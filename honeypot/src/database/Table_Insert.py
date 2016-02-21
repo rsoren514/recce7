@@ -1,6 +1,6 @@
 import sqlite3
 from honeypot.src.database import DB_Init
-
+from honeypot.src.database import DataValidation
 '''this method will have to change somewhat. The group decided they wanted the plugin
    writers to populate a dictionary instead of a list that maps the name (column) to the
    value to be inserted that way they do not have to worry about order when calling this
@@ -17,6 +17,31 @@ def insert_data(name, data_list):
     cursor.execute(insert_string, data_list)
     connection.commit()
     connection.close()
+
+#we should already know the data is good but now we should break the
+#dictionary into a table name and a list of data to insert into the
+#table. We must also sort the list according to the table structure
+#then call the insert_data method
+
+def prepare_data_for_insertion(schema, data):
+    #get the correct table schema we want to sort to
+    table_schema = schema[DataValidation.DataValidation.get_first_key_value_of_dictionary(data)]
+    print(table_schema)
+    #break the table/data dictionary into a table name and a dictionary of data
+    table_name = DataValidation.DataValidation.get_first_key_value_of_dictionary(data)
+    print(table_name)
+    data_dict = data[table_name]
+    #build a list of data in the correct order
+    print(data_dict)
+    insert_list = []
+    for col in table_schema:
+        if col[1] == 'ID':
+            pass
+        else:
+            insert_list.append(data_dict[col[1]])
+    insert_data(table_name,insert_list)
+
+
 
 
 
