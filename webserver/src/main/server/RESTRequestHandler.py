@@ -18,9 +18,9 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         print(tokens)
 
         utils = Utilities()
-        if self.path.startswith("/analytics/ports"):
-            if (len(tokens) >= 4) :
-                portNbr = utils.getIntValue(tokens[3])
+        if self.path.startswith("/v1/analytics/ports"):
+            if (len(tokens) >= 5) :
+                portNbr = utils.getIntValue(tokens[4])
                 print("requested: " + str(portNbr))
                 if ( 0 < portNbr and portNbr < 9000):
                     self.getPortData(portNbr)
