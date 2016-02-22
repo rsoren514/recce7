@@ -4,8 +4,8 @@ from plugins.BasePlugin import BasePlugin
 
 
 class HTTPPlugin(BasePlugin):
-    def __init__(self, socket):
-        BasePlugin.__init__(self, socket)
+    def __init__(self, socket, framework):
+        BasePlugin.__init__(self, socket, framework)
         print('Spawned team!')
 
     def do_track(self):

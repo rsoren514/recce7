@@ -1,69 +1,85 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-import configparser
-import os
-
-# from main.plugins.BasePlugin import *
+from database.DataManager import DataManager
+from globalconfig import GlobalConfig
 from networklistener import NetworkListener
+
 from importlib import import_module
 
-sub_dir = '/config/plugins.cfg'
-plugin_mods_dir = '../plugins/'
+default_cfg_path = '/config/plugins.cfg'
 
 
 class Framework:
-    def __init__(self, plugin_cfg=None):
+    def __init__(self, cfg_path):
+        self.cfg_path = cfg_path
         self.config_dictionary = {}
+        self.global_config = GlobalConfig(self.cfg_path)
+
         self.plugin_imports = {}
-        self.read_config(plugin_cfg)
 
-    #ToDo: Dont use eval!
-    @staticmethod
-    def create_config_object(plugin_config, plugin):
-        port = int(plugin_config.get(plugin, 'port'))
-        column_defs = eval(plugin_config.get(plugin, 'tableColumns'))
-        table_name = plugin_config.get(plugin, 'table')
-        module = plugin_config.get(plugin, 'module')
-        enabled = plugin_config.get(plugin, 'enabled')
+        self.data_manager = None
 
-        config_object = {
-            'port': port,
-            'table': table_name,
-            'enabled': enabled,
-            'tableColumns': column_defs,
-            'module': module
-        }
-
-        return (port, module, config_object)
+    def start(self):
+        self.data_manager = DataManager()
+        self.global_config.read_config(self.cfg_path)
+        self.start_plugins()
 
     def create_import_entry(self, port, name):
         imp = import_module('plugins.' + name)
         self.plugin_imports[port] = getattr(imp, name)
 
-    def read_config(self, plugin_cfg):
-        plugin_config_file = os.path.dirname(os.path.abspath(__file__)) + (plugin_cfg or sub_dir)
-        plugin_config = configparser.ConfigParser()
-        plugin_config.read(plugin_config_file)
-
-        plugins = plugin_config.sections()
+    def start_plugins(self):
+        plugins = self.global_config.get_sections()
         for plugin in plugins:
-            (port, module, config_object) = self.create_config_object(plugin_config, plugin)
+            (port, module, config_object) = self.global_config.create_config_object(plugin)
             if config_object['enabled'].lower() == 'yes':
                 self.config_dictionary[port] = config_object
                 self.create_import_entry(port, module)
                 listener = NetworkListener(config_object, self)
                 listener.start()
 
+    #
+    # Framework API
+    #
+
+    '''
+    Returns the configuration dictionary for the plugin
+    running on the specified port.
+
+    :param port: a port number associated with a loaded plugin
+    :return: a plugin configuration dictionary
+    '''
     def get_config(self, port):
         return self.config_dictionary[port]
 
-    #ToDo Throw exception if plugin class not found
+    '''
+    Spawns the plugin configured by 'config' with the provided
+    (accepted) socket.
+
+    :param socket: an open, accepted socket returned by
+                   socket.accept()
+    :param config: the plugin configuration dictionary describing
+                   the plugin to spawn
+    '''
     def spawn(self, socket, config):
+        # ToDo Throw exception if plugin class not found
         plugin_class = self.plugin_imports[config['port']]
-        plugin = plugin_class(socket)
+        plugin = plugin_class(socket, self)
         plugin.start()
 
-if __name__ == '__main__':
-    framework = Framework()
+    '''
+    Inserts the provided data into the data queue so that it can
+    be pushed to the database.
 
+    :param data: data object to add to the database
+    '''
+    def insert_data(self, data):
+        self.data_manager.insert_data(data)
+
+
+def main(cfg_path=None):
+    framework = Framework(cfg_path or default_cfg_path)
+    framework.start()
+
+if __name__ == '__main__': main()
