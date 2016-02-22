@@ -18,13 +18,15 @@ class GlobalConfig:
         enabled = self.plugin_config.get(plugin, 'enabled')
         column_defs = eval(self.plugin_config.get(plugin, 'tableColumns'))
         module = self.plugin_config.get(plugin, 'module')
+        rawSocket = self.plugin_config.get(plugin, 'rawSocket')
 
         config_object = {
             'port': port,
             'table': table_name,
             'enabled': enabled,
             'tableColumns': column_defs,
-            'module': module
+            'module': module,
+            'rawSocket': rawSocket
         }
 
         return (port, module, config_object)
