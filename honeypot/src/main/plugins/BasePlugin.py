@@ -8,7 +8,7 @@ class BasePlugin(Thread):
         Thread.__init__(self)
         self._skt = socket
         self._framework = framework
-        pass
+        self.run(self)
 
     def run(self):
         self.do_track()

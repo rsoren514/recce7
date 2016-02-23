@@ -24,10 +24,10 @@
 from main.plugins.BasePlugin import BasePlugin
 
 
-class TelNet(BasePlugin):
+class TelnetPlugin(BasePlugin):
     def __init__(self, socket):
         BasePlugin.__init__(self, socket)
-        print('Spawned team!')
+        print('Spawned TelnetPlugin!')
 
     def do_track(self):
         while True:
