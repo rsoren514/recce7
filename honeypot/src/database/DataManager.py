@@ -4,11 +4,12 @@ from honeypot.src.database import DataQueue, DB_Init, Table_Insert
 
 class DataManager():
 
-    def __init__(self):
+    def __init__(self,global_config_instance):
         self.q = DataQueue.dataQueue()
         self.condition = Condition()
-        self.CThread(self.condition, self.q).start()
         DB_Init.create_default_database()
+        self.CThread(self.condition, self.q).start()
+
 
     class CThread(Thread):
         '''over ride run method'''
