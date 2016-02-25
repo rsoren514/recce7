@@ -10,7 +10,7 @@ class Utilities:
         except Exception as e:
             print("received invalid string to convert to int: " + givenStr)
             print (str(e))
-            return int(0)
+            return None
 
     def getDateRange(self, uom, units):
         currentTime = datetime.now()
