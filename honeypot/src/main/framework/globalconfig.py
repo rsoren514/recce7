@@ -10,6 +10,7 @@ class GlobalConfig:
         self.cfg_path = cfg_path
         self.plugin_config = configparser.ConfigParser()
         self.config_dictionary = {}
+        self.enabled_ports = []
 
     # ToDo: Dont use eval!
     def create_config_object(self, plugin):
@@ -31,10 +32,50 @@ class GlobalConfig:
 
         return (port, module, config_object)
 
-    def read_config(self, plugin_cfg):
+    def read_config(self):
         plugin_config_file = os.path.dirname(
             os.path.abspath(__file__)) + self.cfg_path
         self.plugin_config.read(plugin_config_file)
 
-    def get_sections(self):
-        return self.plugin_config.sections()
+        plugins = self.plugin_config.sections()
+        for plugin in plugins:
+            (port, module, config_object) = self.create_config_object(plugin)
+            if config_object['enabled'].lower() == 'yes':
+                self.config_dictionary[port] = config_object
+                self.enabled_ports.append(port)
+
+    #
+    # Config API
+    #
+
+    '''
+    Returns the filesystem path to the database file.
+
+    :return: a string containing an absolute filesystem path
+    '''
+    def get_db_path(self):
+        #
+        # TODO: Fill in this stub
+        #       It should override this default, built-in path
+        #       when a path is provided in the config file.
+        #
+        return os.getenv('HOME') + '/honeyDB/honeyDB.sqlite'
+
+    '''
+    Returns a list of ports with enabled plugins listening.
+
+    :return: a list of integers representing TCP/IP ports
+    '''
+    def get_ports(self):
+        return self.enabled_ports.copy()
+
+    '''
+    Returns the configuration dictionary for the plugin listening
+    on the specified port.
+
+    :param port: an integer specifying a TCP/IP port
+    :return: a dictionary with the config file parameters for the
+             plugin that listens on port
+    '''
+    def get_plugin_config(self, port):
+        return self.config_dictionary[port]
