@@ -1,7 +1,6 @@
 from manager.PortManager import PortManager
-from server.RestRequestHandler import RestRequestHandler
+from server.RESTRequestHandler import RestRequestHandler
 from server.UnitOfMeasure import UnitOfMeasure
-import json
 
 #todo:  get json from database data
 #todo:  set up method for each path

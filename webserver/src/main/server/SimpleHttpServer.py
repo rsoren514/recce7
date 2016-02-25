@@ -1,9 +1,10 @@
 from http.server import HTTPServer
 import time
+from server.PortsServiceHandler import PortsServiceHandler
 
-from PortsServiceHandler import *
 
 # TODO: configure these params somewhere else to be edited by admin installer
+
 
 HOST_NAME="localhost";
 PORT_NUMBER=8080;
@@ -15,6 +16,8 @@ class SimpleHttpServer():
 
         server_addr = (HOST_NAME, PORT_NUMBER)
 
+        #TODO:??  feels wrong to specify PortsServiceHandler here
+        #I think we should have PortsServiceHandler havea RequestHandler instead of isa
         request_handler = PortsServiceHandler
 
         # instantiate a server object
