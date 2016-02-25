@@ -2,13 +2,10 @@ from http.server import BaseHTTPRequestHandler
 from server.Utilities import Utilities
 import json
 
-notFoundPayload = {
-    'port': "",
-    'error': 'not found'}
+notFoundPayload = {}
 
 badRequestPayload = {
-    'port': '',
-    'error': 'bad request'}
+    'error': 'invalid port number'}
 
 class RestRequestHandler (BaseHTTPRequestHandler):
 
@@ -25,9 +22,9 @@ class RestRequestHandler (BaseHTTPRequestHandler):
                 if ( portNbr != None and 0 < portNbr and portNbr < 9000):
                     self.getPortData(portNbr)
                 else:
-                    self.badRequest()
+                    self.badRequest(portNbr)
             else:
-                self.badRequest()
+                self.badRequest('')
         else:
             self.notFound()
 
@@ -36,7 +33,7 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         #send response code:
         self.sendJsonResponse(notFoundPayload,404)
 
-    def badRequest(self):
+    def badRequest(self, portNbr):
         #send response code:
         self.sendJsonResponse(badRequestPayload,400)
 
