@@ -60,6 +60,7 @@ class Getjson:
         query_date = get_begin_date(unit, unit_size)
 
     # Return the date for how far back to query DB.
+    # (These two functions will probably be moved to a different class)
     def get_begin_date(unit, unit_size):
         if unit == UnitOfMeasure.MINUTE:
             d = timedelta(minutes=unit_size)
