@@ -1,2 +1,2 @@
 class UnitOfMeasure:
-    HOUR, DAY, WEEK = range(3)
+    MINUTE, HOUR, DAY, WEEK = range(4)
