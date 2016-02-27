@@ -21,17 +21,58 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-from main.plugins.BasePlugin import BasePlugin
+import uuid
+
+import telnetsrv
+# from telnetsrv.threaded import TelnetHandler, command
+from honeypot.src.main.plugins.BasePlugin import BasePlugin
 
 
 class TelnetPlugin(BasePlugin):
-    def __init__(self, socket):
-        BasePlugin.__init__(self, socket)
+    def __init__(self, socket, framework):
         print('Spawned TelnetPlugin!')
+        self.frmwk = framework
+        BasePlugin.__init__(self, socket, framework)
+
+    # @command('echo')
+    # def command_echo(self, params):
+    #     '''<text to echo>
+    #     Echo text back to the console.
+    #     This command simply echos the provided text
+    #     back to the console.
+    #     '''
+    #     pass
+    #
+    # @command('info')
+    # def command_info(self, params):
+    #     '''
+    #     Provides some information about the current terminal.
+    #     '''
+    #     self.writeresponse( "Username: %s, terminal type: %s" % (self.username, self.TERM) )
+    #     self.writeresponse( "Command history:" )
+    #     for c in self.history:
+    #         self.writeresponse("  %r" % c)
+
+
 
     def do_track(self):
-        while True:
+        welcome = 'Welcome to %s\n' % self._localAddress
+        self._skt.send(welcome.encode())
+        escape = b'\x1e'
+        data = ''
+        self.user_input = 'BEGIN USER DATA ::'
+        # b'' is what I am getting back when the user calls close from the local telnet prompt, may want to look at
+        # reading FIN signals from socket somehow, but this works for now
+        while data != escape and data != b'':
             data = self._skt.recv(1024)
-            if not data:
-                break
+            self.user_input += '\n%s' % data
             self._skt.sendall(data)
+
+        self._skt.send(b'\nGoodbye.\n')
+        self.form_data_for_insert(self.user_input)
+
+    def form_data_for_insert(self, raw_data):
+        # Would like to be able to read config data from either base or framework if possible, would also like table
+        # name drived from elsewhere
+        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test'}}
+        self.do_save(data)

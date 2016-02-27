@@ -59,8 +59,14 @@ class GlobalConfig:
         #       It should override this default, built-in path
         #       when a path is provided in the config file.
         #
+        '''BEN changed this line to refer to get_db_dir() method'''
         return os.getenv('HOME') + '/honeyDB/honeyDB.sqlite'
 
+
+    '''BEN added this method because he will use it to create the directory
+       first if it does not exist'''
+    def get_db_dir(self):
+        return os.getenv('HOME') + '/honeyDB'
     '''
     Returns a list of ports with enabled plugins listening.
 

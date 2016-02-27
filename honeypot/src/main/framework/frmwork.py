@@ -1,9 +1,9 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-from database.DataManager import DataManager
-from globalconfig import GlobalConfig
-from networklistener import NetworkListener
+from honeypot.src.database.DataManager import DataManager
+from honeypot.src.main.framework.globalconfig import GlobalConfig
+from honeypot.src.main.framework.networklistener import NetworkListener
 
 from importlib import import_module
 
@@ -22,7 +22,7 @@ class Framework:
         self.start_plugins()
 
     def create_import_entry(self, port, name):
-        imp = import_module('plugins.' + name)
+        imp = import_module('honeypot.src.main.plugins.' + name)
         self.plugin_imports[port] = getattr(imp, name)
 
     def start_plugins(self):
@@ -61,7 +61,6 @@ class Framework:
         # ToDo Throw exception if plugin class not found
         plugin_class = self.plugin_imports[config['port']]
         plugin = plugin_class(socket, self)
-        plugin.start()
 
     '''
     Inserts the provided data into the data queue so that it can

@@ -1,6 +1,6 @@
 __author__ = 'jessenelson'
 
-from plugins.BasePlugin import BasePlugin
+from honeypot.src.main.plugins.BasePlugin import BasePlugin
 
 
 class HTTPPlugin(BasePlugin):
