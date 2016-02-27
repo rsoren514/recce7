@@ -5,9 +5,9 @@ from honeypot.src.database import DataQueue, DB_Init, Table_Insert
 class DataManager():
 
     def __init__(self,global_config_instance):
-        self.q = DataQueue.dataQueue()
+        DB_Init.create_default_database(global_config_instance)
+        self.q = DataQueue.dataQueue(global_config_instance)
         self.condition = Condition()
-        DB_Init.create_default_database()
         self.CThread(self.condition, self.q).start()
 
 
@@ -34,7 +34,7 @@ class DataManager():
                 '''print value consumed'''
                 #here we want to call the Table_Insert.py prepare method to actually insert into the database
                 #print("Consumed :", value)
-                Table_Insert.prepare_data_for_insertion(DataQueue.dataQueue.dv.table_schema, value)
+                Table_Insert.prepare_data_for_insertion(self.q.dv.table_schema, value)
                 '''we have the lock acquired so we can notify'''
                 self.condition.notify()
                 '''we release the lock so that the notified threads can resume'''

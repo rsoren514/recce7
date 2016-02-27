@@ -1,7 +1,7 @@
 #this file will validate data and provide functionality to sort data by the columns defined in the database
 import re
-from honeypot.src.database import DB_Init
-from honeypot.src.database.config_temp import TempConfigObject
+#from honeypot.src.database import DB_Init
+#from honeypot.src.database.config_temp import TempConfigObject
 import sqlite3
 
 
@@ -17,16 +17,16 @@ class DataValidation:
                 #are all the keys in the dictionary strings (done)
                     #are all the key strings in the dictionary found as column names in the database config for the table specified (done)
                     #are all the values in the dictionary correct python data types that are representative of their sqlite counterpart
-    table_schema = {}
-    tables = []
-    def __init__(self):
+    #table_schema = {}
+    #tables = []
+    def __init__(self,global_config_instance):
         #co = TempConfigObject.TempConfigObject()
         #ASK
         #I need a way to get the entire config so i can scan for all tables defined
         #table = co.get_config(8082).get('table')
-
-        connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                     DB_Init.get_database_config_name())
+        self.table_schema = {}
+        self.tables = []
+        connection = sqlite3.connect(global_config_instance.get_db_path())
         cursor = connection.cursor()
         #will want to loop here through all tables found and store each schema
         #as an element in a list, this will require code changes throughout this file
@@ -38,6 +38,26 @@ class DataValidation:
             table_def = cursor.execute('PRAGMA table_info(' + table + ');').fetchall()
             self.table_schema[table] = table_def
         cursor.close()
+
+    #for updating tables and table schema class variables
+    def update_tables_and_schema(self,global_config_instance):
+        self.table_schema.clear()
+        del self.tables[:]
+        connection = sqlite3.connect(global_config_instance.get_db_path())
+        cursor = connection.cursor()
+        #will want to loop here through all tables found and store each schema
+        #as an element in a list, this will require code changes throughout this file
+        rows = cursor.execute("select name from sqlite_master where type = 'table';").fetchall()
+        #transform list of tuples to a list of strings
+        for row in rows:
+            self.tables.append(row[0])
+        for table in self.tables:
+            table_def = cursor.execute('PRAGMA table_info(' + table + ');').fetchall()
+            self.table_schema[table] = table_def
+        cursor.close()
+
+
+
 
     #return the class level variable tables
     def get_tables(self):
@@ -109,7 +129,7 @@ class DataValidation:
     #checks that all of the columns in the input exist in the target table, we do not check for ID
     def check_all_col_exist(self,value):
         key = self.get_first_key_value_of_dictionary(value)
-        schema = DataValidation.table_schema[key]
+        schema = self.table_schema[key]
         schema_col_list = [row[1] for row in schema]
         #remove ID because we do not require the plugin author to provide this
         schema_col_list.remove('ID')

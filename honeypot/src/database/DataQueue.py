@@ -3,9 +3,9 @@ from honeypot.src.database import DataValidation
 
 class dataQueue:
 
-    def __init__(self):
+    def __init__(self,global_config_instance):
         self.dataQueue = queue.Queue()
-        self.dv = DataValidation.DataValidation()
+        self.dv = DataValidation.DataValidation(global_config_instance)
 
     def insert_into_data_queue(self,value):
         #we want to check the data here and fail early
@@ -19,6 +19,9 @@ class dataQueue:
         else:
             return False
 
+    @staticmethod
+    def get_data_validator(self):
+        return self.dv
 
     def get_next_item(self):
         item = self.dataQueue.get()
