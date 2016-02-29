@@ -1,9 +1,9 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-from database.DataManager import DataManager
-from globalconfig import GlobalConfig
-from networklistener import NetworkListener
+from honeypot.src.database.DataManager import DataManager
+from honeypot.src.main.framework.globalconfig import GlobalConfig
+from honeypot.src.main.framework.networklistener import NetworkListener
 
 from importlib import import_module
 
@@ -12,32 +12,27 @@ default_cfg_path = '/config/plugins.cfg'
 
 class Framework:
     def __init__(self, cfg_path):
-        self.cfg_path = cfg_path
-        self.config_dictionary = {}
-        self.global_config = GlobalConfig(self.cfg_path)
-
+        self.global_config = GlobalConfig(cfg_path)
         self.plugin_imports = {}
-
         self.data_manager = None
 
     def start(self):
-        self.data_manager = DataManager()
-        self.global_config.read_config(self.cfg_path)
+        self.global_config.read_config()
+        self.data_manager = DataManager(self.global_config)
         self.start_plugins()
 
     def create_import_entry(self, port, name):
-        imp = import_module('plugins.' + name)
+        imp = import_module('honeypot.src.main.plugins.' + name)
         self.plugin_imports[port] = getattr(imp, name)
 
     def start_plugins(self):
-        plugins = self.global_config.get_sections()
-        for plugin in plugins:
-            (port, module, config_object) = self.global_config.create_config_object(plugin)
-            if config_object['enabled'].lower() == 'yes':
-                self.config_dictionary[port] = config_object
-                self.create_import_entry(port, module)
-                listener = NetworkListener(config_object, self)
-                listener.start()
+        ports = self.global_config.get_ports()
+        for port in ports:
+            plugin_config = self.global_config.get_plugin_config(port)
+            module = plugin_config['module']
+            self.create_import_entry(port, module)
+            listener = NetworkListener(plugin_config, self)
+            listener.start()
 
     #
     # Framework API
@@ -51,7 +46,7 @@ class Framework:
     :return: a plugin configuration dictionary
     '''
     def get_config(self, port):
-        return self.config_dictionary[port]
+        return self.global_config.get_plugin_config(port)
 
     '''
     Spawns the plugin configured by 'config' with the provided
