@@ -35,7 +35,6 @@ Author: Charlie Mitchell
 Last Revised: 28 February, 2016
 '''
 
-import datetime
 import json
 import sqlite3
 from webserver.src.main.server import DateTimeManager
@@ -70,7 +69,5 @@ class GetJson:
 
         # Assume table name is 'portnumber' and timestamp column name is 'datetime'
         query = query_db("SELECT * FROM %s where (datetime > '%s')" % (portnumber, query_date_iso))
-
-
-#    json_output = json.dumps(my_query)
-#    print(json_output)
+        json_output = json.dumps(my_query)
+        return json_output
