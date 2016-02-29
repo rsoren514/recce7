@@ -24,8 +24,13 @@ def query_db(query, args=(), one=False):
     cur.connection.close()
     return (r[0] if r else None) if one else r
 
-y = ('NES',)
-my_query = query_db("SELECT * FROM Castlevania WHERE system=?", y)
+#y = ('NES',)
+#my_query = query_db("SELECT * FROM Castlevania WHERE system=?", y)
+#json_output = json.dumps(my_query)
+#print(json_output)
 
+table = "Castlevania"
+query_date_iso = "2008-10-22T00:00:00"
+my_query = query_db("SELECT * FROM %s where (datetime > '%s')" % (table, query_date_iso))
 json_output = json.dumps(my_query)
 print(json_output)

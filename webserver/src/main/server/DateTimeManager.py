@@ -22,55 +22,44 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
-# SQLite to JSON code provided by StackOverflow user: Unmounted
-# http://stackoverflow.com/users/11596/unmounted
-# in an answer to the question "return SQL table as JSON in python"
-# http://stackoverflow.com/questions/3286525/return-sql-table-as-json-in-python
-# Unmounted's code has been tailored for this project's purpose.
-
 '''
-This class will take in a request from the webserver, query the Sqlite database,
-and return JSON.
+This class will handle any date/time requests from the webserver.
+This includes calculating the date/time range for data to return,
+as well as converting the string timestamp in the database.
+
 Author: Charlie Mitchell
 Last Revised: 28 February, 2016
 '''
 
 import datetime
-import json
-import sqlite3
-from webserver.src.main.server import DateTimeManager
+from enum import Enum
 
-class GetJson:
+class Unit(Enum):
+    MINUTE = "minute"
+    HOUR = "hour"
+    DAY = "day"
+    WEEK = "week"
 
-    # Set to hardcode the database. Still need to work on getting the database location
-    # from the config file.
-    def db(database_name='Database Name'):
-        return sqlite3.connect("DB.db")
+class DateTimeManager:
+    # Return the date for how far back to query DB.
 
-    # Query DB and return JSON
-    def query_db(query, args=(), one=False):
-        cur = db().cursor()
-        cur.execute(query, args)
-        r = [dict((cur.description[i][0], value) \
-                for i, value in enumerate(row)) for row in cur.fetchall()]
-        cur.connection.close()
-        return (r[0] if r else None) if one else r
+    def get_begin_date(unit, unit_size):
+        unit = unit.lower()
+        if unit == Unit.MINUTE.value:
+            d = datetime.timedelta(minutes=unit_size)
+        elif unit == Unit.HOUR.value:
+            d = datetime.timedelta(hours=unit_size)
+        elif unit == Unit.DAY.value:
+            d = datetime.timedelta(days=unit_size)
+        elif unit == Unit.WEEK.value:
+            d = datetime.timedelta(weeks=unit_size)
+        else:
+            return 0
+        def calc_date(delta):
+            now = datetime.datetime.now()
+            return (now - delta)
+        return calc_date(d)
 
-    # For now, assume outside request specifies Port Number, Unit of Measure (string), and Unit Size.
-    # Where Unit of Measure could be "weeks", "days", "hours", etc.
-    # Return all data from the DB within that measure of time as JSON.
-    #
-    # I'm assuming here that the DB's timestamp will use datetime.now().
-
-    def getjson(portnumber, unit, unit_size):
-        # In progress... still need to test converting the timestamp received from the DB.
-        dt = DateTimeManager.DateTimeManager()
-        query_date = dt.get_begin_date(unit, unit_size)
-        query_date_iso = dt.get_iso_format(query_date)
-
-        # Assume table name is 'portnumber' and timestamp column name is 'datetime'
-        query = query_db("SELECT * FROM %s where (datetime > '%s')" % (portnumber, query_date_iso))
-
-
-#    json_output = json.dumps(my_query)
-#    print(json_output)
+    # Takes the datetime object and returns a string in ISO 8601 format.
+    def get_iso_format(begin_date):
+        return begin_date.isoformat()
