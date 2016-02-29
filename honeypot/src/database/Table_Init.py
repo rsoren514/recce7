@@ -1,4 +1,4 @@
-from honeypot.src.database import DB_Init
+#from honeypot.src.database import DB_Init
 import sqlite3
 from operator import itemgetter
 
@@ -7,9 +7,8 @@ from operator import itemgetter
 '''create a table in the sqlite database with the name of the table passed in'''
 
 
-def create_table(name):
-    connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                 DB_Init.get_database_config_name())
+def create_table(name,global_config_instance):
+    connection = sqlite3.connect(global_config_instance.get_db_path())
     cursor = connection.cursor()
     cursor.execute('CREATE TABLE ' + name + '(ID INTEGER PRIMARY KEY)')
     connection.close()
@@ -19,10 +18,9 @@ def create_table(name):
    this column list currently contains [column order],[column name],[column type]'''
 
 
-def add_columns(name,column_list):
+def add_columns(name,column_list,global_config_instance):
     verify_data_types(column_list)
-    connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                 DB_Init.get_database_config_name())
+    connection = sqlite3.connect(global_config_instance.get_db_path())
     cursor = connection.cursor()
     column_list_sorted = sorted(column_list, key=itemgetter(0))
     for x in column_list_sorted:
@@ -46,9 +44,8 @@ def verify_data_types(column_list):
 '''check if table name exists, is case sensitive'''
 
 
-def check_table_exists(name):
-    connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                 DB_Init.get_database_config_name())
+def check_table_exists(name,global_config_instance):
+    connection = sqlite3.connect(global_config_instance.get_db_path())
     cursor = connection.cursor()
     table_count = cursor.execute("SELECT count(*) FROM sqlite_master WHERE type='table' and name='" + name + "';").fetchall()
     connection.close()
@@ -57,6 +54,35 @@ def check_table_exists(name):
     else:
         return False
 
+
+'''change table structure'''
+
+def change_table_structure(name,config_column_list,db_column_list,global_config_instance):
+    '''rename old table'''
+    connection = sqlite3.connect(global_config_instance.get_db_path())
+    cursor = connection.cursor()
+    cursor.execute("ALTER TABLE " + name + " RENAME TO " + name + "_delme")
+    '''create new table'''
+    create_table(name,global_config_instance)
+    '''copy old data to new table warning you may lose data if the
+       columns arent there in the new table'''
+    add_columns(name,config_column_list,global_config_instance)
+    '''find columns in common between database and config'''
+    #todo write code to copy data once we have code to create table data
+
+    '''remove old table'''
+    delete_table(name,global_config_instance)
+
+
+
+
+
+'''deletes table'''
+def delete_table(name,global_config_instance):
+    connection = sqlite3.connect(global_config_instance.get_db_path())
+    cursor = connection.cursor()
+    cursor.execute("DROP TABLE IF EXISTS " + name + "_delme;")
+    cursor.close
 
 
 

@@ -1,6 +1,7 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
+import os
 import unittest
 from framework.frmwork import Framework, main
 from unittest.mock import patch
@@ -29,7 +30,7 @@ class FrameworkTest(unittest.TestCase):
         expected = {
             8082: make_mock_config(8082, 'HTTPPlugin')
         }
-        self.assertEqual(expected, framework.config_dictionary)
+        self.assertEqual(expected, framework.global_config.config_dictionary)
         self.assertTrue(test_patch.called)
         self.assertEquals(1, test_patch.call_count)
 
@@ -37,8 +38,8 @@ class FrameworkTest(unittest.TestCase):
     def test_plugins_disabled(self, test_patch):
         framework = Framework(config_path)
         framework.start()
-        self.assertTrue(8083 not in framework.config_dictionary)
-        self.assertTrue(8082 in framework.config_dictionary)
+        self.assertTrue(8083 not in framework.global_config.config_dictionary)
+        self.assertTrue(8082 in framework.global_config.config_dictionary)
         self.assertEquals(1, test_patch.call_count)
 
     @patch('networklistener.NetworkListener.start')
@@ -60,6 +61,11 @@ class FrameworkTest(unittest.TestCase):
     def test_main(self, mock_framework_start):
         main()
         self.assertTrue(mock_framework_start.called)
+
+    def test_get_db_path(self):
+        fw = Framework(config_path)
+        self.assertEqual(fw.global_config.get_db_path(),
+                         os.getenv('HOME') + '/honeyDB/honeyDB.sqlite')
 
     def tearDown(self):
         pass
