@@ -1,6 +1,6 @@
 import sqlite3
-from honeypot.src.database import DB_Init
-from honeypot.src.database import DataValidation
+from database import DB_Init
+from database import DataValidation
 '''this method will have to change somewhat. The group decided they wanted the plugin
    writers to populate a dictionary instead of a list that maps the name (column) to the
    value to be inserted that way they do not have to worry about order when calling this

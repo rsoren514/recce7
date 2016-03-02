@@ -1,8 +1,8 @@
 import unittest
 import sqlite3
-from honeypot.src.database import Table_Init
+from database import Table_Init
 import shutil
-from honeypot.src.database import DB_Init
+from database import DB_Init
 
 #unit tests
 

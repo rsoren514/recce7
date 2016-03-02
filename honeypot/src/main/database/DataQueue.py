@@ -1,5 +1,5 @@
 import queue
-from honeypot.src.database import DataValidation
+from database import DataValidation
 
 class dataQueue:
 
