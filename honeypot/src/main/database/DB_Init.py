@@ -1,11 +1,12 @@
 import sqlite3
 import os
-from honeypot.src.database import Table_Init
-from honeypot.src.database.DataValidation import DataValidation
+from database import Table_Init
+from database.DataValidation import DataValidation
 '''use to create a folder and sqlite data file in the users home directory'''
 
 
 def create_default_database(global_config_instance):
+    print("creating database")
     """if database directory does not exist create it"""
     if not os.path.isdir(global_config_instance.get_db_dir()):
         os.mkdir(global_config_instance.get_db_dir())

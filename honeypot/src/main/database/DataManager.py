@@ -1,5 +1,5 @@
 from threading import Thread, Condition
-from honeypot.src.database import DataQueue, DB_Init, Table_Insert
+from database import DataQueue, DB_Init, Table_Insert
 
 
 class DataManager():
