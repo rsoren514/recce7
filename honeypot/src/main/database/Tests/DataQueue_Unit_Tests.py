@@ -1,6 +1,6 @@
 import os
 import unittest
-from honeypot.src.database import DataQueue
+from database import DataQueue
 
 #unit tests
 

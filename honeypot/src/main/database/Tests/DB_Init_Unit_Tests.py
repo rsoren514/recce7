@@ -1,7 +1,7 @@
 import shutil
 import os
 import unittest
-from honeypot.src.database import DB_Init
+from database import DB_Init
 
 #unit tests
 

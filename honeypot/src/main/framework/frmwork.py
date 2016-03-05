@@ -1,9 +1,9 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-from honeypot.src.database.DataManager import DataManager
-from honeypot.src.main.framework.globalconfig import GlobalConfig
-from honeypot.src.main.framework.networklistener import NetworkListener
+from database.DataManager import DataManager
+from framework.globalconfig import GlobalConfig
+from framework.networklistener import NetworkListener
 
 from importlib import import_module
 
@@ -22,12 +22,14 @@ class Framework:
         self.start_plugins()
 
     def create_import_entry(self, port, name):
-        imp = import_module('honeypot.src.main.plugins.' + name)
+        imp = import_module('plugins.' + name)
         self.plugin_imports[port] = getattr(imp, name)
 
     def start_plugins(self):
         ports = self.global_config.get_ports()
+        print("the ports are: " + str(ports))
         for port in ports:
+            print("spawing this port:" + str(port))
             plugin_config = self.global_config.get_plugin_config(port)
             module = plugin_config['module']
             self.create_import_entry(port, module)
@@ -73,8 +75,8 @@ class Framework:
         self.data_manager.insert_data(data)
 
 
-def main(cfg_path=None):
-    framework = Framework(cfg_path or default_cfg_path)
-    framework.start()
+#def main(cfg_path=None):
+#    framework = Framework(cfg_path or default_cfg_path)
+#    framework.start()
 
-if __name__ == '__main__': main()
+#if __name__ == '__main__': main()

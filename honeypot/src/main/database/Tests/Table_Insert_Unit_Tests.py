@@ -1,6 +1,6 @@
-from honeypot.src.database import DB_Init
-from honeypot.src.database import Table_Init
-from honeypot.src.database import Table_Insert
+from database import DB_Init
+from database import Table_Init
+from database import Table_Insert
 import sqlite3
 import unittest
 import shutil
