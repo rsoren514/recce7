@@ -43,7 +43,7 @@ class Unit(Enum):
 class DateTimeManager:
     # Return the date for how far back to query DB.
 
-    def get_begin_date(unit, unit_size):
+    def get_begin_date(self, unit, unit_size):
         unit = unit.lower()
         if unit == Unit.MINUTE.value:
             d = datetime.timedelta(minutes=unit_size)
@@ -61,5 +61,5 @@ class DateTimeManager:
         return calc_date(d)
 
     # Takes the datetime object and returns a string in ISO 8601 format.
-    def get_iso_format(begin_date):
+    def get_iso_format(self, begin_date):
         return begin_date.isoformat()
