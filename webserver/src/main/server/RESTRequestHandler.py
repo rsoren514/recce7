@@ -1,26 +1,60 @@
-from BaseHTTPServer import HTTPServer
-from BaseHTTPServer import BaseHTTPRequestHandler
+from http.server import BaseHTTPRequestHandler
+from server.Utilities import Utilities
 import json
 
-#todo:  get json from database data
-#todo:  set up method for each path
-#todo:  decide what we want for path names (what the api will be)
+notFoundPayload = {}
 
+badRequestPayload = {
+    'error': 'invalid port number'}
 
-
-fakejson = {"test": "something"}
-
-class RESTRequestHandler (BaseHTTPRequestHandler):
+class RestRequestHandler (BaseHTTPRequestHandler):
 
     def do_GET(self) :
 
-        if self.path == "/analytics" :
-            #send response code:
-            self.send_response(200)
-            #send headers:
-            self.send_header("Content-type:", "text/html")
-            # send a blank line to end headers:
-            self.wfile.write("\n")
+        tokens = self.path.split('/')
+        print(tokens)
 
-            #send response:
-            json.dump(fakejson, self.wfile)
+        utils = Utilities()
+        if self.path.startswith("/v1/analytics/ports"):
+            if (len(tokens) >= 5) :
+                portNbr = utils.getIntValue(tokens[4])
+                print("requested: " + str(portNbr))
+                if ( portNbr != None and 0 < portNbr and portNbr < 9000):
+                    self.getPortData(portNbr)
+                else:
+                    self.badRequest(portNbr)
+            else:
+                self.badRequest('')
+        else:
+            self.notFound()
+
+
+    def notFound(self):
+        #send response code:
+        self.sendJsonResponse(notFoundPayload,404)
+
+    def badRequest(self, portNbr):
+        #send response code:
+        self.sendJsonResponse(badRequestPayload,400)
+
+    def sendJsonResponse(self, payload, responseCode):
+        jsonString = json.dumps(payload);
+
+        #Note:  responseCode must be set before headers in python3!!
+        # see this post: http://stackoverflow.com/questions/23321887/python-3-http-server-sends-headers-as-output/35634827#35634827
+        self.send_response(responseCode)
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', len(jsonString))
+        self.end_headers()
+        self.flush_headers()
+
+
+        self.wfile.write(bytes(jsonString, "utf-8"))
+
+        self.wfile.flush()
+
+        return
+
+
+
+
