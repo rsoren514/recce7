@@ -63,7 +63,6 @@ class Framework:
         # ToDo Throw exception if plugin class not found
         plugin_class = self.plugin_imports[config['port']]
         plugin = plugin_class(socket, self)
-        plugin.start()
 
     '''
     Inserts the provided data into the data queue so that it can
