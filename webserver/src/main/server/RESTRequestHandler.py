@@ -1,6 +1,7 @@
-from http.server import BaseHTTPRequestHandler
-from server.Utilities import Utilities
 import json
+from http.server import BaseHTTPRequestHandler
+
+from manager import utilities
 
 notFoundPayload = {}
 
@@ -8,6 +9,9 @@ badRequestPayload = {
     'error': 'invalid port number'}
 
 
+#  Handles the service request, determines what was requested,
+#  then returns back response.
+#
 class RestRequestHandler (BaseHTTPRequestHandler):
 
     def do_GET(self) :
@@ -15,10 +19,9 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         tokens = self.path.split('/')
         print(tokens)
 
-        utils = Utilities()
         if self.path.startswith("/v1/analytics/ports"):
             if len(tokens) >= 5:
-                portNbr = utils.getIntValue(tokens[4])
+                portNbr = utilities.getIntValue(tokens[4])
                 print("requested: " + str(portNbr))
                 if portNbr is not None and 0 < portNbr < 9000:
                     self.getPortData(portNbr)
@@ -42,13 +45,14 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         # Note:  responseCode must be set before headers in python3!!
         # see this post:
         # http://stackoverflow.com/questions/23321887/python-3-http-server-sends-headers-as-output/35634827#35634827
+        json_result = json.dumps(payload)
         self.send_response(responseCode)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', len(payload))
+        self.send_header('Content-Length', len(json_result))
         self.end_headers()
         self.flush_headers()
 
-        self.wfile.write(bytes(payload, "utf-8"))
+        self.wfile.write(bytes(json_result, "utf-8"))
 
         self.wfile.flush()
 

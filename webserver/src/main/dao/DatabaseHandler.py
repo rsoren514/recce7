@@ -38,7 +38,7 @@ Last Revised: 4 March, 2016
 import json
 import sqlite3
 import os
-from manager import DateTimeManager
+from manager import dateTimeUtility
 
 # Connect to given database
 def connect(database_name):
@@ -61,19 +61,19 @@ def query_db(query, args=(), one=False):
 # I'm assuming here that the DB's timestamp will use datetime.now().
 
 def getJson(portnumber, unit, unit_size):
+
     # In progress... still need to test converting the timestamp received from the DB.
-    dt = DateTimeManager.DateTimeManager()
-    query_date = dt.get_begin_date(unit, unit_size)
-    query_date_iso = dt.get_iso_format(query_date)
+
+    begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
+    begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
 
     tableName = getTableName(portnumber)
-
     # Assume table name is 'portnumber' and timestamp column name is 'datetime'
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
 
     query = query_db("SELECT * FROM %s " % (tableName))
-    json_output = json.dumps(query)
-    return json_output
+
+    return query
 
 
 #####
@@ -81,10 +81,12 @@ def getJson(portnumber, unit, unit_size):
 ####
 def getTableName(portnumber):
     #  TODO:  call something to determine this name
-    if portnumber == 80:
-        return "test"
+    if portnumber == 8023:
+        return "test_telnet"
+    elif portnumber == 8082:
+        return "test_http"
     else:
-        return "test4"
+        return "test_http2"
 
 
 def get_db_path():
