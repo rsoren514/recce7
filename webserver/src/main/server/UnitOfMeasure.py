@@ -1,2 +1,8 @@
-class UnitOfMeasure:
-    MINUTE, HOUR, DAY, WEEK = range(4)
+from enum import Enum
+
+
+class UnitOfMeasure(Enum):
+    MINUTE = "minutes"
+    HOUR = "hours"
+    DAY = "days"
+    WEEK = "weeks"

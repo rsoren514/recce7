@@ -11,13 +11,15 @@ PORT_NUMBER=8080;
 
 #Create and start the HTTP Server
 
-class SimpleHttpServer():
+
+class SimpleHttpServer:
+
     def setupAndStart(self):
 
         server_addr = (HOST_NAME, PORT_NUMBER)
 
-        #TODO:??  feels wrong to specify PortsServiceHandler here
-        #I think we should have PortsServiceHandler havea RequestHandler instead of isa
+        # TODO:??  feels wrong to specify PortsServiceHandler here
+        # I think we should have PortsServiceHandler havea RequestHandler instead of isa
         request_handler = PortsServiceHandler
 
         # instantiate a server object
@@ -29,7 +31,6 @@ class SimpleHttpServer():
             httpd.serve_forever ()
         except KeyboardInterrupt:
             pass
-
 
         httpd.server_close()
         print(time.asctime(), "Server Stopped - %s:%s" % (HOST_NAME, PORT_NUMBER))

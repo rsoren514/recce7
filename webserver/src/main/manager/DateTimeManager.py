@@ -32,33 +32,30 @@ Last Revised: 28 February, 2016
 '''
 
 import datetime
-from enum import Enum
+from server.UnitOfMeasure import UnitOfMeasure
 
-class Unit(Enum):
-    MINUTE = "minute"
-    HOUR = "hour"
-    DAY = "day"
-    WEEK = "week"
 
 class DateTimeManager:
     # Return the date for how far back to query DB.
 
     def get_begin_date(self, unit, unit_size):
-        unit = unit.lower()
-        if unit == Unit.MINUTE.value:
+
+        if unit == UnitOfMeasure.MINUTE:
             d = datetime.timedelta(minutes=unit_size)
-        elif unit == Unit.HOUR.value:
+        elif unit == UnitOfMeasure.HOUR:
             d = datetime.timedelta(hours=unit_size)
-        elif unit == Unit.DAY.value:
+        elif unit == UnitOfMeasure.DAY:
             d = datetime.timedelta(days=unit_size)
-        elif unit == Unit.WEEK.value:
+        elif unit == UnitOfMeasure.WEEK:
             d = datetime.timedelta(weeks=unit_size)
         else:
-            return 0
-        def calc_date(delta):
-            now = datetime.datetime.now()
-            return (now - delta)
-        return calc_date(d)
+            d=1;  #defaults to 1 day but should never happen
+
+        return self.calc_date(d)
+
+    def calc_date(self, delta):
+        now = datetime.datetime.now()
+        return now - delta
 
     # Takes the datetime object and returns a string in ISO 8601 format.
     def get_iso_format(self, begin_date):

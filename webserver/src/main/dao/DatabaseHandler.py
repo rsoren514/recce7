@@ -37,18 +37,17 @@ Last Revised: 4 March, 2016
 
 import json
 import sqlite3
-from webserver.src.main.server import DateTimeManager
+import os
+from manager import DateTimeManager
 
-# Set to passed in name. Still need to work on getting the database location
-# from the config file.
-
-def db(database_name='DB'):
+# Connect to given database
+def connect(database_name):
     return sqlite3.connect(database_name)
 
 # Query DB and return JSON
 # setting DB to TestDB created from GetJSONUnitTests.py
 def query_db(query, args=(), one=False):
-    cur = db(database_name="TestDB.db").cursor()
+    cur = connect(get_db_path()).cursor()
     cur.execute(query, args)
     r = [dict((cur.description[i][0], value) \
             for i, value in enumerate(row)) for row in cur.fetchall()]
@@ -61,13 +60,34 @@ def query_db(query, args=(), one=False):
 #
 # I'm assuming here that the DB's timestamp will use datetime.now().
 
-def getjson(portnumber, unit, unit_size):
+def getJson(portnumber, unit, unit_size):
     # In progress... still need to test converting the timestamp received from the DB.
     dt = DateTimeManager.DateTimeManager()
     query_date = dt.get_begin_date(unit, unit_size)
     query_date_iso = dt.get_iso_format(query_date)
 
+    tableName = getTableName(portnumber)
+
     # Assume table name is 'portnumber' and timestamp column name is 'datetime'
-    query = query_db("SELECT * FROM %s where (datetime > '%s')" % (portnumber, query_date_iso))
+    #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
+
+    query = query_db("SELECT * FROM %s " % (tableName))
     json_output = json.dumps(query)
     return json_output
+
+
+#####
+### this section below will be in the global config py once we decide how we want to share it
+####
+def getTableName(portnumber):
+    #  TODO:  call something to determine this name
+    if portnumber == 80:
+        return "test"
+    else:
+        return "test4"
+
+
+def get_db_path():
+        #
+        # TODO: use global config for this
+        return os.getenv('HOME') + '/honeyDB/honeyDB.sqlite'
