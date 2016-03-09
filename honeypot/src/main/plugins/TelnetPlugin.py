@@ -23,9 +23,9 @@
 ################################################################################
 import uuid
 
-import telnetsrv
+# import telnetsrv
 # from telnetsrv.threaded import TelnetHandler, command
-from honeypot.src.main.plugins.BasePlugin import BasePlugin
+from plugins.BasePlugin import BasePlugin
 
 
 class TelnetPlugin(BasePlugin):
