@@ -116,9 +116,9 @@ class HTTPPlugin(BasePlugin):
         #TODO Split the headers and body
 
         entry = {"HTTP" :
-                     {'REQUEST' : handler.raw_requestline,
-                      'HEADERS' : handler.headers.as_bytes(),
-                      'BODY' : bytes(handler.body, 'utf-8')}}
+                     {'REQUEST' : str(handler.raw_requestline)[2:len(handler.raw_requestline)],
+                      'HEADERS' : handler.headers.as_string(),
+                      'BODY' : str(handler.body)}}
 
         self.do_save(entry)
 
