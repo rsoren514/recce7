@@ -1,17 +1,24 @@
 import socket
 from threading import Thread
 
+'''
 
+'''
 class BasePlugin(Thread):
     def __init__(self, socket, framework):
         Thread.__init__(self)
-        self._skt = socket
-        self._framework = framework
+        self.SOCKET = socket
+        self.FRAMEWORK = framework
         self._localAddress = socket.getsockname()[0]
         self._peerAddress = socket.getpeername()[0]
         self.run()
 
+    '''
+
+    '''
     def run(self):
+        self.configure()
+
         try:
             self.do_track()
         except ConnectionResetError as cre:
@@ -24,11 +31,22 @@ class BasePlugin(Thread):
         # Need this in try statement in case socket has already been closed by client
         try:
             # Blocks any more reading from socket once we are done, unable to write data at this point anyway
-            self._skt.shutdown(socket.SHUT_RD)
-            self._skt.close()
+            self.SOCKET.shutdown(socket.SHUT_RD)
+            self.SOCKET.close()
         except OSError:
             # Log this as user force closed from their end
             print("Socket already closed.")
 
     def do_save(self, data):
-        self.frmwk.insert_data(data)
+        self.FRAMEWORK.insert_data(data)
+    '''
+
+    '''
+    def configure(self):
+        pass
+
+    '''
+
+    '''
+    def track(self):
+        pass
