@@ -22,44 +22,18 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
-'''
-This class will handle any date/time requests from the webserver.
-This includes calculating the date/time range for data to return,
-as well as converting the string timestamp in the database.
+from datetime import datetime, timedelta
 
-Author: Charlie Mitchell
-Last Revised: 28 February, 2016
-'''
+from manager.UnitOfMeasure import UnitOfMeasure
 
-import datetime
-from enum import Enum
 
-class Unit(Enum):
-    MINUTE = "minute"
-    HOUR = "hour"
-    DAY = "day"
-    WEEK = "week"
+def getIntValue(givenStr):
+    print("given str is: " + givenStr)
+    try:
+        returnval = int(givenStr)
+        return returnval
+    except Exception as e:
+        print("received invalid string to convert to int: " + givenStr)
+        print (str(e))
+        return None
 
-class DateTimeManager:
-    # Return the date for how far back to query DB.
-
-    def get_begin_date(self, unit, unit_size):
-        unit = unit.lower()
-        if unit == Unit.MINUTE.value:
-            d = datetime.timedelta(minutes=unit_size)
-        elif unit == Unit.HOUR.value:
-            d = datetime.timedelta(hours=unit_size)
-        elif unit == Unit.DAY.value:
-            d = datetime.timedelta(days=unit_size)
-        elif unit == Unit.WEEK.value:
-            d = datetime.timedelta(weeks=unit_size)
-        else:
-            return 0
-        def calc_date(delta):
-            now = datetime.datetime.now()
-            return (now - delta)
-        return calc_date(d)
-
-    # Takes the datetime object and returns a string in ISO 8601 format.
-    def get_iso_format(self, begin_date):
-        return begin_date.isoformat()

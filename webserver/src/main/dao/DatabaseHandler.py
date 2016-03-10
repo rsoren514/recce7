@@ -37,18 +37,17 @@ Last Revised: 4 March, 2016
 
 import json
 import sqlite3
-from webserver.src.main.server import DateTimeManager
+import os
+from manager import dateTimeUtility
 
-# Set to passed in name. Still need to work on getting the database location
-# from the config file.
-
-def db(database_name='DB'):
+# Connect to given database
+def connect(database_name):
     return sqlite3.connect(database_name)
 
 # Query DB and return JSON
 # setting DB to TestDB created from GetJSONUnitTests.py
 def query_db(query, args=(), one=False):
-    cur = db(database_name="TestDB.db").cursor()
+    cur = connect(get_db_path()).cursor()
     cur.execute(query, args)
     r = [dict((cur.description[i][0], value) \
             for i, value in enumerate(row)) for row in cur.fetchall()]
@@ -61,13 +60,41 @@ def query_db(query, args=(), one=False):
 #
 # I'm assuming here that the DB's timestamp will use datetime.now().
 
-def getjson(portnumber, unit, unit_size):
-    # In progress... still need to test converting the timestamp received from the DB.
-    dt = DateTimeManager.DateTimeManager()
-    query_date = dt.get_begin_date(unit, unit_size)
-    query_date_iso = dt.get_iso_format(query_date)
+def getJson(portnumber, unit, unit_size):
 
-    # Assume table name is 'portnumber' and timestamp column name is 'datetime'
-    query = query_db("SELECT * FROM %s where (datetime > '%s')" % (portnumber, query_date_iso))
-    json_output = json.dumps(query)
-    return json_output
+    # In progress... still need to test converting the timestamp received from the DB.
+
+    begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
+    begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
+
+    tableName = getTableName(portnumber)
+    date_time_field = getTableDateTimeField(portnumber)
+
+    #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
+    queryString = "SELECT * FROM %s where (%s > '%s')" % (tableName, date_time_field, begin_date_iso)
+    print("queryString is: " + queryString)
+    results = query_db(queryString)
+
+    return results
+
+
+#####
+### this section below will be in the global config py once we decide how we want to share it
+####
+def getTableName(portnumber):
+    #  TODO:  call something to determine this name
+    if portnumber == 8023:
+        return "test_telnet"
+    elif portnumber == 8082:
+        return "test_http"
+    else:
+        return "test_http2"
+
+
+def get_db_path():
+        #
+        # TODO: use global config for this
+        return os.getenv('HOME') + '/honeyDB/honeyDB.sqlite'
+
+def getTableDateTimeField(portnumber):
+    return "eventdatetime"

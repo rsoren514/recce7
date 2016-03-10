@@ -22,36 +22,39 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
-from dao import DatabaseHandler
-from manager import dateTimeUtility
+'''
+This class will handle any date/time requests from the webserver.
+This includes calculating the date/time range for data to return,
+as well as converting the string timestamp in the database.
 
-class PortManager ():
+Author: Charlie Mitchell
+Last Revised: 28 February, 2016
+'''
 
-    #TODO:
-    # Port Manager: calls necessary managers and utilities to generate parameters for sql.
-    #  Mgr for reading config files to know what table /column names there are.
-    #  Utility for calc time range
-    #
-    #
-    validPortNumbers = ()
+import datetime
 
-    def __init__(self):
-        # TODO:  get from config file
-        self.validPortNumbers = (8023, 8082, 8083)
+from manager.UnitOfMeasure import UnitOfMeasure
 
 
-    def isPortValid(self, port_number):
-        if (port_number in self.validPortNumbers):
-            return True
-        else:
-            return False
+# Return the date for how far back to query DB.
+def get_begin_date(unit, unit_size):
+    if unit == UnitOfMeasure.MINUTE.value:
+        d = datetime.timedelta(minutes=unit_size)
+    elif unit == UnitOfMeasure.HOUR.value:
+        d = datetime.timedelta(hours=unit_size)
+    elif unit == UnitOfMeasure.DAY.value:
+        d = datetime.timedelta(days=unit_size)
+    elif unit == UnitOfMeasure.WEEK.value:
+        d = datetime.timedelta(weeks=unit_size)
+    else:
+        d=1;  #defaults to 1 day but should never happen
 
-    def getPort(self, port_number, uom, unit):
-        print("Retrieving port:" + str(port_number))
+    return calc_date(d)
 
-        if self.isPortValid(port_number):
-            return DatabaseHandler.getJson(port_number, uom, unit )
-        else:
-            return None
+def calc_date(delta):
+    now = datetime.datetime.now()
+    return now - delta
 
-
+# Takes the datetime object and returns a string in ISO 8601 format.
+def get_iso_format(begin_date):
+    return begin_date.isoformat()

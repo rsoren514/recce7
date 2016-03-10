@@ -76,7 +76,7 @@ def create_default_database(global_config_instance):
 
     for table in config_column_lists:
         print('config_column_lists: ' + str(config_column_lists))
-        print('transoformed_db_column_lists: ' + str(transformed_db_column_list))
+        print('transformed_db_column_lists: ' + str(transformed_db_column_list))
         if not config_column_lists.get(table) == transformed_db_column_list.get(table):
             Table_Init.change_table_structure(table,config_column_lists.get(table),database_column_lists.get(table),global_config_instance)
 
