@@ -9,6 +9,7 @@ from server.RESTRequestHandler import RestRequestHandler
 class PortsServiceHandler (RestRequestHandler):
 
     def getPortData(self, portnumber):
+        # default is one day if not specified
         self.getPortDataByTime(portnumber, "days", 1)
 
     def getPortDataByTime(self, portnumber, uom, unit):

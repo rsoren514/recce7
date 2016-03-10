@@ -50,7 +50,6 @@ class PortManager ():
         print("Retrieving port:" + str(port_number))
 
         if self.isPortValid(port_number):
-            # return self.fakePort80DataWithTime
             return DatabaseHandler.getJson(port_number, uom, unit )
         else:
             return None

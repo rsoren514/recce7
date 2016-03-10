@@ -26,6 +26,7 @@ import uuid
 # import telnetsrv
 # from telnetsrv.threaded import TelnetHandler, command
 from plugins.BasePlugin import BasePlugin
+import datetime
 
 
 class TelnetPlugin(BasePlugin):
@@ -73,6 +74,7 @@ class TelnetPlugin(BasePlugin):
 
     def form_data_for_insert(self, raw_data):
         # Would like to be able to read config data from either base or framework if possible, would also like table
-        # name drived from elsewhere
-        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test'}}
+        # name derived from elsewhere
+        event_time = datetime.datetime.now().isoformat()
+        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test', 'eventdatetime': event_time}}
         self.do_save(data)
