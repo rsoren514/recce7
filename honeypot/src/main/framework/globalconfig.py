@@ -60,7 +60,7 @@ class GlobalConfig:
         #       when a path is provided in the config file.
         #
         '''BEN changed this line to refer to get_db_dir() method'''
-        return os.getenv('HOME') + '/honeyDB/honeyDB.sqlite'
+        return self.get_db_dir() + '/honeyDB.sqlite'
 
 
     '''BEN added this method because he will use it to create the directory

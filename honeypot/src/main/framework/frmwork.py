@@ -29,7 +29,7 @@ class Framework:
         ports = self.global_config.get_ports()
         print("the ports are: " + str(ports))
         for port in ports:
-            print("spawing this port:" + str(port))
+            print("spawning this port:" + str(port))
             plugin_config = self.global_config.get_plugin_config(port)
             module = plugin_config['module']
             self.create_import_entry(port, module)
