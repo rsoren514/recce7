@@ -8,6 +8,9 @@ class DataManager():
         DB_Init.create_default_database(global_config_instance)
         self.q = DataQueue.dataQueue(global_config_instance)
         self.condition = Condition()
+
+
+    def start(self):
         self.CThread(self.condition, self.q).start()
 
 

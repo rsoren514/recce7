@@ -7,6 +7,10 @@ from framework.networklistener import NetworkListener
 
 from importlib import import_module
 
+import grp
+import os
+import pwd
+
 default_cfg_path = '/config/plugins.cfg'
 
 
@@ -17,9 +21,30 @@ class Framework:
         self.data_manager = None
 
     def start(self):
+        self.drop_permissions()
         self.global_config.read_config()
         self.data_manager = DataManager(self.global_config)
+        self.data_manager.start()
         self.start_plugins()
+
+    def drop_permissions(self):
+        #
+        # If we're not already root, don't bother dropping
+        # permissions; authbind won't be able to bind low ports
+        # anyway.
+        #
+        if os.getuid() != 0:
+            return
+
+        nobody_uid = pwd.getpwnam('nobody').pw_uid
+        nogroup_gid = grp.getgrnam('nogroup').gr_gid
+
+        os.setgroups([])
+
+        os.setgid(nogroup_gid)
+        os.setuid(nobody_uid)
+
+        os.umask(0o077)
 
     def create_import_entry(self, port, name):
         imp = import_module('plugins.' + name)
@@ -63,6 +88,7 @@ class Framework:
         # ToDo Throw exception if plugin class not found
         plugin_class = self.plugin_imports[config['port']]
         plugin = plugin_class(socket, self)
+        plugin.start()
 
     '''
     Inserts the provided data into the data queue so that it can

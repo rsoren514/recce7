@@ -9,7 +9,6 @@ class BasePlugin(Thread):
         self._framework = framework
         self._localAddress = socket.getsockname()[0]
         self._peerAddress = socket.getpeername()[0]
-        self.run()
 
     def run(self):
         try:
