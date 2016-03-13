@@ -1,7 +1,12 @@
+__author__ = 'Ben Phillips'
+
+'''we will need threading and a condition variable for synchronization'''
 from threading import Thread, Condition
 from database import DataQueue, DB_Init, Table_Insert
 
-
+'''This is the DataManager class, it creates the database, data queue and
+the condition variable for synchronization between it, the framework and
+the plugins'''
 class DataManager():
 
     def __init__(self,global_config_instance):
@@ -10,39 +15,35 @@ class DataManager():
         self.condition = Condition()
         self.CThread(self.condition, self.q).start()
 
-
+    '''This thread is the consumer thread that pulls from the FIFO queue'''
     class CThread(Thread):
-        '''over ride run method'''
+        '''I give this thread a reference to the condition variable
+        and the data queue'''
         def __init__(self, condition_ref, q_ref):
             Thread.__init__(self)
             self.condition = condition_ref
             self.q = q_ref
 
+        '''Overriding the thread run method. This will insert all data
+        in the queue and then once finished give up control of the
+        condition variable'''
         def run(self):
             '''loop forever'''
             while True:
-                '''get lock'''
                 self.condition.acquire()
-                '''if the q is empty'''
                 if self.q.check_empty():
-                    '''release the lock and wait'''
+                    '''if empty pass off control of the condition variable'''
                     self.condition.wait()
-                '''otherwise get the value off the queue'''
                 value = self.q.get_next_item()
-                '''set task_done (need to research this)'''
-                #self.q.task_done()
-                '''print value consumed'''
-                #here we want to call the Table_Insert.py prepare method to actually insert into the database
-                #print("Consumed :", value)
                 Table_Insert.prepare_data_for_insertion(self.q.dv.table_schema, value)
                 '''we have the lock acquired so we can notify'''
                 self.condition.notify()
                 '''we release the lock so that the notified threads can resume'''
                 self.condition.release()
 
-    #called by plugin, we check the data against the database before insert
-    #into queue. If the data is bad we do not put on queue and therefor
-    #do not notify consumer.
+    '''called by plugin, we check the data against the database before insert
+    into queue. If the data is bad we do not put on queue and therefor
+    do not notify consumer.'''
     #TODO Will want to provide meaningful errors to plugin author
     def insert_data(self, data):
         self.condition.acquire()

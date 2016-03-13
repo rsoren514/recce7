@@ -1,3 +1,5 @@
+__author__ = 'Ben Phillips'
+
 #from honeypot.src.database import DB_Init
 import sqlite3
 from operator import itemgetter
@@ -6,11 +8,31 @@ from operator import itemgetter
 
 '''create a table in the sqlite database with the name of the table passed in'''
 
+'''this list contains the default columns that the base plugin will control'''
+'''this is useful because when we are verifying that all of the columns provided
+by the custom plugin are indeed in the database we can ignore these programatically
+as they are not controlled by the author'''
+default_columns = [['ID','INTEGER','PRIMARY KEY', 'NOT NULL'],
+                   ['eventDateTime','TEXT','','NULL'],
+                   ['peerAddress','TEXT','','NULL'],
+                   ['localAddress','TEXT','','NULL']]
 
 def create_table(name,global_config_instance):
     connection = sqlite3.connect(global_config_instance.get_db_path())
     cursor = connection.cursor()
-    cursor.execute('CREATE TABLE ' + name + '(ID INTEGER PRIMARY KEY)')
+
+    default_column_def = ''
+    count = 0
+    for col in default_columns:
+        count += 1
+        default_column_def += col[0] + ' ' + col[1] + ' ' + col[2] + ' ' + col[3]
+        if count != len(default_columns):
+            default_column_def += ','
+    default_column_def = default_column_def.replace('  ',' ')
+
+    #cursor.execute('CREATE TABLE ' + name + '(ID INTEGER PRIMARY KEY, eventDateTime TEXT NULL, '
+    #                                        'peerAddress TEXT NULL, localAddress Text NULL)')
+    cursor.execute('CREATE TABLE ' + name + '(' + default_column_def + ')')
     connection.close()
 
 
