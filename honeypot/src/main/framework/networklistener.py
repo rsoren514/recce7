@@ -32,25 +32,34 @@ class NetworkListener(Thread):
     def run(self):
         self.running = True
         while self.running:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            s.bind((HOST, self.port))
-            s.listen(1)
-            self.start_listening(s)
-            s.close()
+            self.session_socket = socket.socket(socket.AF_INET,
+                                                socket.SOCK_STREAM)
+            self.session_socket.setsockopt(socket.SOL_SOCKET,
+                                           socket.SO_REUSEADDR, 1)
+            self.session_socket.bind((HOST, self.port))
+            self.session_socket.listen(1)
+            self.start_listening(self.session_socket)
+            self.session_socket.close()
             self.connection_count += 1
+        print("Listener on port", self.port, "shutting down")
 
     def start_listening(self, local_socket):
         try:
             (new_socket, addr) = local_socket.accept()
             print("New connection from", addr, "on port", self.port)
-            self.session_socket = new_socket
-            self.framework.spawn(self.session_socket, self.config)
+            self.framework.spawn(new_socket, self.config)
+
+        except ConnectionAbortedError as e:
+            if not self.running:
+                return
+            raise e
 
         except Exception as e:
             print("Error on connection: ", e)
             raise e
 
-    def stop(self):
+    def shutdown(self):
         self.running = False
+        if self.session_socket:
+            self.session_socket.close()
         self.join()
