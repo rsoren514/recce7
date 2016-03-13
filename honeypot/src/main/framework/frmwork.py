@@ -19,6 +19,7 @@ class Framework:
     def start(self):
         self.global_config.read_config()
         self.data_manager = DataManager(self.global_config)
+        self.data_manager.start()
         self.start_plugins()
 
     def create_import_entry(self, port, name):
