@@ -28,16 +28,17 @@ This includes calculating the date/time range for data to return,
 as well as converting the string timestamp in the database.
 
 Author: Charlie Mitchell
-Last Revised: 28 February, 2016
+Last Revised: 13 March, 2016
 '''
 
 import datetime
-
 from manager.UnitOfMeasure import UnitOfMeasure
 
 
 # Return the date for how far back to query DB.
-def get_begin_date(unit, unit_size):
+# If not specified, defaults to 1 day.
+def get_begin_date(unit="days", unit_size=1):
+    unit = unit.lower()
     if unit == UnitOfMeasure.MINUTE.value:
         d = datetime.timedelta(minutes=unit_size)
     elif unit == UnitOfMeasure.HOUR.value:
@@ -47,7 +48,8 @@ def get_begin_date(unit, unit_size):
     elif unit == UnitOfMeasure.WEEK.value:
         d = datetime.timedelta(weeks=unit_size)
     else:
-        d=1;  #defaults to 1 day but should never happen
+        # If 'unit' not an accepted string, default to 1 day.
+        d = datetime.timedelta(days=1)
 
     return calc_date(d)
 

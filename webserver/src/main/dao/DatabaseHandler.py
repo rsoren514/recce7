@@ -32,7 +32,7 @@
 This class will take in a request from the webserver, query the Sqlite database,
 and return JSON.
 Author: Charlie Mitchell
-Last Revised: 4 March, 2016
+Last Revised: 13 March, 2016
 '''
 
 import json
@@ -57,8 +57,6 @@ def query_db(query, args=(), one=False):
 # For now, assume outside request specifies Port Number, Unit of Measure (string), and Unit Size.
 # Where Unit of Measure could be "weeks", "days", "hours", etc.
 # Return all data from the DB within that measure of time as JSON.
-#
-# I'm assuming here that the DB's timestamp will use datetime.now().
 
 def getJson(portnumber, unit, unit_size):
 
@@ -67,11 +65,11 @@ def getJson(portnumber, unit, unit_size):
     begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
     begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
 
-    tableName = getTableName(portnumber)
+    table_name = getTableName(portnumber)
     date_time_field = getTableDateTimeField(portnumber)
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
-    queryString = "SELECT * FROM %s where (%s > '%s')" % (tableName, date_time_field, begin_date_iso)
+    queryString = "SELECT * FROM %s where (%s > '%s')" % (table_name, date_time_field, begin_date_iso)
     print("queryString is: " + queryString)
     results = query_db(queryString)
 
