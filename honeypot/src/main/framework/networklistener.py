@@ -49,6 +49,11 @@ class NetworkListener(Thread):
             print("New connection from", addr, "on port", self.port)
             self.framework.spawn(new_socket, self.config)
 
+        except OSError as e:
+            if e.errno == 22 and not self.running:
+                return
+            raise e
+
         except ConnectionAbortedError as e:
             if not self.running:
                 return
@@ -61,5 +66,7 @@ class NetworkListener(Thread):
     def shutdown(self):
         self.running = False
         if self.session_socket:
+            self.session_socket.shutdown(socket.SHUT_RDWR)
+            self.session_socket.detach()
             self.session_socket.close()
         self.join()
