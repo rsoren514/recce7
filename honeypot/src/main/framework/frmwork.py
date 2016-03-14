@@ -73,6 +73,7 @@ class Framework:
         print("Shutting down network listeners")
         for listener in self.listener_list:
             self.listener_list[listener].shutdown()
+        self.data_manager.shutdown()
         print("Goodbye.")
 #        exit(0)
 

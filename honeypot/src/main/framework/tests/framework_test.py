@@ -33,7 +33,7 @@ class FrameworkTest(unittest.TestCase):
 
     @patch('database.DataManager.DataManager.start')
     @patch('framework.networklistener.NetworkListener.start')
-    def test_plugins_enabled(self, mock_dm_init, mock_nl_start):
+    def test_plugins_enabled(self, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
         expected = {
@@ -41,11 +41,11 @@ class FrameworkTest(unittest.TestCase):
         }
         self.assertEqual(expected, framework.global_config.config_dictionary)
         self.assertEquals(1, mock_nl_start.call_count)
-        self.assertTrue(mock_dm_init.called)
+        self.assertTrue(mock_dm_start.called)
 
     @patch('database.DataManager.DataManager.start')
     @patch('framework.networklistener.NetworkListener.start')
-    def test_plugins_disabled(self, mock_dm_init, mock_nl_start):
+    def test_plugins_disabled(self, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
         self.assertTrue(8083 not in framework.global_config.config_dictionary)
@@ -54,7 +54,7 @@ class FrameworkTest(unittest.TestCase):
 
     @patch('database.DataManager.DataManager.start')
     @patch('framework.networklistener.NetworkListener.start')
-    def test_get_config(self, mock_dm_init, mock_nl_start):
+    def test_get_config(self, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
         expected = make_mock_config(8082, 'HTTPPlugin')
@@ -64,8 +64,7 @@ class FrameworkTest(unittest.TestCase):
     @patch('framework.networklistener.NetworkListener.start')
     @patch.object(socket.socket, 'getsockname', return_value='0.0.0.0')
     @patch.object(socket.socket, 'getpeername', return_value='0.0.0.1')
-    def test_spawn(self, mock_dm_init, mock_nl_start,
-                   mock_gsn, mock_gpn):
+    def test_spawn(self, mock_gpn, mock_gsn, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
         with patch('plugins.HTTPPlugin.HTTPPlugin.start') as mock_http_start:
@@ -115,9 +114,9 @@ class FrameworkTest(unittest.TestCase):
         self.assertFalse(mock_setgid.called)
         self.assertFalse(mock_setgroups.called)
 
-    @patch('database.DataManager.DataManager.CThread.start', return_value=None)
+    @patch('database.DataManager.DataManager.start', return_value=None)
     @patch('framework.networklistener.NetworkListener.start')
-    def test_insert_data(self, mock_ct_init, mock_nl_start):
+    def test_insert_data(self, mock_nl_start, mock_dm_start):
         fw = Framework(config_path)
         fw.start()
         test_dict = {'a': 1, 'b': 2}
