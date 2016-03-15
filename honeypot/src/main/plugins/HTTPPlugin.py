@@ -26,24 +26,6 @@ PAGE_LOGIN = """<html>
     </head>
 </html>"""
 
-PAGE_404 = """\
-<!DOCTYPE HTML>
-<html>
-    <head>
-        <h1>404 Not Found</h1>
-    </head>
-</html>
-    """
-
-PAGE_500 = """\
-<!DOCTYPE HTML>
-<html>
-    <head>
-        <h1>500 Internal Server Error</h1>
-    </head>
-</html>
-    """
-
 '''
 
 '''
@@ -59,17 +41,13 @@ class HTTPPluginHandler(BaseHTTPRequestHandler):
     def address_string(self):
         return "honey_potter"
 
-    def parse_body(self):
-        print("BODY")
-        self.body = []
+    def get_body(self):
+        content_length = int(self.headers.get('content-length', 0))
+        if (content_length == 0):
+            return
 
-        while(True):
-            print("LOOP")
-            line = self.rfile.readline()
-            print("LINE")
-            if line in (b'\r\n', b'\n', b''):
-                break
-            self.body.append(line)
+        self.body = self.rfile.read(content_length)
+        self.body = str(self.body)[2:len(self.body)+2]
 
     def do_GET(self):
         # front page
@@ -81,30 +59,27 @@ class HTTPPluginHandler(BaseHTTPRequestHandler):
             return
 
         # anything else recieves a 404
-        self.send_response(404, 'Not Found')
+        self.send_error(404)
         self.end_headers()
-        self.wfile.write(PAGE_404.encode('UTF-8'))
 
     def do_POST(self):
         #login post
         if (self.path == '/login'):
             # grab the login information send a 500
-            self.send_response(500, 'Internal Server Error')
+            self.send_error(500)
             self.end_headers()
-            self.wfile.write(PAGE_500.encode('UTF-8'))
-
-            content_length = int(self.headers.get('content-length', 0))
-            if (content_length == 0):
-                return
-
-            self.body = self.rfile.read(content_length)
 
             return
 
         # Anything else recieves a 404
-        self.send_response(404, 'Not Found')
+        self.send_error(404)
         self.end_headers()
-        self.wfile.write(PAGE_404.encode('UTF-8'))
+
+    def do_HEAD(self):
+        pass
+
+    def do_PUT(self):
+        pass
 
 '''
 
@@ -113,13 +88,14 @@ class HTTPPlugin(BasePlugin):
     def do_track(self):
         handler = HTTPPluginHandler(self.SOCKET)
         handler.handle_one_request()
-        #TODO Split the headers and body
+        handler.get_body()
+        self.create_entry(handler)
+        handler.finish()
 
-        entry = {"HTTP" :
-                     {'REQUEST' : str(handler.raw_requestline)[2:len(handler.raw_requestline)],
-                      'HEADERS' : handler.headers.as_string(),
-                      'BODY' : str(handler.body)}}
+    def create_entry(self, handler):
+        entry = {'HTTP' : {'METHOD' : handler.command,
+                           'PATH' : handler.path,
+                           'HEADERS' : handler.headers.as_string(),
+                           'BODY' : handler.body}}
 
         self.do_save(entry)
-
-        handler.finish()

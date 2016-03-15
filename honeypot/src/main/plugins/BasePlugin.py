@@ -38,6 +38,12 @@ class BasePlugin(Thread):
             print("Socket already closed.")
 
     def do_save(self, data):
+        data['HTTP']['PEER'] = self._peerAddress
+        data['HTTP']['LOCAL'] = self._localAddress
+        data['HTTP']['TIME'] = 'time'
+
+        print(data)
+
         self.FRAMEWORK.insert_data(data)
     '''
 
