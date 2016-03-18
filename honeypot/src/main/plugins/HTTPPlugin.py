@@ -94,7 +94,19 @@ class HTTPPluginHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_PUT(self):
-        self.send_error(500)
+        self.send_error(501)
+        self.end_headers()
+
+    def do_DELETE(self):
+        self.send_error(501)
+        self.end_headers()
+
+    def do_TRACE(self):
+        self.send_error(501)
+        self.end_headers()
+
+    def do_CONNECT(self):
+        self.send_error(501)
         self.end_headers()
 
 '''
