@@ -56,3 +56,9 @@ class BasePlugin(Thread):
     '''
     def track(self):
         pass
+
+    '''
+
+    '''
+    def get_mac(self):
+        pass

@@ -53,6 +53,9 @@ class HTTPPluginHandler(BaseHTTPRequestHandler):
         # front page
         if (self.path == '/'):
             self.send_response(200, 'OK')
+            self.send_header('Content-Type', 'text/html;charset=utf-8')
+            self.send_header('Connection', 'close')
+            self.send_header('Content-Length', len(PAGE_LOGIN))
             self.end_headers()
             self.wfile.write(PAGE_LOGIN.encode('UTF-8'))
 
@@ -76,10 +79,23 @@ class HTTPPluginHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_HEAD(self):
-        pass
+        # front page
+        if (self.path == '/'):
+            self.send_response(200, 'OK')
+            self.send_header('Content-Type', 'text/html;charset=utf-8')
+            self.send_header('Connection', 'close')
+            self.send_header('Content-Length', len(PAGE_LOGIN))
+            self.end_headers()
+
+            return
+
+        # anything else recieves a 404
+        self.send_error(404)
+        self.end_headers()
 
     def do_PUT(self):
-        pass
+        self.send_error(500)
+        self.end_headers()
 
 '''
 

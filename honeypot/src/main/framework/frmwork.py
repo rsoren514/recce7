@@ -74,8 +74,8 @@ class Framework:
         self.data_manager.insert_data(data)
 
 
-def main(cfg_path=None):
-    framework = Framework(cfg_path or default_cfg_path)
-    framework.start()
+#def main(cfg_path=None):
+#    framework = Framework(cfg_path or default_cfg_path)
+#    framework.start()
 
-if __name__ == '__main__': main()
+#if __name__ == '__main__': main()
