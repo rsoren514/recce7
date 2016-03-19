@@ -13,6 +13,8 @@ import pwd
 
 import signal
 
+import platform
+
 default_cfg_path = '/config/plugins.cfg'
 
 
@@ -40,11 +42,17 @@ class Framework:
         if os.getuid() != 0:
             return
 
-        #
-        # TODO: check OS here and use analogous user/group names
-        #
-        nobody_uid = pwd.getpwnam('nobody').pw_uid
-        nogroup_gid = grp.getgrnam('nogroup').gr_gid
+        users_dict = {
+            'centos': ('nobody', 'nobody'),
+            'debian': ('nobody', 'nogroup')
+        }
+        dist_name = os.getenv('RECCE7_OS_DIST')
+        if dist_name not in users_dict:
+            return
+        lowperm_user = users_dict[dist_name]
+
+        nobody_uid = pwd.getpwnam(lowperm_user[0]).pw_uid
+        nogroup_gid = grp.getgrnam(lowperm_user[1]).gr_gid
 
         os.setgroups([])
 
@@ -119,6 +127,8 @@ class Framework:
     def insert_data(self, data):
         self.data_manager.insert_data(data)
 
+    def plugin_stopped(self, plugin):
+        pass
 
 #def main(cfg_path=None):
 #    framework = Framework(cfg_path or default_cfg_path)
