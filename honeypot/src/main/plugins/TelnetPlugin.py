@@ -76,5 +76,5 @@ class TelnetPlugin(BasePlugin):
         # Would like to be able to read config data from either base or framework if possible, would also like table
         # name derived from elsewhere
         event_time = datetime.datetime.now().isoformat()
-        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test', 'eventdatetime': event_time}}
+        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test', 'eventDateTime': event_time}}
         self.do_save(data)
