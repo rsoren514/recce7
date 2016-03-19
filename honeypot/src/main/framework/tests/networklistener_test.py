@@ -31,7 +31,7 @@ class NetworkListenerTest(unittest.TestCase):
         listener.start()
         while listener.connection_count == 0:
             pass
-        listener.stop()
+        listener.shutdown()
         self.assertTrue(mock_start_listening.called)
 
     def test_connection_count(self):

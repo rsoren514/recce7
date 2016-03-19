@@ -1,3 +1,5 @@
+__author__ = 'Ben Phillips'
+
 import sqlite3
 import os
 from database import Table_Init
@@ -6,12 +8,15 @@ from database.DataValidation import DataValidation
 
 
 def create_default_database(global_config_instance):
-    print("creating database")
+
     """if database directory does not exist create it"""
     if not os.path.isdir(global_config_instance.get_db_dir()):
+        print("Database Directory not found, creating database directory...")
         os.mkdir(global_config_instance.get_db_dir())
+
     '''if database file does not exist in directory create it'''
     if not os.path.exists(global_config_instance.get_db_path()):
+        print("Database File not found, creating database file...")
         connection = sqlite3.connect(global_config_instance.get_db_path())
         connection.close()
     '''now the database is guaranteed to exist, we must find out if the
@@ -21,7 +26,6 @@ def create_default_database(global_config_instance):
     dv = DataValidation(global_config_instance)
     schema_dict = global_config_instance.config_dictionary
     port_list = global_config_instance.enabled_ports
-    #print(schema_dict)
     current_database_table_list = dv.get_tables()
     '''holds the list of tables defined in the configuration'''
     config_table_list = []
@@ -66,18 +70,26 @@ def create_default_database(global_config_instance):
     transformed_db_column_list = {}
     for table in database_column_lists:
         col_list = database_column_lists.get(table)
+        #print (col_list)
         for column in col_list:
             transformed_db_column_list[table] = []
+        '''default column ids to ignore'''
+        default_list = []
+        for default in Table_Init.default_columns:
+            default_list.append(default[0])
+
         for column in col_list:
-            '''ignores the ID columns'''
-            if column[1] == 'ID':
+            #print(Table_Init.default_columns[0])
+            '''ignores the default columns'''
+            if column[1] in default_list:
                 continue
             transformed_db_column_list[table].append([column[0],column[1],column[2]])
 
     for table in config_column_lists:
-        print('config_column_lists: ' + str(config_column_lists))
-        print('transformed_db_column_lists: ' + str(transformed_db_column_list))
-        if not config_column_lists.get(table) == transformed_db_column_list.get(table):
+        #print('config_column_lists: ' + str(config_column_lists))
+        #print('transformed_db_column_lists: ' + str(transformed_db_column_list))
+        #using list comprehension to compare order of columns without numeric id
+        if not [(x[1],x[2]) for x in config_column_lists.get(table)] == [(x[1],x[2]) for x in transformed_db_column_list.get(table)]:
             Table_Init.change_table_structure(table,config_column_lists.get(table),database_column_lists.get(table),global_config_instance)
 
     '''create a list of columns to add per table'''

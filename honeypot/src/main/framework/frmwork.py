@@ -7,6 +7,12 @@ from framework.networklistener import NetworkListener
 
 from importlib import import_module
 
+import grp
+import os
+import pwd
+
+import signal
+
 default_cfg_path = '/config/plugins.cfg'
 
 
@@ -14,18 +20,44 @@ class Framework:
     def __init__(self, cfg_path):
         self.global_config = GlobalConfig(cfg_path)
         self.plugin_imports = {}
+        self.listener_list = {}
         self.data_manager = None
 
     def start(self):
+        self.set_shutdown_hook()
+        self.drop_permissions()
         self.global_config.read_config()
         self.data_manager = DataManager(self.global_config)
-        self.start_plugins()
+        self.data_manager.start()
+        self.start_listeners()
+
+    def drop_permissions(self):
+        #
+        # If we're not already root, don't bother dropping
+        # permissions; authbind won't be able to bind low ports
+        # anyway.
+        #
+        if os.getuid() != 0:
+            return
+
+        #
+        # TODO: check OS here and use analogous user/group names
+        #
+        nobody_uid = pwd.getpwnam('nobody').pw_uid
+        nogroup_gid = grp.getgrnam('nogroup').gr_gid
+
+        os.setgroups([])
+
+        os.setgid(nogroup_gid)
+        os.setuid(nobody_uid)
+
+        os.umask(0o077)
 
     def create_import_entry(self, port, name):
         imp = import_module('plugins.' + name)
         self.plugin_imports[port] = getattr(imp, name)
 
-    def start_plugins(self):
+    def start_listeners(self):
         ports = self.global_config.get_ports()
         print("the ports are: " + str(ports))
         for port in ports:
@@ -35,6 +67,17 @@ class Framework:
             self.create_import_entry(port, module)
             listener = NetworkListener(plugin_config, self)
             listener.start()
+            self.listener_list[port] = listener
+
+    def set_shutdown_hook(self):
+        signal.signal(signal.SIGINT, self.shutdown)
+
+    def shutdown(self, *args):
+        print("Shutting down network listeners")
+        for listener in self.listener_list.values():
+            listener.shutdown()
+        self.data_manager.shutdown()
+        print("Goodbye.")
 
     #
     # Framework API
@@ -58,11 +101,14 @@ class Framework:
                    socket.accept()
     :param config: the plugin configuration dictionary describing
                    the plugin to spawn
+    :return: a reference to the plugin that was spawned
     '''
     def spawn(self, socket, config):
         # ToDo Throw exception if plugin class not found
         plugin_class = self.plugin_imports[config['port']]
         plugin = plugin_class(socket, self)
+        plugin.start()
+        return plugin
 
     '''
     Inserts the provided data into the data queue so that it can

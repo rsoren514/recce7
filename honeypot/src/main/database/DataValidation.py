@@ -1,9 +1,11 @@
+__author__ = 'Ben Phillips'
 #this file will validate data and provide functionality to sort data by the columns defined in the database
 import re
 #from honeypot.src.database import DB_Init
 #from honeypot.src.database.config_temp import TempConfigObject
 import sqlite3
-
+import database.Table_Init
+from copy import deepcopy
 
 class DataValidation:
 
@@ -126,25 +128,44 @@ class DataValidation:
         else:
             return False
 
+    #this is WRONG need to fix, we need to verify that all plugin provided
+    #columns exist in the database, not that all the database columns are
+    #are provided by the plugin!
     #checks that all of the columns in the input exist in the target table, we do not check for ID
     def check_all_col_exist(self,value):
         key = self.get_first_key_value_of_dictionary(value)
         schema = self.table_schema[key]
         schema_col_list = [row[1] for row in schema]
         #remove ID because we do not require the plugin author to provide this
-        schema_col_list.remove('ID')
+        schema_col_list = DataValidation.remove_default_columns_from_list([row[1] for row in schema])
         #get a list of column names from the table referenced in value
-        prep_list = value[key]
+        prep_list = DataValidation.remove_default_columns_from_list(value[key])
         count = 0
         col_list = list(prep_list.keys())
         for col in col_list:
             if col in schema_col_list:
                 count += 1
-        if (count == len(schema_col_list) and
-                count == len(col_list)):
+
+        #if (count == len(schema_col_list) and
+        if (count == len(col_list)):
             return True
         else:
             return False
+
+    @staticmethod
+    def remove_default_columns_from_list(collection):
+        collection_copy = deepcopy(collection)
+        if isinstance(collection_copy,list):
+            for col in database.Table_Init.default_columns:
+
+                if col[0] in collection_copy:
+                    collection_copy.remove(col[0])
+            return collection_copy
+        if isinstance(collection_copy,dict):
+            for col in database.Table_Init.default_columns:
+                if col[0] in collection_copy:
+                    del collection_copy[col[0]]
+            return collection_copy
 
     #TODO determine how to do this with regex
     def check_data_types(self,value):
