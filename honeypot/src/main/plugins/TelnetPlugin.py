@@ -21,44 +21,29 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-import uuid
 
-# import telnetsrv
-# from telnetsrv.threaded import TelnetHandler, command
 from plugins.BasePlugin import BasePlugin
-import datetime
-
 
 class TelnetPlugin(BasePlugin):
-    def __init__(self, socket, framework):
-        print('Spawned TelnetPlugin!')
-        self.frmwk = framework
-        BasePlugin.__init__(self, socket, framework)
 
-    # @command('echo')
-    # def command_echo(self, params):
-    #     '''<text to echo>
-    #     Echo text back to the console.
-    #     This command simply echos the provided text
-    #     back to the console.
-    #     '''
-    #     pass
-    #
-    # @command('info')
-    # def command_info(self, params):
-    #     '''
-    #     Provides some information about the current terminal.
-    #     '''
-    #     self.writeresponse( "Username: %s, terminal type: %s" % (self.username, self.TERM) )
-    #     self.writeresponse( "Command history:" )
-    #     for c in self.history:
-    #         self.writeresponse("  %r" % c)
+    def telnet_login(self):
+        pass
 
+    def telnet_help(self):
+        pass
 
+    def telnet_echo(self):
+        pass
+
+    def telnet_quit(self):
+        pass
 
     def do_track(self):
         welcome = 'Welcome to %s\n' % self._localAddress
         self._skt.send(welcome.encode())
+
+        self.telnet_login()
+
         escape = b'\x1e'
         data = ''
         self.user_input = 'BEGIN USER DATA ::'
@@ -75,6 +60,5 @@ class TelnetPlugin(BasePlugin):
     def form_data_for_insert(self, raw_data):
         # Would like to be able to read config data from either base or framework if possible, would also like table
         # name derived from elsewhere
-        event_time = datetime.datetime.now().isoformat()
-        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test', 'eventDateTime': event_time}}
+        data = {'test_telnet': {'User_Data': raw_data, 'Test_col': 'This is a test'}}
         self.do_save(data)
