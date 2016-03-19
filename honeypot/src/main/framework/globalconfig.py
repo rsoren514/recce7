@@ -48,19 +48,7 @@ class GlobalConfig:
     # Config API
     #
 
-    '''
-    Returns the filesystem path to the database file.
 
-    :return: a string containing an absolute filesystem path
-    '''
-    def get_db_path(self):
-        #
-        # TODO: Fill in this stub
-        #       It should override this default, built-in path
-        #       when a path is provided in the config file.
-        #
-        '''BEN changed this line to refer to get_db_dir() method'''
-        return self.get_db_dir() + '/honeyDB.sqlite'
 
 
     '''BEN added this method because he will use it to create the directory

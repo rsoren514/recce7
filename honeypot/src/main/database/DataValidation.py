@@ -28,7 +28,7 @@ class DataValidation:
         #table = co.get_config(8082).get('table')
         self.table_schema = {}
         self.tables = []
-        connection = sqlite3.connect(global_config_instance.get_db_path())
+        connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
         cursor = connection.cursor()
         #will want to loop here through all tables found and store each schema
         #as an element in a list, this will require code changes throughout this file
@@ -45,7 +45,7 @@ class DataValidation:
     def update_tables_and_schema(self,global_config_instance):
         self.table_schema.clear()
         del self.tables[:]
-        connection = sqlite3.connect(global_config_instance.get_db_path())
+        connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
         cursor = connection.cursor()
         #will want to loop here through all tables found and store each schema
         #as an element in a list, this will require code changes throughout this file

@@ -14,11 +14,16 @@ def create_default_database(global_config_instance):
         print("Database Directory not found, creating database directory...")
         os.mkdir(global_config_instance.get_db_dir())
 
+    #os.chmod(global_config_instance.get_db_dir(),0o777)
+
     '''if database file does not exist in directory create it'''
-    if not os.path.exists(global_config_instance.get_db_path()):
+    if not os.path.exists(global_config_instance.get_db_dir() + '/honeyDB.sqlite'):
         print("Database File not found, creating database file...")
-        connection = sqlite3.connect(global_config_instance.get_db_path())
+        connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
         connection.close()
+
+
+
     '''now the database is guaranteed to exist, we must find out if the
        schema is correct and create the appropriate tables I am creating
        another validation object for this purpose and am also storing the

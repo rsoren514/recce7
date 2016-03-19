@@ -76,10 +76,10 @@ class FrameworkTest(unittest.TestCase):
 #        main()
 #        self.assertTrue(mock_framework_start.called)
 
-    def test_get_db_path(self):
+    def test_get_db_dir(self):
         fw = Framework(config_path)
-        self.assertEqual(fw.global_config.get_db_path(),
-                         os.getenv('HOME') + '/honeyDB/honeyDB.sqlite')
+        self.assertEqual(fw.global_config.get_db_dir(),
+                         os.getenv('HOME') + '/honeyDB')
 
     def get_current_umask(self):
         # Python has no way to obtain the current umask without
