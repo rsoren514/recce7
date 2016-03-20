@@ -1,2 +1,2 @@
 
-A minimal webserver written in python
+A minimal report server written in python

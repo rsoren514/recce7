@@ -35,10 +35,11 @@ Author: Charlie Mitchell
 Last Revised: 4 March, 2016
 '''
 
-import json
-import sqlite3
 import os
-from manager import dateTimeUtility
+import sqlite3
+
+from reportserver.manager import dateTimeUtility
+
 
 # Connect to given database
 def connect(database_name):

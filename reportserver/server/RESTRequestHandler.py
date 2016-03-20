@@ -1,7 +1,7 @@
 import json
 from http.server import BaseHTTPRequestHandler
 
-from manager import utilities
+from reportserver.manager import utilities
 
 notFoundPayload = {}
 

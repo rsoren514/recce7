@@ -1,4 +1,4 @@
 #!/bin/bash
-export PYTHONPATH=${PYTHONPATH}:$PWD/reportserver/src/main
+export PYTHONPATH=${PYTHONPATH}:$PWD/reportserver/
 echo $PYTHONPATH
-python3 $PWD/reportserver/src/main/server/main.py
+python3 $PWD/reportserver/server/main.py

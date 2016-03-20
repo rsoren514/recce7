@@ -1,5 +1,6 @@
-from manager.PortManager import PortManager
-from server.RESTRequestHandler import RestRequestHandler
+from reportserver.server.RESTRequestHandler import RestRequestHandler
+
+from reportserver.manager.PortManager import PortManager
 
 
 # Todo:  set up method for each path
