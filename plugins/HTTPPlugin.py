@@ -119,6 +119,7 @@ class HTTPPlugin(BasePlugin):
         handler.get_body()
         self.create_entry(handler)
         handler.finish()
+        self._skt = None
 
     def create_entry(self, handler):
         entry = {'HTTP' : {'METHOD' : handler.command,
