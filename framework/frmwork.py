@@ -27,7 +27,8 @@ class Framework:
         print('RECCE7 starting (pid ' + str(os.getpid()) + ')')
         print('Press Ctrl+C to exit.\n')
         self.set_shutdown_hook()
-        self.drop_permissions()
+        if not self.drop_permissions():
+            return
         self.global_config.read_config()
         self.data_manager = DataManager(self.global_config)
         self.data_manager.start()
@@ -36,17 +37,18 @@ class Framework:
     @staticmethod
     def drop_permissions():
         if os.getuid() != 0:
-            return
+            return True
 
         dist_name = os.getenv('RECCE7_OS_DIST')
         users_dict = {'centos': ('nobody', 'nobody'),
                       'debian': ('nobody', 'nogroup')}
         if dist_name not in users_dict:
-            raise Exception(
-                'Unable to lower permission level - not continuing as '
-                'superuser. Please set the environment variable RECCE7_OS_DIST '
-                'to one of:\n\tcentos\n\tdebian\nor rerun as a non-superuser.'
-            )
+            print(
+                'Unable to lower permission level - not continuing as\n'
+                'superuser. Please set the environment variable\n'
+                'RECCE7_OS_DIST to one of:\n\tcentos\n\tdebian\n'
+                'or rerun as a non-superuser.')
+            return False
         lowperm_user = users_dict[dist_name]
         nobody_uid = pwd.getpwnam(lowperm_user[0]).pw_uid
         nogroup_gid = grp.getgrnam(lowperm_user[1]).gr_gid
@@ -55,6 +57,8 @@ class Framework:
         os.setgid(nogroup_gid)
         os.setuid(nobody_uid)
         os.umask(0o077)
+
+        return True
 
     def create_import_entry(self, port, name):
         imp = import_module('plugins.' + name)
