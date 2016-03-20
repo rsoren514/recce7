@@ -5,7 +5,6 @@ import grp
 import os
 import pwd
 import signal
-
 from database.DataManager import DataManager
 from framework.globalconfig import GlobalConfig
 from framework.networklistener import NetworkListener
@@ -24,6 +23,8 @@ class Framework:
         self.shutting_down = False
 
     def start(self):
+        print('RECCE7 starting (pid ' + str(os.getpid()) + ')')
+        print('Press Ctrl+C to exit.\n')
         self.set_shutdown_hook()
         self.drop_permissions()
         self.global_config.read_config()
@@ -33,11 +34,6 @@ class Framework:
 
     @staticmethod
     def drop_permissions():
-        #
-        # If we're not already root, don't bother dropping
-        # permissions; authbind won't be able to bind low ports
-        # anyway.
-        #
         if os.getuid() != 0:
             return
 
@@ -47,8 +43,8 @@ class Framework:
         if dist_name not in users_dict:
             raise Exception(
                 'Unable to lower permission level - not continuing as '
-                'superuser.\n\nPlease set the environment variable '
-                'RECCE7_OS_DIST to one of:\n\tcentos\n\tdebian\n'
+                'superuser. Please set the environment variable RECCE7_OS_DIST '
+                'to one of:\n\tcentos\n\tdebian\nor rerun as a non-superuser.'
             )
         lowperm_user = users_dict[dist_name]
         nobody_uid = pwd.getpwnam(lowperm_user[0]).pw_uid
@@ -65,9 +61,8 @@ class Framework:
 
     def start_listeners(self):
         ports = self.global_config.get_ports()
-        print("the ports are: " + str(ports))
         for port in ports:
-            print("spawning this port:" + str(port))
+            print('Listener started on port: ' + str(port))
             plugin_config = self.global_config.get_plugin_config(port)
             module = plugin_config['module']
             self.create_import_entry(port, module)
