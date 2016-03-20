@@ -22,36 +22,14 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
-from dao import DatabaseHandler
-from manager import dateTimeUtility
 
-class PortManager ():
-
-    #TODO:
-    # Port Manager: calls necessary managers and utilities to generate parameters for sql.
-    #  Mgr for reading config files to know what table /column names there are.
-    #  Utility for calc time range
-    #
-    #
-    validPortNumbers = ()
-
-    def __init__(self):
-        # TODO:  get from config file
-        self.validPortNumbers = (8023, 8082, 8083)
-
-
-    def isPortValid(self, port_number):
-        if (port_number in self.validPortNumbers):
-            return True
-        else:
-            return False
-
-    def getPort(self, port_number, uom, unit):
-        print("Retrieving port:" + str(port_number))
-
-        if self.isPortValid(port_number):
-            return DatabaseHandler.getJson(port_number, uom, unit )
-        else:
-            return None
-
+def getIntValue(givenStr):
+    print("given str is: " + givenStr)
+    try:
+        returnval = int(givenStr)
+        return returnval
+    except Exception as e:
+        print("received invalid string to convert to int: " + givenStr)
+        print (str(e))
+        return None
 

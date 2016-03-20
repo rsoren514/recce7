@@ -1,7 +1,7 @@
-from http.server import HTTPServer
 import time
-from server.PortsServiceHandler import PortsServiceHandler
+from http.server import HTTPServer
 
+from reportserver.server.PortsServiceHandler import PortsServiceHandler
 
 # TODO: configure these params somewhere else to be edited by admin installer
 
