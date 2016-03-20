@@ -83,9 +83,9 @@ class GetJSONTests(unittest.TestCase):
         conn = sqlite3.connect("TestDB.db")
         c = conn.cursor()
 
-        # Uncomment lines below if TestDB does not exist. Re-comment after first run.
-        #self.addgdata(c)
-        #conn.commit()
+        # creates the table and then adds rows
+        self.addgdata(c)
+        conn.commit()
 
         query = "SELECT * FROM Castlevania"
         # will need location of DB for this test
@@ -95,6 +95,13 @@ class GetJSONTests(unittest.TestCase):
         c.execute(query)
         gj_c.execute(query)
         self.assertEqual(c.fetchall(), gj_c.fetchall())
+
+        dropTable = "DROP TABLE if exists Castlevania;"
+        c.executescript(dropTable)
+
+        dropTable = "DROP TABLE if exists Zelda;"
+        c.executescript(dropTable)
+
         conn.close()
 
     # For now, need to manually confirm that query is returned in JSON
@@ -118,7 +125,7 @@ class GetJSONTests(unittest.TestCase):
 
     # Currently assuming portnumber is the table (which is wrong), but will keep for this test for now.
     def test_getjson(self):
-        query = DatabaseHandler.getJson("Castlevania", "week", 150)
+        query = DatabaseHandler.getJson("Castlevania", "weeks", 150)
         expected = [
             {"title": "Castlevania: Lords of Shadow 2", "datetime": "2014-02-25T00:00:00", "system": "PlayStation 3"},
             {"title": "Castlevania: Lords of Shadow 2", "datetime": "2014-02-25T00:00:00", "system": "Xbox 360"}

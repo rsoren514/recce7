@@ -33,7 +33,7 @@ Last Revised: 28 February, 2016
 
 import datetime
 
-from reportserver.manager import UnitOfMeasure
+from reportserver.manager.UnitOfMeasure import UnitOfMeasure
 
 
 # Return the date for how far back to query DB.
