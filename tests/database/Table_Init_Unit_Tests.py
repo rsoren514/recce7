@@ -1,8 +1,9 @@
-import unittest
-import sqlite3
-from database import Table_Init
 import shutil
+import sqlite3
+import unittest
+
 from database import DB_Init
+from database import Table_Init
 
 #unit tests
 
@@ -14,8 +15,9 @@ class TableCreationTestCase(unittest.TestCase):
     def test_create_table(self):
         DB_Init.create_default_database()
         Table_Init.create_table('TestTable1')
-        connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                     DB_Init.get_database_config_name())
+        connection = sqlite3.connect(
+            DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
+            DB_Init.get_database_config_name())
         cursor = connection.cursor()
         table_list = cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()[0]
         self.assertIn('TestTable1', table_list)
@@ -37,8 +39,9 @@ class TableColumnAddTestCase(unittest.TestCase):
     def test_add_columns(self):
         col_list = [[1, 'Fruit', 'TEXT'], [2, 'Quantity', 'INTEGER'], [3, 'Color', 'TEXT']]
         Table_Init.add_columns('TestTable1', col_list)
-        connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                     DB_Init.get_database_config_name())
+        connection = sqlite3.connect(
+            DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
+            DB_Init.get_database_config_name())
         cursor = connection.cursor()
         column_data = cursor.execute("PRAGMA table_info(TestTable1)").fetchall()
         connection.close()
@@ -66,8 +69,9 @@ class TableColumnAddOrderTestCase(unittest.TestCase):
     def test_add_columns(self):
         col_list = [[3, 'Color', 'TEXT'], [1, 'Fruit', 'TEXT'], [2, 'Quantity', 'INTEGER']]
         Table_Init.add_columns('TestTable1', col_list)
-        connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                     DB_Init.get_database_config_name())
+        connection = sqlite3.connect(
+            DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
+            DB_Init.get_database_config_name())
         cursor = connection.cursor()
         column_data = cursor.execute("PRAGMA table_info(TestTable1)").fetchall()
         connection.close()

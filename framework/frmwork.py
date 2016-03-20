@@ -1,16 +1,17 @@
-__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
-             'Randy Sorensen <sorensra@msudenver.edu>'
-
 import grp
 import os
 import pwd
 import signal
-from database.DataManager import DataManager
-from framework.globalconfig import GlobalConfig
-from framework.networklistener import NetworkListener
-from importlib import import_module
 
-default_cfg_path = '/config/plugins.cfg'
+from importlib import import_module
+from common.globalconfig import GlobalConfig
+from database.DataManager import DataManager
+from framework.networklistener import NetworkListener
+
+__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
+             'Randy Sorensen <sorensra@msudenver.edu>'
+
+default_cfg_path = 'config/plugins.cfg'
 
 
 class Framework:
@@ -143,8 +144,9 @@ class Framework:
 
         self.running_plugins_list.remove(plugin)
 
-#def main(cfg_path=None):
-#    framework = Framework(cfg_path or default_cfg_path)
-#    framework.start()
 
-#if __name__ == '__main__': main()
+def main(cfg_path=None):
+    framework = Framework(cfg_path or default_cfg_path)
+    framework.start()
+
+if __name__ == '__main__': main()

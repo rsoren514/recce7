@@ -1,5 +1,5 @@
-import os
 import unittest
+
 from database import DataQueue
 
 #unit tests

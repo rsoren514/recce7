@@ -1,9 +1,11 @@
 __author__ = 'Ben Phillips'
 
-import sqlite3
 import os
+import sqlite3
+
 from database import Table_Init
 from database.DataValidation import DataValidation
+
 '''use to create a folder and sqlite data file in the users home directory'''
 
 
@@ -50,7 +52,7 @@ def create_default_database(global_config_instance):
     '''create database tables that do not exist'''
     if len(table_diff) > 0:
         for table in table_diff:
-            Table_Init.create_table(table,global_config_instance)
+            Table_Init.create_table(table, global_config_instance)
     '''now that the tables do exist lets update the information from the database'''
     dv.update_tables_and_schema(global_config_instance)
 
@@ -95,7 +97,7 @@ def create_default_database(global_config_instance):
         #print('transformed_db_column_lists: ' + str(transformed_db_column_list))
         #using list comprehension to compare order of columns without numeric id
         if not [(x[1],x[2]) for x in config_column_lists.get(table)] == [(x[1],x[2]) for x in transformed_db_column_list.get(table)]:
-            Table_Init.change_table_structure(table,config_column_lists.get(table),database_column_lists.get(table),global_config_instance)
+            Table_Init.change_table_structure(table, config_column_lists.get(table), database_column_lists.get(table), global_config_instance)
 
     '''create a list of columns to add per table'''
     #print(transformed_db_column_list)

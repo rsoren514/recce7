@@ -1,7 +1,9 @@
 __author__ = 'Ben Phillips'
 
 import queue
+
 from database import DataValidation
+
 
 class dataQueue:
 

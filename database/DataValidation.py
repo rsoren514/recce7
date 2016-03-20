@@ -1,11 +1,10 @@
 __author__ = 'Ben Phillips'
 #this file will validate data and provide functionality to sort data by the columns defined in the database
-import re
 #from honeypot.src.database import DB_Init
 #from honeypot.src.database.config_temp import TempConfigObject
 import sqlite3
-import database.Table_Init
 from copy import deepcopy
+
 
 class DataValidation:
 
@@ -156,13 +155,13 @@ class DataValidation:
     def remove_default_columns_from_list(collection):
         collection_copy = deepcopy(collection)
         if isinstance(collection_copy,list):
-            for col in database.Table_Init.default_columns:
+            for col in Table_Init.default_columns:
 
                 if col[0] in collection_copy:
                     collection_copy.remove(col[0])
             return collection_copy
         if isinstance(collection_copy,dict):
-            for col in database.Table_Init.default_columns:
+            for col in Table_Init.default_columns:
                 if col[0] in collection_copy:
                     del collection_copy[col[0]]
             return collection_copy

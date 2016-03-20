@@ -1,10 +1,10 @@
-__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
-             'Randy Sorensen <sorensra@msudenver.edu>'
-
 import platform
 import socket
 
 from threading import Thread, Lock
+
+__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
+             'Randy Sorensen <sorensra@msudenver.edu>'
 
 HOST = ''
 

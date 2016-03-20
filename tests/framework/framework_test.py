@@ -1,6 +1,3 @@
-__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
-             'Randy Sorensen <sorensra@msudenver.edu>'
-
 import grp
 import os
 import pwd
@@ -9,14 +6,17 @@ import unittest
 import unittest.mock
 from database.DataManager import DataManager
 from framework.frmwork import Framework
+from framework.frmwork import main
 from framework.networklistener import NetworkListener
 from plugins.BasePlugin import BasePlugin
 from plugins.HTTPPlugin import HTTPPlugin
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
+__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
+             'Randy Sorensen <sorensra@msudenver.edu>'
 
-config_path = '/tests/testConfig.cfg'
+config_path = 'tests/framework/testConfig.cfg'
 
 
 def make_mock_config(port, module):
@@ -74,10 +74,10 @@ class FrameworkTest(unittest.TestCase):
             framework.spawn(socket.socket(), {'port': 8082})
         self.assertTrue(mock_http_start.called)
 
-#    @patch.object(Framework, 'start')
-#    def test_main(self, mock_framework_start):
-#        main()
-#        self.assertTrue(mock_framework_start.called)
+    @patch.object(Framework, 'start')
+    def test_main(self, mock_framework_start):
+        main()
+        self.assertTrue(mock_framework_start.called)
 
     def test_get_db_dir(self):
         fw = Framework(config_path)

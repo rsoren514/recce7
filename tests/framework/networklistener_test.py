@@ -1,14 +1,15 @@
-__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
-             'Randy Sorensen <sorensra@msudenver.edu>'
-
 import socket
 import unittest
-from frmwork import Framework
-from networklistener import NetworkListener
+
+from framework.frmwork import Framework
+from framework.networklistener import NetworkListener
 from unittest.mock import Mock
 from unittest.mock import patch
 
-config_path = '/tests/testConfig.cfg'
+__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
+             'Randy Sorensen <sorensra@msudenver.edu>'
+
+config_path = 'tests/framework/testConfig.cfg'
 
 
 def make_mock_config(port, module):
@@ -25,7 +26,7 @@ class NetworkListenerTest(unittest.TestCase):
     def setUp(self):
         pass
 
-    @patch('networklistener.NetworkListener.start_listening')
+    @patch('framework.networklistener.NetworkListener.start_listening')
     def test_plugins_enabled(self, mock_start_listening):
         mock_config = make_mock_config(8082, 'HTTPPlugin')
         listener = NetworkListener(mock_config, None)
@@ -45,7 +46,8 @@ class NetworkListenerTest(unittest.TestCase):
     @patch.object(Framework, 'spawn')
     def test_start_listening(self, mock_framework):
         mock_config = make_mock_config(8082, 'HTTPPlugin')
-        with patch('networklistener.socket.socket.accept') as mock_accept:
+        with patch('framework.networklistener.socket.socket.accept') \
+                as mock_accept:
             mock_accept.return_value = (socket.socket(), '192.168.1.1')
             listener = NetworkListener(mock_config, mock_framework)
             listener.running = True
@@ -97,7 +99,7 @@ class NetworkListenerTest(unittest.TestCase):
             self.fail('ConnectionAbortedError should be handled when listener '
                       'is not running.')
 
-    @patch('networklistener.NetworkListener.join')
+    @patch('framework.networklistener.NetworkListener.join')
     def test_nl_shutdown(self, mock_join):
         mock_config = make_mock_config(8082, 'HTTPPlugin')
         mock_socket = Mock()

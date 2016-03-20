@@ -1,8 +1,10 @@
 __author__ = 'Ben Phillips'
 
 import sqlite3
+
 from database import DB_Init
 from database import DataValidation
+
 '''this method will have to change somewhat. The group decided they wanted the plugin
    writers to populate a dictionary instead of a list that maps the name (column) to the
    value to be inserted that way they do not have to worry about order when calling this
@@ -10,8 +12,9 @@ from database import DataValidation
 
 
 def insert_data(name, data_list):
-    connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                 DB_Init.get_database_config_name())
+    connection = sqlite3.connect(
+        DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
+        DB_Init.get_database_config_name())
     cursor = connection.cursor()
     delimiter = ','
     param_placeholder = delimiter.join('?' * len(data_list))
@@ -28,7 +31,8 @@ def insert_data(name, data_list):
 
 def prepare_data_for_insertion(schema, data):
     #get the correct table schema we want to sort to
-    table_schema = schema[DataValidation.DataValidation.get_first_key_value_of_dictionary(data)]
+    table_schema = schema[
+        DataValidation.DataValidation.get_first_key_value_of_dictionary(data)]
     #print(table_schema)
     #break the table/data dictionary into a table name and a dictionary of data
     table_name = DataValidation.DataValidation.get_first_key_value_of_dictionary(data)

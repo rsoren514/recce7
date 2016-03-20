@@ -1,8 +1,8 @@
-__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
-             'Randy Sorensen <sorensra@msudenver.edu>'
-
 import configparser
 import os
+
+__author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
+             'Randy Sorensen <sorensra@msudenver.edu>'
 
 
 class GlobalConfig:
@@ -33,8 +33,7 @@ class GlobalConfig:
         return port, module, config_object
 
     def read_config(self):
-        plugin_config_file = os.path.dirname(
-            os.path.abspath(__file__)) + self.cfg_path
+        plugin_config_file = self.cfg_path
         self.plugin_config.read(plugin_config_file)
 
         plugins = self.plugin_config.sections()

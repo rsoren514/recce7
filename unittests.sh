@@ -12,22 +12,18 @@ else
     exit
 fi
 
-# set PYTHONPATH correctly
-export PYTHONPATH=$PWD/honeypot/src/main:$PWD/honeypot/src/main/framework
-echo "Python path: $PYTHONPATH"
-
 # ensure all stale coverage data is removed
 coverage3 erase
 
-
+export PYTHONPATH=./
 
 #
 # Run the unit tests
 #
 
 # Framework:
-coverage3 run -a honeypot/src/main/framework/tests/framework_test.py > /dev/null
-coverage3 run -a honeypot/src/main/framework/tests/networklistener_test.py > /dev/null
+coverage3 run -a tests/framework/framework_test.py > /dev/null
+coverage3 run -a tests/framework/networklistener_test.py > /dev/null
 
 # Database:
 

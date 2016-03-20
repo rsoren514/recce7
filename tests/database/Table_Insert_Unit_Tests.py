@@ -1,9 +1,10 @@
+import shutil
+import sqlite3
+import unittest
+
 from database import DB_Init
 from database import Table_Init
 from database import Table_Insert
-import sqlite3
-import unittest
-import shutil
 
 #unit tests
 '''This test checks that the insert_data function works. Note: this will need to change
@@ -18,7 +19,7 @@ class table_insert_test_case(unittest.TestCase):
         table = 'TEST1'
         DB_Init.create_default_database()
         Table_Init.create_table(table)
-        Table_Init.add_columns(table,table_cols)
+        Table_Init.add_columns(table, table_cols)
 
     def test_insert_data(self):
         table = 'TEST1'
@@ -30,10 +31,11 @@ class table_insert_test_case(unittest.TestCase):
         data2.append('Banana')
         data2.append(5)
         data2.append('Yellow')
-        Table_Insert.insert_data(table,data)
-        Table_Insert.insert_data(table,data2)
-        connection = sqlite3.connect(DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-                                     DB_Init.get_database_config_name())
+        Table_Insert.insert_data(table, data)
+        Table_Insert.insert_data(table, data2)
+        connection = sqlite3.connect(
+            DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
+            DB_Init.get_database_config_name())
         cursor = connection.cursor()
         result = cursor.execute('select * from TEST1 where ID = 1').fetchall()[0]
         result2 = cursor.execute('select * from TEST1 where ID = 2').fetchall()[0]

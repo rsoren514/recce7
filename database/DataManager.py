@@ -2,6 +2,7 @@ __author__ = 'Ben Phillips'
 
 '''we will need threading and a condition variable for synchronization'''
 from threading import Thread, Condition
+
 from database import DataQueue, DB_Init, Table_Insert
 
 '''This is the DataManager class, it creates the database, data queue and
