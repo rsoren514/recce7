@@ -1,5 +1,7 @@
 import unittest
-from server.PortsServiceHandler import PortsServiceHandler
+
+from reportserver.server.PortsServiceHandler import PortsServiceHandler
+
 
 def fun(x):
     return x + 1

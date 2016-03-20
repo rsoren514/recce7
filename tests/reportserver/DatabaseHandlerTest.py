@@ -1,7 +1,7 @@
 import unittest
 import sqlite3
 
-from webserver.src.main.server import GetJSON
+from reportserver.dao import DatabaseHandler
 
 class GetJSONTests(unittest.TestCase):
 
@@ -89,7 +89,7 @@ class GetJSONTests(unittest.TestCase):
 
         query = "SELECT * FROM Castlevania"
         # will need location of DB for this test
-        gj_db = GetJSON.db(database_name="TestDB.db")
+        gj_db = DatabaseHandler.connect(database_name="TestDB.db")
         gj_c = gj_db.cursor()
 
         c.execute(query)
@@ -99,7 +99,7 @@ class GetJSONTests(unittest.TestCase):
 
     # For now, need to manually confirm that query is returned in JSON
     def test_query_db(self):
-        json_query = GetJSON.query_db("SELECT * FROM Castlevania where (system = 'NES')")
+        json_query = DatabaseHandler.query_db("SELECT * FROM Castlevania where (system = 'NES')")
         expected = [
             {'title': 'Castlevania', 'system': 'NES', 'datetime': '1987-05-01T00:00:00'},
             {'title': 'Castlevania II: Simons Quest', 'system': 'NES', 'datetime': '1988-12-01T00:00:00'},
@@ -107,7 +107,7 @@ class GetJSONTests(unittest.TestCase):
         ]
         self.assertEqual(json_query, expected)
 
-        json_query = GetJSON.query_db("SELECT * FROM Zelda where (year <= '1993')")
+        json_query = DatabaseHandler.query_db("SELECT * FROM Zelda where (year <= '1993')")
         expected = [
             {'system': 'NES', 'title': 'The Legend of Zelda', 'year': '1987'},
             {'system': 'NES', 'title': 'Zelda II: The Adventure of Link', 'year': '1988'},
@@ -118,7 +118,7 @@ class GetJSONTests(unittest.TestCase):
 
     # Currently assuming portnumber is the table (which is wrong), but will keep for this test for now.
     def test_getjson(self):
-        query = GetJSON.getjson("Castlevania", "week", 150)
+        query = DatabaseHandler.getJson("Castlevania", "week", 150)
         expected = [
             {"title": "Castlevania: Lords of Shadow 2", "datetime": "2014-02-25T00:00:00", "system": "PlayStation 3"},
             {"title": "Castlevania: Lords of Shadow 2", "datetime": "2014-02-25T00:00:00", "system": "Xbox 360"}

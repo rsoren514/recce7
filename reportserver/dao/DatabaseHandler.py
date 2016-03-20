@@ -46,7 +46,7 @@ def connect(database_name):
     return sqlite3.connect(database_name)
 
 # Query DB and return JSON
-# setting DB to TestDB created from GetJSONUnitTests.py
+# setting DB to TestDB created from DatabaseHandlerTest.py
 def query_db(query, args=(), one=False):
     cur = connect(get_db_path()).cursor()
     cur.execute(query, args)
