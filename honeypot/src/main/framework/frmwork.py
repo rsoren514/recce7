@@ -13,8 +13,6 @@ import pwd
 
 import signal
 
-import platform
-
 default_cfg_path = '/config/plugins.cfg'
 
 
@@ -23,7 +21,9 @@ class Framework:
         self.global_config = GlobalConfig(cfg_path)
         self.plugin_imports = {}
         self.listener_list = {}
+        self.running_plugins_list = []
         self.data_manager = None
+        self.shutting_down = False
 
     def start(self):
         self.set_shutdown_hook()
@@ -33,7 +33,8 @@ class Framework:
         self.data_manager.start()
         self.start_listeners()
 
-    def drop_permissions(self):
+    @staticmethod
+    def drop_permissions():
         #
         # If we're not already root, don't bother dropping
         # permissions; authbind won't be able to bind low ports
@@ -42,23 +43,22 @@ class Framework:
         if os.getuid() != 0:
             return
 
-        users_dict = {
-            'centos': ('nobody', 'nobody'),
-            'debian': ('nobody', 'nogroup')
-        }
         dist_name = os.getenv('RECCE7_OS_DIST')
+        users_dict = {'centos': ('nobody', 'nobody'),
+                      'debian': ('nobody', 'nogroup')}
         if dist_name not in users_dict:
-            return
+            raise Exception(
+                'Unable to lower permission level - not continuing as '
+                'superuser.\n\nPlease set the environment variable '
+                'RECCE7_OS_DIST to one of:\n\tcentos\n\tdebian\n'
+            )
         lowperm_user = users_dict[dist_name]
-
         nobody_uid = pwd.getpwnam(lowperm_user[0]).pw_uid
         nogroup_gid = grp.getgrnam(lowperm_user[1]).gr_gid
 
         os.setgroups([])
-
         os.setgid(nogroup_gid)
         os.setuid(nobody_uid)
-
         os.umask(0o077)
 
     def create_import_entry(self, port, name):
@@ -81,10 +81,19 @@ class Framework:
         signal.signal(signal.SIGINT, self.shutdown)
 
     def shutdown(self, *args):
+        self.shutting_down = True
+
         print("Shutting down network listeners")
         for listener in self.listener_list.values():
             listener.shutdown()
+
+        print("Shutting down plugins")
+        for plugin in self.running_plugins_list:
+            plugin.shutdown()
+
+        print("Shutting down data manager")
         self.data_manager.shutdown()
+
         print("Goodbye.")
 
     #
@@ -116,6 +125,7 @@ class Framework:
         plugin_class = self.plugin_imports[config['port']]
         plugin = plugin_class(socket, self)
         plugin.start()
+        self.running_plugins_list.append(plugin)
         return plugin
 
     '''
@@ -127,8 +137,18 @@ class Framework:
     def insert_data(self, data):
         self.data_manager.insert_data(data)
 
+    '''
+    Tells the framework that the specified plugin has stopped
+    running and doesn't need to be shutdown explicitly on program
+    exit.
+
+    :param plugin: a reference to a plugin
+    '''
     def plugin_stopped(self, plugin):
-        pass
+        if self.shutting_down:
+            return
+
+        self.running_plugins_list.remove(plugin)
 
 #def main(cfg_path=None):
 #    framework = Framework(cfg_path or default_cfg_path)

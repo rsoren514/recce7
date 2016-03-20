@@ -49,24 +49,14 @@ class GlobalConfig:
     #
 
     '''
-    Returns the filesystem path to the database file.
+    Returns a string indicating the location where the SQLite
+    database file will be stored.
 
-    :return: a string containing an absolute filesystem path
+    :return: a string containing an absolute path
     '''
-    def get_db_path(self):
-        #
-        # TODO: Fill in this stub
-        #       It should override this default, built-in path
-        #       when a path is provided in the config file.
-        #
-        '''BEN changed this line to refer to get_db_dir() method'''
-        return self.get_db_dir() + '/honeyDB.sqlite'
-
-
-    '''BEN added this method because he will use it to create the directory
-       first if it does not exist'''
     def get_db_dir(self):
         return os.getenv('HOME') + '/honeyDB'
+
     '''
     Returns a list of ports with enabled plugins listening.
 
