@@ -50,11 +50,18 @@ class TelnetPlugin(BasePlugin):
         # b'' is what I am getting back when the user calls close from the local telnet prompt, may want to look at
         # reading FIN signals from socket somehow, but this works for now
         while data != escape and data != b'':
-            data = self._skt.recv(1024)
+            try:
+                data = self._skt.recv(1024)
+            except OSError as e:
+                if not self._skt:
+                    break
+                raise e
+
             self.user_input += '\n%s' % data
             self._skt.sendall(data)
 
-        self._skt.send(b'\nGoodbye.\n')
+        if self._skt:
+            self._skt.send(b'\nGoodbye.\n')
         self.form_data_for_insert(self.user_input)
 
     def form_data_for_insert(self, raw_data):

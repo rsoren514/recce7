@@ -1,3 +1,4 @@
+import platform
 import socket
 from threading import Thread
 
@@ -56,9 +57,12 @@ class BasePlugin(Thread):
         self.kill_plugin = True
 
         if self._skt:
-            self._skt.shutdown(socket.SHUT_RDWR)
-            self._skt.detach()
-            self._skt.close()
+            old_skt = self._skt
+            self._skt = None
+            if platform.system() == 'Linux':
+                old_skt.shutdown(socket.SHUT_RDWR)
+                old_skt.detach()
+            old_skt.close()
         else:
             print("Socket already closed for plugin thread name: " + self.name)
 

@@ -1,17 +1,15 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-from database.DataManager import DataManager
-from framework.globalconfig import GlobalConfig
-from framework.networklistener import NetworkListener
-
-from importlib import import_module
-
 import grp
 import os
 import pwd
-
 import signal
+
+from database.DataManager import DataManager
+from framework.globalconfig import GlobalConfig
+from framework.networklistener import NetworkListener
+from importlib import import_module
 
 default_cfg_path = '/config/plugins.cfg'
 

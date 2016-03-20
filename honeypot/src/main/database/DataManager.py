@@ -54,6 +54,7 @@ class DataManager(Thread):
         self.condition.acquire()
         self.condition.notify()
         self.condition.release()
+        self.join()
         print('done.')
 
     def check_kill_status(self):

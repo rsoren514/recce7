@@ -1,7 +1,9 @@
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
+import platform
 import socket
+
 from threading import Thread, Lock
 
 HOST = ''
@@ -16,7 +18,7 @@ class NetworkListener(Thread):
         self.session_socket = None
         self.lock = Lock()
         self.running = False
-        self.connection_count = 0
+        self.__connection_count = 0
 
     @property
     def connection_count(self):
@@ -46,19 +48,17 @@ class NetworkListener(Thread):
     def start_listening(self, local_socket):
         try:
             (new_socket, addr) = local_socket.accept()
-            print("New connection from", addr, "on port", self.port)
-            self.framework.spawn(new_socket, self.config)
-
-        except OSError as e:
-            if e.errno == 22 and not self.running:
-                return
-            raise e
-
+            if self.running:
+                print("New connection from", addr, "on port", self.port)
+                self.framework.spawn(new_socket, self.config)
         except ConnectionAbortedError as e:
             if not self.running:
                 return
             raise e
-
+        except OSError as e:
+            if e.errno == 22 and not self.running:
+                return
+            raise e
         except Exception as e:
             print("Error on connection: ", e)
             raise e
@@ -66,7 +66,8 @@ class NetworkListener(Thread):
     def shutdown(self):
         self.running = False
         if self.session_socket:
-            self.session_socket.shutdown(socket.SHUT_RDWR)
-            self.session_socket.detach()
+            if platform.system() == 'Linux':
+                self.session_socket.shutdown(socket.SHUT_RDWR)
+                self.session_socket.detach()
             self.session_socket.close()
         self.join()

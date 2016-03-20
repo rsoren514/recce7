@@ -19,7 +19,7 @@ class GlobalConfig:
         enabled = self.plugin_config.get(plugin, 'enabled')
         column_defs = eval(self.plugin_config.get(plugin, 'tableColumns'))
         module = self.plugin_config.get(plugin, 'module')
-        rawSocket = self.plugin_config.get(plugin, 'rawSocket')
+        raw_socket = self.plugin_config.get(plugin, 'rawSocket')
 
         config_object = {
             'port': port,
@@ -27,10 +27,10 @@ class GlobalConfig:
             'enabled': enabled,
             'tableColumns': column_defs,
             'module': module,
-            'rawSocket': rawSocket
+            'rawSocket': raw_socket
         }
 
-        return (port, module, config_object)
+        return port, module, config_object
 
     def read_config(self):
         plugin_config_file = os.path.dirname(
