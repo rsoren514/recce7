@@ -114,7 +114,7 @@ class HTTPPluginHandler(BaseHTTPRequestHandler):
 '''
 class HTTPPlugin(BasePlugin):
     def do_track(self):
-        handler = HTTPPluginHandler(self.SOCKET)
+        handler = HTTPPluginHandler(self._skt)
         handler.handle_one_request()
         handler.get_body()
         self.create_entry(handler)
