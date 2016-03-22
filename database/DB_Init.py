@@ -11,13 +11,17 @@ from database.DataValidation import DataValidation
 
 def create_default_database(global_config_instance):
 
+    create_db_dir(global_config_instance)
+    create_db(global_config_instance)
+    update_schema(global_config_instance)
+
+def create_db_dir(global_config_instance):
     """if database directory does not exist create it"""
     if not os.path.isdir(global_config_instance.get_db_dir()):
         print("Database Directory not found, creating database directory...")
         os.mkdir(global_config_instance.get_db_dir())
 
-    #os.chmod(global_config_instance.get_db_dir(),0o777)
-
+def create_db(global_config_instance):
     '''if database file does not exist in directory create it'''
     if not os.path.exists(global_config_instance.get_db_dir() + '/honeyDB.sqlite'):
         print("Database File not found, creating database file...")
@@ -26,54 +30,73 @@ def create_default_database(global_config_instance):
 
 
 
+def update_schema(global_config_instance):
     '''now the database is guaranteed to exist, we must find out if the
        schema is correct and create the appropriate tables I am creating
        another validation object for this purpose and am also storing the
        schema and port list locally so that it is easy to do this'''
-    dv = DataValidation(global_config_instance)
-    schema_dict = global_config_instance.config_dictionary
-    port_list = global_config_instance.enabled_ports
-    current_database_table_list = dv.get_tables()
     '''holds the list of tables defined in the configuration'''
+    '''if the distinct sets of tables are not equal'''
+    '''create database tables that do not exist'''
+    create_non_exist_tables(table_list_diff(DataValidation(global_config_instance).get_tables(),
+                                            get_config_table_list(global_config_instance.enabled_ports,
+                                                                  global_config_instance.config_dictionary)),
+                            global_config_instance)
+    '''now that the tables do exist lets update the information from the database'''
+    DataValidation(global_config_instance).update_tables_and_schema(global_config_instance)
+    '''now our tables exist with a primary key sequence of ID'''
+    '''now i must check each table and add columns'''
+    '''create a dictionary of config column lists'''
+    '''create a dictionary of database column lists'''
+    update_schema_column_list(global_config_instance)
+    '''transform database column list this contains the column definitions in
+       the same way as the config does'''
+    update_table_structure(global_config_instance)
+
+'''returns the list of tables in the config that correspond to ports in the port list'''
+def get_config_table_list(port_list,schema_dict):
+
     config_table_list = []
     for port in port_list:
         config = schema_dict.get(port)
         config_table_list.append(config.get('table'))
-    '''if the distinct sets of tables are not equal'''
-    table_diff = []
+    return config_table_list
+
+'''return list of tables that are different between the current database table list and the config's table list'''
+def table_list_diff(current_database_table_list,config_table_list):
     if not set(current_database_table_list) == set(config_table_list):
         '''lets get the difference of the sets so that we can add new tables'''
         '''from what i can tell this is the left hand difference meaning that
            it will only show us what is in the config that isnt in the database
            already'''
         #print(current_database_table_list)
-        table_diff = list(set(config_table_list) - set(current_database_table_list))
+        return list(set(config_table_list) - set(current_database_table_list))
+    else: return []
 
-    '''create database tables that do not exist'''
+#create tables that do not exist from the table difference between the current database and the configuration
+def create_non_exist_tables(table_diff,global_config_instance):
     if len(table_diff) > 0:
         for table in table_diff:
             Table_Init.create_table(table, global_config_instance)
-    '''now that the tables do exist lets update the information from the database'''
-    dv.update_tables_and_schema(global_config_instance)
+        print('Updated database schema, table names now match configuration.')
+    else:
+        print('Database Schema and Configuration table names already match.')
 
-
-    '''now our tables exist with a primary key sequence of ID'''
-    '''now i must check each table and add columns'''
-    '''create a dictionary of config column lists'''
-
+def create_dict_config_column_list(global_config_instance):
     config_column_lists = {}
-    for port in port_list:
-        value = schema_dict.get(port)
+    for port in global_config_instance.enabled_ports:
+        value = global_config_instance.config_dictionary.get(port)
         config_column_lists[value.get('table')] = value.get('tableColumns')
-    '''create a dictionary of database column lists'''
+    return config_column_lists
+
+def create_dict_schema_column_list(global_config_instance):
     database_column_lists = {}
-    database_schema = dv.get_schema()
+    database_schema = DataValidation(global_config_instance).get_schema()
     for schema in database_schema:
         database_column_lists[schema] = database_schema.get(schema)
-    #print(config_column_lists)
-    #print(database_column_lists)
-    '''transform database column list this contains the column definitions in
-       the same way as the config does'''
+    return database_column_lists
+
+def create_dict_transformed_column_list(database_column_lists):
     transformed_db_column_list = {}
     for table in database_column_lists:
         col_list = database_column_lists.get(table)
@@ -84,51 +107,24 @@ def create_default_database(global_config_instance):
         default_list = []
         for default in Table_Init.default_columns:
             default_list.append(default[0])
-
         for column in col_list:
             #print(Table_Init.default_columns[0])
             '''ignores the default columns'''
             if column[1] in default_list:
                 continue
             transformed_db_column_list[table].append([column[0],column[1],column[2]])
+    return transformed_db_column_list
 
-    for table in config_column_lists:
-        #print('config_column_lists: ' + str(config_column_lists))
-        #print('transformed_db_column_lists: ' + str(transformed_db_column_list))
-        #using list comprehension to compare order of columns without numeric id
-        if not [(x[1],x[2]) for x in config_column_lists.get(table)] == [(x[1],x[2]) for x in transformed_db_column_list.get(table)]:
-            Table_Init.change_table_structure(table, config_column_lists.get(table), database_column_lists.get(table), global_config_instance)
+def update_schema_column_list(global_config_instance):
+    for schema in DataValidation(global_config_instance).get_schema():
+        create_dict_schema_column_list(global_config_instance)[schema] = \
+                                       DataValidation(global_config_instance).get_schema().get(schema)
 
-    '''create a list of columns to add per table'''
-    #print(transformed_db_column_list)
-    #Table_Init.change_table_structure('test4',None,global_config_instance)
-    #for port in port_list:
-
-'''these functions are stubbed at the moment we will want to link them to the
-   configuration utility once that is up and running'''
-
-
-def get_database_config_name():
-    return 'honeyDB.sqlite'
-
-
-def get_home_config_path():
-    return '/honeyDB'
-
-
-'''this returns the users HOME environment variable which we can use to decide
-   where to put the database, i believe we decided it can live in the users home
-   directory but the name of the file and the directory within home can be
-   configured in the config'''
-
-
-def get_home_dir():
-    return os.getenv('HOME')
-
-
-
-
-
-#todo
-
-
+def update_table_structure(global_config_instance):
+    for table in create_dict_config_column_list(global_config_instance):
+            if not [(x[1],x[2]) for x in create_dict_config_column_list(global_config_instance).get(table)] == \
+                   [(x[1],x[2]) for x in create_dict_transformed_column_list(create_dict_schema_column_list(global_config_instance)).get(table)]:
+                Table_Init.change_table_structure(table,
+                                                  create_dict_config_column_list(global_config_instance).get(table),
+                                                  create_dict_schema_column_list(global_config_instance).get(table),
+                                                  global_config_instance)
