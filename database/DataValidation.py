@@ -4,6 +4,7 @@ __author__ = 'Ben Phillips'
 #from honeypot.src.database.config_temp import TempConfigObject
 import sqlite3
 from copy import deepcopy
+from database import Table_Init
 
 
 class DataValidation:

@@ -62,6 +62,7 @@ class TelnetPlugin(BasePlugin):
 
         if self._skt:
             self._skt.send(b'\nGoodbye.\n')
+        self._skt = None
         self.form_data_for_insert(self.user_input)
 
     def form_data_for_insert(self, raw_data):
