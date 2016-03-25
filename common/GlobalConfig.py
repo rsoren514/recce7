@@ -6,10 +6,9 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Dina Steeve>dsteeve@msudenver.edu'
 
 #default location of the configuraiton file if an override environment variable not given
-#Environment var:  HUNNEYPOTTR_CONFIG_LOC
+#Environment var:  HPOTTR_CONFIG_LOC
 
 default_cfg_path = 'config/plugins.cfg'
-
 
 
 class Configuration(object):
@@ -21,7 +20,7 @@ class Configuration(object):
         if Configuration.__instance is None:
             print("creating new config class")
             Configuration.__instance = object.__new__(cls)
-            config_location = os.getenv("HUNNEYPOTTR_CONFIG_LOC", default_cfg_path)
+            config_location = os.getenv("HPOTTR_CONFIG_LOC", default_cfg_path)
             Configuration.__instance.val = Configuration.__instance.__read_config(config_location)
 
         return Configuration.__instance
@@ -54,7 +53,7 @@ class Configuration(object):
         return port, module, config_object
 
     def __read_config(self, cfg_path):
-        print("Reading the config file: " + cfg_path)
+        print("Reading the plugin config file: " + cfg_path)
         config_parser = configparser.ConfigParser()
         plugin_config_file = cfg_path
 
@@ -70,14 +69,18 @@ class Configuration(object):
                 config_dictionary[port] = config_object
                 enabled_ports.append(port)
 
-        return GlobalConfig(config_dictionary, enabled_ports)
+        #Todo:  read in report server config
+        rserver_dictionary={"host":"localhost", "port":8080}
+
+        return GlobalConfig(config_dictionary, enabled_ports, rserver_dictionary)
 
 
 ##The actual thing that holds the configuration data in the *.cfg file
 class GlobalConfig:
-    def __init__(self, dictionary, ports):
-        self.config_dictionary = dictionary
-        self.enabled_ports = ports
+    def __init__(self, plugin_dictionary, ports, rs_dictionary):
+        self.__plugin_dictionary = plugin_dictionary
+        self.__enabled_ports = ports
+        self.__rserver_dictionary = rs_dictionary
 
     #
     # Config API
@@ -98,7 +101,7 @@ class GlobalConfig:
     :return: a list of integers representing TCP/IP ports
     '''
     def get_ports(self):
-        return self.enabled_ports.copy()
+        return self.__enabled_ports.copy()
 
     '''
     Returns the configuration dictionary for the plugin listening
@@ -109,4 +112,13 @@ class GlobalConfig:
              plugin that listens on port
     '''
     def get_plugin_config(self, port):
-        return self.config_dictionary[port]
+        return self.__plugin_dictionary[port]
+
+    def get_plugin_dictionary(self):
+        return self.__plugin_dictionary
+
+    def get_report_server_host(self):
+        return self.__rserver_dictionary["host"]
+
+    def get_report_server_port(self):
+        return self.__rserver_dictionary["port"]

@@ -25,7 +25,7 @@
 from reportserver.dao import DatabaseHandler
 
 
-class PortManager ():
+class PortManager:
 
     #TODO:
     # Port Manager: calls necessary managers and utilities to generate parameters for sql.
