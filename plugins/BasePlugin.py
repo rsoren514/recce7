@@ -15,7 +15,7 @@ class BasePlugin(Thread):
         self.kill_plugin = False
 
     def run(self):
-        while not self.kill_plugin:
+        while self._skt and not self.kill_plugin:
             try:
                 self.do_track()
             except ConnectionResetError as cre:
