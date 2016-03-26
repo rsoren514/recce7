@@ -15,12 +15,11 @@ class Configuration(object):
     __instance = None
 
 
-    def __new__(cls):
-        print ('new on config was called.')
+    def __new__(cls, path=None):
+        ##print ('new on config was called.')
         if Configuration.__instance is None:
-            print("creating new config class")
             Configuration.__instance = object.__new__(cls)
-            config_location = os.getenv("HPOTTR_CONFIG_LOC", default_cfg_path)
+            config_location = path or default_cfg_path
             Configuration.__instance.val = Configuration.__instance.__read_config(config_location)
 
         return Configuration.__instance
@@ -53,7 +52,7 @@ class Configuration(object):
         return port, module, config_object
 
     def __read_config(self, cfg_path):
-        print("Reading the plugin config file: " + cfg_path)
+        #print("Reading the plugin config file: " + cfg_path)
         config_parser = configparser.ConfigParser()
         plugin_config_file = cfg_path
 

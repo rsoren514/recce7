@@ -4,8 +4,7 @@ import os
 
 class GlobalConfig_Test(unittest.TestCase):
     def setUp(self):
-        os.environ["HPOTTR_CONFIG_LOC"] = "./test.cfg"
-        self.gconfig = Configuration().getInstance()
+        self.gconfig = Configuration("./test.cfg").getInstance()
 
     def test_getInstance(self):
 

@@ -16,7 +16,7 @@ default_cfg_path = 'config/plugins.cfg'
 
 class Framework:
     def __init__(self, cfg_path):
-        self.global_config = Configuration().getInstance()
+        self.global_config = Configuration(cfg_path).getInstance()
         self.plugin_imports = {}
         self.listener_list = {}
         self.running_plugins_list = []
@@ -149,6 +149,7 @@ class Framework:
 
 
 def main(cfg_path=None):
+    cfg_path = os.getenv("RECCE7_PLUGIN_CONFIG" )
     framework = Framework(cfg_path or default_cfg_path)
     framework.start()
 
