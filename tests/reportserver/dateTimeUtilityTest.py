@@ -6,44 +6,48 @@ from reportserver.manager import dateTimeUtility
 
 class DateTimeTest(unittest.TestCase):
 
-    ''' This test sometimes fails because the milliseconds aren't exact. That is ok because
-        both this test and the method we are testing gets the current time, so there may be
-        discrepancies in the exact time. '''
+    #The date checks ignore milliseconds, since we are just trying to get the correct date.
 
     def test_get_begin_date(self):
 
 
         # Test with weeks
         d = datetime.timedelta(weeks=3)
-        self.assertEqual(dateTimeUtility.get_begin_date("weeks", 3), (datetime.datetime.now() - d))
+        self.assertEqual( (dateTimeUtility.get_begin_date("weeks", 3)), self.getDeltaOfDateNow(d))
+
         d = datetime.timedelta(weeks=7)
-        self.assertEqual(dateTimeUtility.get_begin_date("weeks", 7), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("weeks", 7), self.getDeltaOfDateNow(d))
         d = datetime.timedelta(weeks=0)
-        self.assertEqual(dateTimeUtility.get_begin_date("weeks", 0), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("weeks", 0), self.getDeltaOfDateNow(d))
 
         # Test with days
         d = datetime.timedelta(days=5)
-        self.assertEqual(dateTimeUtility.get_begin_date("days", 5), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("days", 5), self.getDeltaOfDateNow(d))
         d = datetime.timedelta(days=20)
-        self.assertEqual(dateTimeUtility.get_begin_date("days", 20), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("days", 20), self.getDeltaOfDateNow(d) )
         d = datetime.timedelta(days=0)
-        self.assertEqual(dateTimeUtility.get_begin_date("days", 0), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("days", 0), self.getDeltaOfDateNow(d) )
 
         # Test with hours
         d = datetime.timedelta(hours=2)
-        self.assertEqual(dateTimeUtility.get_begin_date("hours", 2), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("hours", 2),self.getDeltaOfDateNow(d) )
         d = datetime.timedelta(hours=23)
-        self.assertEqual(dateTimeUtility.get_begin_date("hours", 23), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("hours", 23), self.getDeltaOfDateNow(d) )
         d = datetime.timedelta(hours=0)
-        self.assertEqual(dateTimeUtility.get_begin_date("hours", 0), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("hours", 0), self.getDeltaOfDateNow(d) )
 
         # Test with minutes
         d = datetime.timedelta(minutes=45)
-        self.assertEqual(dateTimeUtility.get_begin_date("minutes", 45), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("minutes", 45), self.getDeltaOfDateNow(d) )
         d = datetime.timedelta(minutes=88)
-        self.assertEqual(dateTimeUtility.get_begin_date("minutes", 88), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("minutes", 88), self.getDeltaOfDateNow(d) )
         d = datetime.timedelta(minutes=0)
-        self.assertEqual(dateTimeUtility.get_begin_date("minutes", 0), (datetime.datetime.now() - d))
+        self.assertEqual(dateTimeUtility.get_begin_date("minutes", 0),self.getDeltaOfDateNow(d) )
+
+    def getDeltaOfDateNow(self, delta):
+        return (datetime.datetime.now() - delta).date()
+
+
 
     def test_get_iso_format(self):
 

@@ -1,22 +1,21 @@
-__author__ = 'Ben Phillips'
-
 import queue
-
 from database import DataValidation
 
+__author__ = 'Ben Phillips'
 
-class dataQueue:
 
-    def __init__(self,global_config_instance):
+class DataQueue:
+
+    def __init__(self, global_config_instance):
         self.dataQueue = queue.Queue()
         self.dv = DataValidation.DataValidation(global_config_instance)
+    """we want to check the data here and fail early
+        if the data is good then we want to put it in the data queue
+        we will want another python script for the validations (DataValidation.py)
+        we need to enforce type constraints because the database will not
+        see DataValidation.py"""
+    def insert_into_data_queue(self, value):
 
-    def insert_into_data_queue(self,value):
-        #we want to check the data here and fail early
-        #if the data is good then we want to put it in the data queue
-        #we will want another python script for the validations (DataValidation.py)
-        #we need to enforce type constraints because the database will not
-        #see DataValidation.py
         if self.dv.run_all_checks(value):
             self.dataQueue.put(value)
             return True

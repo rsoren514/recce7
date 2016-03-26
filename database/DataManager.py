@@ -1,19 +1,19 @@
+from threading import Thread, Condition
+from database import DataQueue, DB_Init, Table_Insert
 __author__ = 'Ben Phillips'
 
-'''we will need threading and a condition variable for synchronization'''
-from threading import Thread, Condition
-
-from database import DataQueue, DB_Init, Table_Insert
-
-'''This is the DataManager class, it creates the database, data queue and
+'''we will need threading and a condition variable for synchronization
+This is the DataManager class, it creates the database, data queue and
 the condition variable for synchronization between it, the framework and
 the plugins'''
+
+
 class DataManager(Thread):
 
-    def __init__(self,global_config_instance):
+    def __init__(self, global_config_instance):
         super().__init__()
         DB_Init.create_default_database(global_config_instance)
-        self.q = DataQueue.dataQueue(global_config_instance)
+        self.q = DataQueue.DataQueue(global_config_instance)
         self.condition = Condition()
         self.kill = False
 
@@ -21,7 +21,7 @@ class DataManager(Thread):
     in the queue and then once finished give up control of the
     condition variable'''
     def run(self):
-        '''loop forever'''
+        """loop forever"""
         while not self.kill:
             self.condition.acquire()
             if self.q.check_empty():
@@ -40,7 +40,7 @@ class DataManager(Thread):
     '''called by plugin, we check the data against the database before insert
     into queue. If the data is bad we do not put on queue and therefor
     do not notify consumer.'''
-    #TODO Will want to provide meaningful errors to plugin author
+    '''TODO Will want to provide meaningful errors to plugin author'''
     def insert_data(self, data):
         self.condition.acquire()
         if self.q.insert_into_data_queue(data):
@@ -60,12 +60,3 @@ class DataManager(Thread):
 
     def check_kill_status(self):
         return self.kill
-
-
-
-
-
-
-
-
-

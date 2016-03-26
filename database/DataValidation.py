@@ -1,9 +1,13 @@
-__author__ = 'Ben Phillips'
-#this file will validate data and provide functionality to sort data by the columns defined in the database
-#from honeypot.src.database import DB_Init
-#from honeypot.src.database.config_temp import TempConfigObject
 import sqlite3
 from copy import deepcopy
+from database import Table_Init
+
+__author__ = 'Ben Phillips'
+
+'''this file will validate data and provide functionality to sort data by the columns defined in the database
+from honeypot.src.database import DB_Init
+from honeypot.src.database.config_temp import TempConfigObject'''
+
 
 
 class DataValidation:

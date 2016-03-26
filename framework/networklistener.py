@@ -44,6 +44,7 @@ class NetworkListener(Thread):
             self.session_socket.close()
             self.connection_count += 1
         print("Listener on port", self.port, "shutting down")
+        self.session_socket = None
 
     def start_listening(self, local_socket):
         try:
