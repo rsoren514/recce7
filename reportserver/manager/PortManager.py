@@ -21,11 +21,11 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-
+from common.GlobalConfig import Configuration
 from reportserver.dao import DatabaseHandler
 
 
-class PortManager ():
+class PortManager:
 
     #TODO:
     # Port Manager: calls necessary managers and utilities to generate parameters for sql.
@@ -36,8 +36,8 @@ class PortManager ():
     validPortNumbers = ()
 
     def __init__(self):
-        # TODO:  get from config file
-        self.validPortNumbers = (8023, 8082, 8083)
+        self.g_config = Configuration().getInstance()
+        self.validPortNumbers = self.g_config.get_ports()
 
 
     def isPortValid(self, port_number):

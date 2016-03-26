@@ -31,8 +31,8 @@ def create_default_database(global_config_instance):
        another validation object for this purpose and am also storing the
        schema and port list locally so that it is easy to do this'''
     dv = DataValidation(global_config_instance)
-    schema_dict = global_config_instance.config_dictionary
-    port_list = global_config_instance.enabled_ports
+    schema_dict = global_config_instance.get_plugin_dictionary()
+    port_list = global_config_instance.get_ports()
     current_database_table_list = dv.get_tables()
     '''holds the list of tables defined in the configuration'''
     config_table_list = []
