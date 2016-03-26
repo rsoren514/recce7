@@ -35,12 +35,13 @@ def update_schema(global_config_instance):
        schema is correct and create the appropriate tables I am creating
        another validation object for this purpose and am also storing the
        schema and port list locally so that it is easy to do this'''
+
     '''holds the list of tables defined in the configuration'''
     '''if the distinct sets of tables are not equal'''
     '''create database tables that do not exist'''
     create_non_exist_tables(table_list_diff(DataValidation(global_config_instance).get_tables(),
-                                            get_config_table_list(global_config_instance.enabled_ports,
-                                                                  global_config_instance.config_dictionary)),
+                                            get_config_table_list(global_config_instance.get_ports(),
+                                                                  global_config_instance.get_plugin_dictionary())),
                             global_config_instance)
     '''now that the tables do exist lets update the information from the database'''
     DataValidation(global_config_instance).update_tables_and_schema(global_config_instance)
@@ -84,8 +85,8 @@ def create_non_exist_tables(table_diff,global_config_instance):
 
 def create_dict_config_column_list(global_config_instance):
     config_column_lists = {}
-    for port in global_config_instance.enabled_ports:
-        value = global_config_instance.config_dictionary.get(port)
+    for port in global_config_instance.get_ports():
+        value = global_config_instance.get_plugin_dictionary().get(port)
         config_column_lists[value.get('table')] = value.get('tableColumns')
     return config_column_lists
 

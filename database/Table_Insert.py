@@ -4,7 +4,7 @@ import sqlite3
 
 from database import DB_Init
 from database import DataValidation
-from common import globalconfig
+from common.GlobalConfig import Configuration
 '''this method will have to change somewhat. The group decided they wanted the plugin
    writers to populate a dictionary instead of a list that maps the name (column) to the
    value to be inserted that way they do not have to worry about order when calling this
@@ -12,7 +12,8 @@ from common import globalconfig
 
 
 def insert_data(name, data_list):
-    config = globalconfig.GlobalConfig('config/plugins.cfg')
+    config = Configuration().getInstance()
+    #config = GlobalConfig.GlobalConfig('config/plugins.cfg')
     connection = sqlite3.connect(config.get_db_dir() + '/honeyDB.sqlite')
     cursor = connection.cursor()
     delimiter = ','
