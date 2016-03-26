@@ -11,7 +11,7 @@ from framework.networklistener import NetworkListener
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-default_cfg_path = 'config/plugins.cfg'
+default_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
 
 
 class Framework:
