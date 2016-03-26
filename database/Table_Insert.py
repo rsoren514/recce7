@@ -11,9 +11,8 @@ from common.GlobalConfig import Configuration
 
 
 def insert_data(name, data_list):
-    connection = sqlite3.connect(
-        DB_Init.get_home_dir() + DB_Init.get_home_config_path() + '/' +
-        DB_Init.get_database_config_name())
+    config = Configuration().getInstance()
+    connection = sqlite3.connect(config.get_db_dir() + '/honeyDB.sqlite')
     cursor = connection.cursor()
     delimiter = ','
     param_placeholder = delimiter.join('?' * len(data_list))
