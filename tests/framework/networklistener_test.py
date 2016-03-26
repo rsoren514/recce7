@@ -33,6 +33,7 @@ class NetworkListenerTest(unittest.TestCase):
         listener.start()
         while listener.connection_count == 0:
             pass
+        listener.session_socket = None
         listener.shutdown()
         self.assertTrue(mock_start_listening.called)
 
@@ -62,7 +63,8 @@ class NetworkListenerTest(unittest.TestCase):
         mock_config = make_mock_config(8082, 'HTTPPlugin')
         mock_socket = Mock()
         mock_socket.accept = Mock()
-        mock_socket.accept.side_effect = Exception('Expected exception.')
+        mock_socket.accept.side_effect = Exception(
+            '(this error is expected)')
         listener = NetworkListener(mock_config, None)
         self.assertRaises(Exception, listener.start_listening, mock_socket)
 

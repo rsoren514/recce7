@@ -4,7 +4,7 @@ import pwd
 import signal
 
 from importlib import import_module
-from common.globalconfig import GlobalConfig
+from common.GlobalConfig import Configuration
 from database.DataManager import DataManager
 from framework.networklistener import NetworkListener
 
@@ -16,7 +16,7 @@ default_cfg_path = 'config/plugins.cfg'
 
 class Framework:
     def __init__(self, cfg_path):
-        self.global_config = GlobalConfig(cfg_path)
+        self.global_config = Configuration(cfg_path).getInstance()
         self.plugin_imports = {}
         self.listener_list = {}
         self.running_plugins_list = []
@@ -29,7 +29,6 @@ class Framework:
         self.set_shutdown_hook()
         if not self.drop_permissions():
             return
-        self.global_config.read_config()
         self.data_manager = DataManager(self.global_config)
         self.data_manager.start()
         self.start_listeners()
@@ -150,6 +149,7 @@ class Framework:
 
 
 def main(cfg_path=None):
+    cfg_path = os.getenv("RECCE7_PLUGIN_CONFIG" )
     framework = Framework(cfg_path or default_cfg_path)
     framework.start()
 
