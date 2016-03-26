@@ -122,7 +122,7 @@ class FrameworkTest(unittest.TestCase):
     def test_cant_drop_permissions(self, mock_getenv, mock_setgid, mock_setuid,
                                    mock_setgroups, mock_getuid):
         fw = Framework(config_path)
-        self.assertRaises(Exception, fw.drop_permissions)
+        self.assertFalse(fw.drop_permissions())
 
     @patch('database.DataManager.DataManager.start', return_value=None)
     @patch('framework.networklistener.NetworkListener.start')
