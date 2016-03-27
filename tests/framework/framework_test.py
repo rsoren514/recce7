@@ -8,7 +8,7 @@ from database.DataManager import DataManager
 from framework.frmwork import Framework
 from framework.frmwork import main
 from framework.networklistener import NetworkListener
-from plugins.baseplugin import BasePlugin
+from plugins.base import BasePlugin
 from plugins.HTTPPlugin import HTTPPlugin
 from unittest.mock import patch
 from unittest.mock import MagicMock
