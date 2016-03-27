@@ -59,9 +59,9 @@ class Framework:
 
         return True
 
-    def create_import_entry(self, port, name):
+    def create_import_entry(self, port, name, clsname):
         imp = import_module('plugins.' + name)
-        self.plugin_imports[port] = getattr(imp, name)
+        self.plugin_imports[port] = getattr(imp, clsname)
 
     def start_listeners(self):
         ports = self.global_config.get_ports()
@@ -69,7 +69,8 @@ class Framework:
             print('Listener started on port: ' + str(port))
             plugin_config = self.global_config.get_plugin_config(port)
             module = plugin_config['module']
-            self.create_import_entry(port, module)
+            clsname = plugin_config['moduleClass']
+            self.create_import_entry(port, module, clsname)
             listener = NetworkListener(plugin_config, self)
             listener.start()
             self.listener_list[port] = listener
