@@ -2,9 +2,12 @@ from common.GlobalConfig import Configuration
 import unittest
 import os
 
+test_cfg_path = 'tests/common/test.cfg'
+
+
 class GlobalConfig_Test(unittest.TestCase):
     def setUp(self):
-        self.gconfig = Configuration("./test.cfg").getInstance()
+        self.gconfig = Configuration(test_cfg_path).getInstance()
 
     def test_getInstance(self):
 
@@ -22,7 +25,7 @@ class GlobalConfig_Test(unittest.TestCase):
 
         ports = self.gconfig.get_ports()
 
-        self.assertEquals(len(ports), 2, "expected 2 ports in test.cfg found: " + str(len(ports)))
+        self.assertEqual(len(ports), 2, "expected 2 ports in test.cfg found: " + str(len(ports)))
 
         for port in ports:
             print("found: " + str(port))
@@ -30,8 +33,8 @@ class GlobalConfig_Test(unittest.TestCase):
     def test_getReportServerConfig(self):
         host = self.gconfig.get_report_server_host()
         port = self.gconfig.get_report_server_port()
-        self.assertEquals(host, "localhost", "expected host to be 'localhost'")
-        self.assertEquals(port, 8080, "expected port to be '8080' ")
+        self.assertEqual(host, "localhost", "expected host to be 'localhost'")
+        self.assertEqual(port, 8080, "expected port to be '8080' ")
 
 if __name__ == "__main__":
     unittest.main()
