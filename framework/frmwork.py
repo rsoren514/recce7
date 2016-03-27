@@ -150,8 +150,7 @@ class Framework:
 
 
 def main(cfg_path=None):
-    cfg_path = os.getenv("RECCE7_PLUGIN_CONFIG" )
-    framework = Framework(cfg_path or default_cfg_path)
+    framework = Framework(default_cfg_path)
     framework.start()
 
 if __name__ == '__main__': main()
