@@ -24,6 +24,7 @@ export PYTHONPATH=./
 # Framework:
 coverage3 run -a tests/framework/framework_test.py > /dev/null
 coverage3 run -a tests/framework/networklistener_test.py > /dev/null
+coverage3 run -a tests/common/GlobalConfig_Test.py > /dev/null
 
 # Database:
 

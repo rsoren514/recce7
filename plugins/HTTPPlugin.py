@@ -1,7 +1,7 @@
 __author__ = 'jessenelson'
 __author__ = 'zkuhns'
 
-from plugins.BasePlugin import BasePlugin
+from plugins.base import BasePlugin
 
 from socket import SocketIO
 from http.server import BaseHTTPRequestHandler
@@ -119,6 +119,7 @@ class HTTPPlugin(BasePlugin):
         handler.get_body()
         self.create_entry(handler)
         handler.finish()
+        self._skt = None
 
     def create_entry(self, handler):
         entry = {'HTTP' : {'METHOD' : handler.command,
