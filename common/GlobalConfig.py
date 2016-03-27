@@ -38,6 +38,7 @@ class Configuration(object):
         enabled = config_parser.get(plugin, 'enabled')
         column_defs = eval(config_parser.get(plugin, 'tableColumns'))
         module = config_parser.get(plugin, 'module')
+        module_class = config_parser.get(plugin, 'moduleClass')
         raw_socket = config_parser.get(plugin, 'rawSocket')
 
         config_object = {
@@ -46,6 +47,7 @@ class Configuration(object):
             'enabled': enabled,
             'tableColumns': column_defs,
             'module': module,
+            'moduleClass': module_class,
             'rawSocket': raw_socket
         }
 

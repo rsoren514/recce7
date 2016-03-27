@@ -20,10 +20,11 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 config_path = 'tests/framework/testConfig.cfg'
 
 
-def make_mock_config(port, module):
+def make_mock_config(port, module, clsname):
     return {
         'port': port,
         'module': module,
+        'moduleClass': clsname,
         'table': 'test',
         'enabled': 'Yes',
         'rawSocket': 'No',
@@ -42,7 +43,7 @@ class FrameworkTest(unittest.TestCase):
         framework = Framework(config_path)
         framework.start()
         expected = {
-            8082: make_mock_config(8082, 'HTTPPlugin')
+            8082: make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         }
         self.assertEqual(expected, framework.global_config.get_plugin_dictionary())
         self.assertEqual(1, mock_nl_start.call_count)
@@ -62,7 +63,7 @@ class FrameworkTest(unittest.TestCase):
     def test_get_config(self, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
-        expected = make_mock_config(8082, 'HTTPPlugin')
+        expected = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         self.assertEqual(expected, framework.get_config(8082))
 
     @patch('database.DataManager.DataManager.start')
