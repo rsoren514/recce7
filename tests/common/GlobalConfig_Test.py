@@ -4,7 +4,7 @@ import os
 
 class GlobalConfig_Test(unittest.TestCase):
     def setUp(self):
-        self.gconfig = Configuration("./test.cfg").getInstance()
+        self.gconfig = Configuration("tests/common/test.cfg").getInstance()
 
     def test_getInstance(self):
 
