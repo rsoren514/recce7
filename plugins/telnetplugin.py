@@ -22,7 +22,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
-from plugins.BasePlugin import BasePlugin
+from plugins.baseplugin import BasePlugin
 
 class TelnetPlugin(BasePlugin):
 

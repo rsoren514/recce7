@@ -1,7 +1,7 @@
 __author__ = 'jessenelson'
 __author__ = 'zkuhns'
 
-from plugins.BasePlugin import BasePlugin
+from plugins.baseplugin import BasePlugin
 
 from socket import SocketIO
 from http.server import BaseHTTPRequestHandler

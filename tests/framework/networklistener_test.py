@@ -12,10 +12,11 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 config_path = 'tests/framework/testConfig.cfg'
 
 
-def make_mock_config(port, module):
+def make_mock_config(port, module, clsname):
     return {
         'port': port,
         'module': module,
+        'moduleClass': clsname,
         'table': 'test',
         'enabled': 'Yes',
         'tableColumns': [[1, 'INTEGER', 'someNumber'], [2, 'TEXT', 'someText']]
@@ -28,7 +29,7 @@ class NetworkListenerTest(unittest.TestCase):
 
     @patch('framework.networklistener.NetworkListener.start_listening')
     def test_plugins_enabled(self, mock_start_listening):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         listener = NetworkListener(mock_config, None)
         listener.start()
         while listener.connection_count == 0:
@@ -38,7 +39,7 @@ class NetworkListenerTest(unittest.TestCase):
         self.assertTrue(mock_start_listening.called)
 
     def test_connection_count(self):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         listener = NetworkListener(mock_config, None)
         self.assertEqual(0, listener.connection_count)
         listener.connection_count = 5
@@ -46,7 +47,7 @@ class NetworkListenerTest(unittest.TestCase):
 
     @patch.object(Framework, 'spawn')
     def test_start_listening(self, mock_framework):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         with patch('framework.networklistener.socket.socket.accept') \
                 as mock_accept:
             mock_accept.return_value = (socket.socket(), '192.168.1.1')
@@ -60,7 +61,7 @@ class NetworkListenerTest(unittest.TestCase):
 
     @patch.object(Framework, 'spawn')
     def test_start_listening_exception(self, mock_framework):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         mock_socket = Mock()
         mock_socket.accept = Mock()
         mock_socket.accept.side_effect = Exception(
@@ -70,7 +71,7 @@ class NetworkListenerTest(unittest.TestCase):
 
     @patch.object(Framework, 'spawn')
     def test_start_listening_oserror(self, mock_framework):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         mock_socket = Mock()
         mock_socket.accept = Mock()
         mock_socket.accept.side_effect = OSError()
@@ -86,7 +87,7 @@ class NetworkListenerTest(unittest.TestCase):
 
     @patch.object(Framework, 'spawn')
     def test_start_listening_connection_aborted(self, mock_framework):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         mock_socket = Mock()
         mock_socket.accept = Mock()
         mock_socket.accept.side_effect = ConnectionAbortedError
@@ -103,7 +104,7 @@ class NetworkListenerTest(unittest.TestCase):
 
     @patch('framework.networklistener.NetworkListener.join')
     def test_nl_shutdown(self, mock_join):
-        mock_config = make_mock_config(8082, 'HTTPPlugin')
+        mock_config = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         mock_socket = Mock()
         mock_socket.shutdown = Mock()
         mock_socket.detach = Mock()
