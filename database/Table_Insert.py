@@ -1,7 +1,6 @@
 __author__ = 'Ben Phillips'
 
 import sqlite3
-
 from database import DB_Init
 from database import DataValidation
 from common.GlobalConfig import Configuration
@@ -13,7 +12,6 @@ from common.GlobalConfig import Configuration
 
 def insert_data(name, data_list):
     config = Configuration().getInstance()
-    #config = GlobalConfig.GlobalConfig('config/plugins.cfg')
     connection = sqlite3.connect(config.get_db_dir() + '/honeyDB.sqlite')
     cursor = connection.cursor()
     delimiter = ','
