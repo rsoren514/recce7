@@ -51,9 +51,10 @@ def get_begin_date(unit, unit_size):
 
     return calc_date(d)
 
+#returns just the date not the hours/minutes/seconds
 def calc_date(delta):
     now = datetime.datetime.now()
-    return now - delta
+    return (now - delta).date()
 
 # Takes the datetime object and returns a string in ISO 8601 format.
 def get_iso_format(begin_date):

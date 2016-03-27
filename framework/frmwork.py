@@ -4,19 +4,19 @@ import pwd
 import signal
 
 from importlib import import_module
-from common.globalconfig import GlobalConfig
+from common.GlobalConfig import Configuration
 from database.DataManager import DataManager
 from framework.networklistener import NetworkListener
 
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
 
-default_cfg_path = 'config/plugins.cfg'
+default_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
 
 
 class Framework:
     def __init__(self, cfg_path):
-        self.global_config = GlobalConfig(cfg_path)
+        self.global_config = Configuration(cfg_path).getInstance()
         self.plugin_imports = {}
         self.listener_list = {}
         self.running_plugins_list = []
@@ -29,7 +29,6 @@ class Framework:
         self.set_shutdown_hook()
         if not self.drop_permissions():
             return
-        self.global_config.read_config()
         self.data_manager = DataManager(self.global_config)
         self.data_manager.start()
         self.start_listeners()
@@ -60,9 +59,9 @@ class Framework:
 
         return True
 
-    def create_import_entry(self, port, name):
+    def create_import_entry(self, port, name, clsname):
         imp = import_module('plugins.' + name)
-        self.plugin_imports[port] = getattr(imp, name)
+        self.plugin_imports[port] = getattr(imp, clsname)
 
     def start_listeners(self):
         ports = self.global_config.get_ports()
@@ -70,7 +69,8 @@ class Framework:
             print('Listener started on port: ' + str(port))
             plugin_config = self.global_config.get_plugin_config(port)
             module = plugin_config['module']
-            self.create_import_entry(port, module)
+            clsname = plugin_config['moduleClass']
+            self.create_import_entry(port, module, clsname)
             listener = NetworkListener(plugin_config, self)
             listener.start()
             self.listener_list[port] = listener
@@ -150,7 +150,7 @@ class Framework:
 
 
 def main(cfg_path=None):
-    framework = Framework(cfg_path or default_cfg_path)
+    framework = Framework(default_cfg_path)
     framework.start()
 
 if __name__ == '__main__': main()

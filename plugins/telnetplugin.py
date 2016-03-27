@@ -22,10 +22,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
-from plugins.BasePlugin import BasePlugin
+from plugins.base import BasePlugin
+
 
 class TelnetPlugin(BasePlugin):
-
     def telnet_login(self):
         pass
 

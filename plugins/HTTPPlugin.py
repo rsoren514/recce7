@@ -1,7 +1,7 @@
 __author__ = 'jessenelson'
 __author__ = 'zkuhns'
 
-from plugins.BasePlugin import BasePlugin
+from plugins.base import BasePlugin
 
 import time
 import urllib.parse

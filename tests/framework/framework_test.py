@@ -8,10 +8,11 @@ from database.DataManager import DataManager
 from framework.frmwork import Framework
 from framework.frmwork import main
 from framework.networklistener import NetworkListener
-from plugins.BasePlugin import BasePlugin
+from plugins.base import BasePlugin
 from plugins.HTTPPlugin import HTTPPlugin
 from unittest.mock import patch
 from unittest.mock import MagicMock
+import os
 
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>'
@@ -19,10 +20,11 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 config_path = 'tests/framework/testConfig.cfg'
 
 
-def make_mock_config(port, module):
+def make_mock_config(port, module, clsname):
     return {
         'port': port,
         'module': module,
+        'moduleClass': clsname,
         'table': 'test',
         'enabled': 'Yes',
         'rawSocket': 'No',
@@ -32,7 +34,8 @@ def make_mock_config(port, module):
 
 class FrameworkTest(unittest.TestCase):
     def setUp(self):
-        pass
+       pass
+
 
     @patch('database.DataManager.DataManager.start')
     @patch('framework.networklistener.NetworkListener.start')
@@ -40,9 +43,9 @@ class FrameworkTest(unittest.TestCase):
         framework = Framework(config_path)
         framework.start()
         expected = {
-            8082: make_mock_config(8082, 'HTTPPlugin')
+            8082: make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         }
-        self.assertEqual(expected, framework.global_config.config_dictionary)
+        self.assertEqual(expected, framework.global_config.get_plugin_dictionary())
         self.assertEqual(1, mock_nl_start.call_count)
         self.assertTrue(mock_dm_start.called)
 
@@ -51,8 +54,8 @@ class FrameworkTest(unittest.TestCase):
     def test_plugins_disabled(self, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
-        self.assertTrue(8083 not in framework.global_config.config_dictionary)
-        self.assertTrue(8082 in framework.global_config.config_dictionary)
+        self.assertTrue(8083 not in framework.global_config.get_plugin_dictionary())
+        self.assertTrue(8082 in framework.global_config.get_plugin_dictionary())
         self.assertEqual(1, mock_nl_start.call_count)
 
     @patch('database.DataManager.DataManager.start')
@@ -60,7 +63,7 @@ class FrameworkTest(unittest.TestCase):
     def test_get_config(self, mock_nl_start, mock_dm_start):
         framework = Framework(config_path)
         framework.start()
-        expected = make_mock_config(8082, 'HTTPPlugin')
+        expected = make_mock_config(8082, 'HTTPPlugin', 'HTTPPlugin')
         self.assertEqual(expected, framework.get_config(8082))
 
     @patch('database.DataManager.DataManager.start')
@@ -122,7 +125,7 @@ class FrameworkTest(unittest.TestCase):
     def test_cant_drop_permissions(self, mock_getenv, mock_setgid, mock_setuid,
                                    mock_setgroups, mock_getuid):
         fw = Framework(config_path)
-        self.assertRaises(Exception, fw.drop_permissions)
+        self.assertFalse(fw.drop_permissions())
 
     @patch('database.DataManager.DataManager.start', return_value=None)
     @patch('framework.networklistener.NetworkListener.start')
