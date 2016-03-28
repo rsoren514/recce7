@@ -29,7 +29,7 @@ PAGE_LOGIN = b"""<html>
 
 PAGE_ERROR = """<html>
     <head>
-        %(error)s
+        <h1>%(error)s</h1>
     </head>
 </html>"""
 
@@ -122,6 +122,7 @@ REPLIES = {
 class HTTPPlugin(BasePlugin):
     def __init__(self, socket, framework):
         BasePlugin.__init__(self, socket, framework)
+        self._skt.settimeout(5)
 
         self.message = ""
 
@@ -136,13 +137,19 @@ class HTTPPlugin(BasePlugin):
         self.wfile = socket.SocketIO(self._skt, "w")
 
         if not self.read_message():
-            self._skt = None
+            self.finalize()
             return False
 
         if not self.handle_message():
-            self._skt = None
+            self.finalize()
             return False
 
+        self.finalize()
+        return True
+
+    def finalize(self):
+        self.rfile.close()
+        self.wfile.close()
         self._skt = None
 
     def read_message(self):
@@ -158,10 +165,17 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def read_request(self):
-        request_line = self.rfile.readline(2049)
+        try:
+            request_line = self.rfile.readline(2049)
+        except socket.timeout:
+            return False
 
         if (len(request_line) > 2048):
-            # too long exception 414 error
+            self.reply(414)
+            return False
+
+        if (len(request_line) == 0):
+            self.reply(400)
             return False
 
         request_line = request_line.split()
@@ -187,7 +201,10 @@ class HTTPPlugin(BasePlugin):
 
     def read_headers(self):
         while (True):
-            line = self.rfile.readline()
+            try:
+                line = self.rfile.readline()
+            except socket.timeout:
+                return False
 
             if line in (b'\r\n', b'\n', b''):
                 break
@@ -209,7 +226,19 @@ class HTTPPlugin(BasePlugin):
     def read_body(self):
         if 'content-length' in self.headers:
             size = self.headers['content-length']
-            print(size)
+
+            if (not self.rfile.readable):
+                return True
+
+            try:
+                size = int(size)
+            except ValueError:
+                return True
+
+            try:
+                self.body = str(self.rfile.read(size), 'utf-8')
+            except socket.timeout:
+                pass
 
         return True
 
@@ -236,7 +265,9 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def do_POST(self):
-        if (self.path == '/login'):
+        if (self.path == '/'):
+            self.reply(200, PAGE_LOGIN)
+        elif (self.path == '/login'):
             self.reply(500)
         else:
             self.reply(404)
@@ -273,11 +304,12 @@ class HTTPPlugin(BasePlugin):
         self.wfile.write(b'\r\n')
 
         if body == None:
-            body = "<html><head><h1>" + REPLIES[code] + "</h1></head></html>"
+            body = PAGE_ERROR % {'error' : REPLIES[code]}
+            #body = "<html><head><h1>" + REPLIES[code] + "</h1></head></html>"
             body = bytes(body, 'utf-8')
 
         self.wfile.write(b'Content-Length: ')
-        self.wfile.write(bytes(str(len(body)), 'utf-8'))
+        self.wfile.write(str(len(body)).encode())
         self.wfile.write(b'\r\n')
         self.wfile.write(b'\r\n')
         self.wfile.write(body)
