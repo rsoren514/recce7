@@ -44,42 +44,6 @@ METHODS = {
     'CONNECT'
 }
 
-HEADERS = {
-    'accept',
-    'accept-charset',
-    'accept-encoding',
-    'accept-language',
-    'accept-datetime',
-    'authorization',
-    'cache-control',
-    'connection',
-    'cookie',
-    'content-length',
-    'content-md5',
-    'content-type',
-    'date',
-    'expect',
-    'forwarded',
-    'from',
-    'host',
-    'if-match',
-    'if-modified-since',
-    'if-none-match',
-    'if-range',
-    'if-unmodified-since',
-    'max-forwards',
-    'origin',
-    'pragma',
-    'proxy-authorization',
-    'range',
-    'referer',
-    'te',
-    'user-agent',
-    'upgrade',
-    'via',
-    'warning',
-}
-
 DAYS = [
     'Mon',
     'Tue',
@@ -105,27 +69,21 @@ MONTHS = [
     'Dec',
 ]
 
-SERVER_NAME = "honey_potter"
-
 REPLIES = {
+    100 : '100 Continue',
     200 : '200 OK',
     400 : '400 Bad Request',
+    401 : '401 Unauthorized',
+    403 : '403 Forbidden',
     404 : '404 Not Found',
     414 : '414 URI Too Long',
     500 : '500 Internal Server Error',
     501 : '501 Not Implemented',
 }
 
-'''
-
-'''
 class HTTPPlugin(BasePlugin):
     def __init__(self, socket, framework):
         BasePlugin.__init__(self, socket, framework)
-        self._skt.settimeout(5)
-
-        self.message = ""
-
         self.method = ""
         self.path = ""
         self.version = ""
@@ -136,13 +94,17 @@ class HTTPPlugin(BasePlugin):
         self.rfile = socket.SocketIO(self._skt, "r")
         self.wfile = socket.SocketIO(self._skt, "w")
 
-        if not self.read_message():
+        self._skt.setblocking(0)
+
+        if not self.parse_message():
             self.finalize()
             return False
 
         if not self.handle_message():
             self.finalize()
             return False
+
+        self.fix_headers()
 
         self.finalize()
         return True
@@ -152,7 +114,7 @@ class HTTPPlugin(BasePlugin):
         self.wfile.close()
         self._skt = None
 
-    def read_message(self):
+    def parse_message(self):
         if (not self.read_request()):
             return False
 
@@ -227,9 +189,6 @@ class HTTPPlugin(BasePlugin):
         if 'content-length' in self.headers:
             size = self.headers['content-length']
 
-            if (not self.rfile.readable):
-                return True
-
             try:
                 size = int(size)
             except ValueError:
@@ -237,8 +196,12 @@ class HTTPPlugin(BasePlugin):
 
             try:
                 self.body = str(self.rfile.read(size), 'utf-8')
+            except TypeError:
+                pass
             except socket.timeout:
                 pass
+        else:
+            return True
 
         return True
 
@@ -249,16 +212,20 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def do_GET(self):
-        if (self.path == '/'):
+        if self.path == '/':
             self.reply(200, PAGE_LOGIN)
+        elif self.path == '/login':
+            self.reply(401)
         else:
             self.reply(404)
 
         return True
 
     def do_HEAD(self):
-        if (self.path == '/'):
+        if self.path == '/':
             self.reply(200, PAGE_LOGIN)
+        elif self.path == '/login':
+            self.reply(401)
         else:
             self.reply(404)
 
@@ -305,7 +272,6 @@ class HTTPPlugin(BasePlugin):
 
         if body == None:
             body = PAGE_ERROR % {'error' : REPLIES[code]}
-            #body = "<html><head><h1>" + REPLIES[code] + "</h1></head></html>"
             body = bytes(body, 'utf-8')
 
         self.wfile.write(b'Content-Length: ')
@@ -313,6 +279,16 @@ class HTTPPlugin(BasePlugin):
         self.wfile.write(b'\r\n')
         self.wfile.write(b'\r\n')
         self.wfile.write(body)
+
+    def fix_headers(self):
+        fixed_header = ""
+        for header in self.headers:
+            fixed_header += header
+            fixed_header += ': '
+            fixed_header += self.headers[header]
+            fixed_header += '\r\n'
+
+        self.headers = fixed_header
 
     def date_string(self):
         year, mon, mday, hour, min, sec, wday, yday, isdst = time.gmtime(time.time())
