@@ -12,7 +12,7 @@ class DB_Init_test(unittest.TestCase):
 
     testpath_exist = os.getcwd() + '/tests/database/testDir'
     testpath_non_exist = os.getcwd() + '/tests/database/testDirDoesNotExist'
-    testpath_with_db = os.getcwd() + '/tests/database/testDirDB'
+    testpath_with_db = os.getcwd() + '/tests/database/testDirDB/honeyDB'
 
 
     @patch('os.mkdir')
@@ -90,7 +90,21 @@ class DB_Init_test(unittest.TestCase):
         gci = Configuration('tests/database/test.cfg').getInstance()
         self.assertFalse(expected_column_list == DB_Init.create_dict_config_column_list(gci))
 
-
+    def test_create_dict_schema_column_list(self):
+        expected_column_list = {'test_http_test': [(0, 'ID', 'INTEGER', 1, None, 1),
+                                                   (1, 'eventDateTime', 'TEXT', 0, None, 0),
+                                                   (2, 'peerAddress', 'TEXT', 0, None, 0),
+                                                   (3, 'localAddress', 'TEXT', 0, None, 0)],
+                                'test_http2_test': [(0, 'ID', 'INTEGER', 1, None, 1),
+                                                    (1, 'eventDateTime', 'TEXT', 0, None, 0),
+                                                    (2, 'peerAddress', 'TEXT', 0, None, 0),
+                                                    (3, 'localAddress', 'TEXT', 0, None, 0)],
+                                'test_telnet_test': [(0, 'ID', 'INTEGER', 1, None, 1),
+                                                     (1, 'eventDateTime', 'TEXT', 0, None, 0),
+                                                     (2, 'peerAddress', 'TEXT', 0, None, 0),
+                                                     (3, 'localAddress', 'TEXT', 0, None, 0)]}
+        gci = Configuration('tests/database/test.cfg').getInstance()
+        self.assertTrue(expected_column_list == DB_Init.create_dict_schema_column_list(gci))
 
 
 
