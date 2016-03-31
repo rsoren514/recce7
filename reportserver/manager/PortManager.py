@@ -27,10 +27,8 @@ from reportserver.dao import DatabaseHandler
 
 class PortManager:
 
-    #TODO:
     # Port Manager: calls necessary managers and utilities to generate parameters for sql.
-    #  Mgr for reading config files to know what table /column names there are.
-    #  Utility for calc time range
+    # List of valid ports it can receive is taken from the Configuration setup.
     #
     #
     validPortNumbers = ()

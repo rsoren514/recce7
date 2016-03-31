@@ -23,7 +23,7 @@
 ################################################################################
 
 
-def getIntValue(givenStr):
+def validatePortNumber(givenStr):
     print("given str is: " + givenStr)
     try:
         returnval = int(givenStr)
@@ -33,3 +33,7 @@ def getIntValue(givenStr):
         print (str(e))
         return None
 
+
+def validateTimePeriod(tokens):
+    #TODO:  validate the tokens given.
+    return (None, None)
