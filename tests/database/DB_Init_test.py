@@ -84,27 +84,39 @@ class DB_Init_test(unittest.TestCase):
         self.assertTrue(expected_column_list == DB_Init.create_dict_config_column_list(gci))
 
     def test_create_dict_config_column(self):
-        expected_column_list = {'test_telnet_test_wrong': [[1, 'Test_col', 'TEXT'], [2, 'User_Data', 'TEXT']],
+        wrong_column_list = {'test_telnet_test_wrong': [[1, 'Test_col', 'TEXT'], [2, 'User_Data', 'TEXT']],
                                 'test_http2_test': [[1, 'someNumber', 'INTEGER'], [2, 'someText', 'TEXT']],
                                 'test_http_test': [[1, 'someNumber', 'INTEGER'], [2, 'someText', 'TEXT']]}
         gci = Configuration('tests/database/test.cfg').getInstance()
-        self.assertFalse(expected_column_list == DB_Init.create_dict_config_column_list(gci))
+        self.assertFalse(wrong_column_list == DB_Init.create_dict_config_column_list(gci))
 
     def test_create_dict_schema_column_list(self):
         expected_column_list = {'test_http_test': [(0, 'ID', 'INTEGER', 1, None, 1),
                                                    (1, 'eventDateTime', 'TEXT', 0, None, 0),
                                                    (2, 'peerAddress', 'TEXT', 0, None, 0),
-                                                   (3, 'localAddress', 'TEXT', 0, None, 0)],
+                                                   (3, 'localAddress', 'TEXT', 0, None, 0),
+                                                   (4, 'user_data', 'TEXT', 0, None, 0)],
                                 'test_http2_test': [(0, 'ID', 'INTEGER', 1, None, 1),
                                                     (1, 'eventDateTime', 'TEXT', 0, None, 0),
                                                     (2, 'peerAddress', 'TEXT', 0, None, 0),
-                                                    (3, 'localAddress', 'TEXT', 0, None, 0)],
+                                                    (3, 'localAddress', 'TEXT', 0, None, 0),
+                                                    (4, 'user_data2', 'TEXT', 0, None, 0)],
                                 'test_telnet_test': [(0, 'ID', 'INTEGER', 1, None, 1),
                                                      (1, 'eventDateTime', 'TEXT', 0, None, 0),
                                                      (2, 'peerAddress', 'TEXT', 0, None, 0),
-                                                     (3, 'localAddress', 'TEXT', 0, None, 0)]}
+                                                     (3, 'localAddress', 'TEXT', 0, None, 0),
+                                                     (4, 'user_data_telnet', 'TEXT', 0, None, 0),
+                                                     (5, 'user_data_telnet2', 'TEXT', 0, None, 0)]}
         gci = Configuration('tests/database/test.cfg').getInstance()
         self.assertTrue(expected_column_list == DB_Init.create_dict_schema_column_list(gci))
+
+    def test_create_dict_transformed_column_list(self):
+        gci = Configuration('tests/database/test.cfg').getInstance()
+        expected_column_dict = {'test_http2_test': [[4, 'user_data2', 'TEXT']],
+                                'test_telnet_test': [[4, 'user_data_telnet', 'TEXT'], [5, 'user_data_telnet2', 'TEXT']],
+                                'test_http_test': [[4, 'user_data', 'TEXT']]}
+        self.assertTrue(expected_column_dict ==
+                       (DB_Init.create_dict_transformed_column_list(DB_Init.create_dict_schema_column_list(gci))))
 
 
 
