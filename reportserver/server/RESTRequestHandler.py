@@ -2,6 +2,7 @@ import json
 from http.server import BaseHTTPRequestHandler
 
 from reportserver.manager import utilities
+from reportserver.server.PortsServiceHandler import PortsServiceHandler
 
 notFoundPayload = {}
 
@@ -20,11 +21,18 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         print(tokens)
 
         if self.path.startswith("/v1/analytics/ports"):
+            port_handler = PortsServiceHandler()
+            uom = None
+            units = None
+            if len(tokens) > 5:
+                time_period = utilities.validateTimePeriod(tokens)
+                uom = time_period[0]
+                units = time_period[1]
             if len(tokens) >= 5:
-                portNbr = utilities.getIntValue(tokens[4])
+                portNbr = utilities.validatePortNumber(tokens[4])
                 print("requested: " + str(portNbr))
                 if portNbr is not None and 0 < portNbr < 9000:
-                    self.getPortData(portNbr)
+                    port_handler.getPortDataByTime(self, portNbr, uom, units)
                 else:
                     self.badRequest(portNbr)
             else:
