@@ -69,7 +69,7 @@ def getJson(portnumber, unit, unit_size):
     begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
 
     tableName = getTableName(portnumber)
-    date_time_field = getTableDateTimeField(portnumber)
+    date_time_field = getTableDateTimeField()
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
     queryString = "SELECT * FROM %s where (%s > '%s')" % (tableName, date_time_field, begin_date_iso)
@@ -97,5 +97,5 @@ def get_db_path():
         # TODO: use global config for this
         return os.getenv('HOME') + '/honeyDB/honeyDB.sqlite'
 
-def getTableDateTimeField(portnumber):
+def getTableDateTimeField():
     return "eventdatetime"
