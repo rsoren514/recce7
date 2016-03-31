@@ -5,9 +5,7 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>' \
              'Dina Steeve<dsteeve@msudenver.edu>'
 
-#default location of the configuraiton file if an override environment variable not given
-#Environment var:  HPOTTR_CONFIG_LOC
-
+#default location of the configuration file if an override environment variable not given
 default_cfg_path = 'config/plugins.cfg'
 
 
