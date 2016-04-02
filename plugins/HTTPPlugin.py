@@ -69,7 +69,7 @@ MONTHS = [
     'Dec',
 ]
 
-REPLIES = {
+STATUS_CODES = {
     100 : '100 Continue',
     200 : '200 OK',
     400 : '400 Bad Request',
@@ -94,8 +94,6 @@ class HTTPPlugin(BasePlugin):
         self.rfile = socket.SocketIO(self._skt, "r")
         self.wfile = socket.SocketIO(self._skt, "w")
 
-        self._skt.setblocking(0)
-
         if not self.parse_message():
             self.finalize()
             return False
@@ -107,11 +105,30 @@ class HTTPPlugin(BasePlugin):
         self.fix_headers()
 
         self.finalize()
+
+        try:
+            entry = {'test_http': {'METHOD' : self.method,
+                               'PATH' : self.path,
+                               'HEADERS' : self.headers,
+                               'BODY' : self.body}}
+
+            self.do_save(entry)
+        except:
+            return False
+
         return True
 
     def finalize(self):
-        self.rfile.close()
-        self.wfile.close()
+        try:
+            self.rfile.close()
+        except:
+            pass
+
+        try:
+            self.wfile.close()
+        except:
+            pass
+
         self._skt = None
 
     def parse_message(self):
@@ -164,8 +181,12 @@ class HTTPPlugin(BasePlugin):
     def read_headers(self):
         while (True):
             try:
-                line = self.rfile.readline()
+                line = self.rfile.readline(2049)
             except socket.timeout:
+                return False
+
+            if (len(line) > 2048):
+                self.reply(400)
                 return False
 
             if line in (b'\r\n', b'\n', b''):
@@ -215,7 +236,7 @@ class HTTPPlugin(BasePlugin):
         if self.path == '/':
             self.reply(200, PAGE_LOGIN)
         elif self.path == '/login':
-            self.reply(401)
+            self.reply(403)
         else:
             self.reply(404)
 
@@ -225,7 +246,7 @@ class HTTPPlugin(BasePlugin):
         if self.path == '/':
             self.reply(200, PAGE_LOGIN)
         elif self.path == '/login':
-            self.reply(401)
+            self.reply(403)
         else:
             self.reply(404)
 
@@ -262,23 +283,34 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def reply(self, code, body=None):
-        self.wfile.write(b'HTTP/1.1 ')
-        self.wfile.write(bytes(REPLIES[code], 'utf-8'))
-        self.wfile.write(b'\r\n')
-        self.wfile.write(b'Date: ' + bytes(self.date_string(), 'utf-8'))
-        self.wfile.write(b'\r\n')
-        self.wfile.write(b'Content-Type: text/html; charset=UTF-8')
-        self.wfile.write(b'\r\n')
+        self.send_reply(code)
+        self.send_header(b'Date', bytes(self.date_string(), 'utf-8'))
+        self.send_header(b'Content-Type', b'text/html')
 
         if body == None:
-            body = PAGE_ERROR % {'error' : REPLIES[code]}
+            body = PAGE_ERROR % {'error' : STATUS_CODES[code]}
             body = bytes(body, 'utf-8')
 
-        self.wfile.write(b'Content-Length: ')
-        self.wfile.write(str(len(body)).encode())
-        self.wfile.write(b'\r\n')
-        self.wfile.write(b'\r\n')
+        self.send_header(b'Content-Length', str(len(body)).encode())
+        self.send_header(b'Content', b'Closed')
+
+        self.end_headers()
+
         self.wfile.write(body)
+
+    def send_reply(self, code):
+        self.wfile.write(b'HTTP/1.1 ')
+        self.wfile.write(bytes(STATUS_CODES[code], 'utf-8'))
+        self.wfile.write(b'\r\n')
+
+    def send_header(self, type, content):
+        self.wfile.write(type)
+        self.wfile.write(b': ')
+        self.wfile.write(content)
+        self.wfile.write(b'\r\n')
+
+    def end_headers(self):
+        self.wfile.write(b'\r\n')
 
     def fix_headers(self):
         fixed_header = ""
