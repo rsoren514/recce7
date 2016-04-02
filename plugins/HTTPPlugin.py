@@ -29,7 +29,7 @@ PAGE_LOGIN = b"""<html>
 
 PAGE_ERROR = """<html>
     <head>
-        %(error)s
+        <h1>%(error)s</h1>
     </head>
 </html>"""
 
@@ -42,42 +42,6 @@ METHODS = {
     'DELETE',
     'TRACE',
     'CONNECT'
-}
-
-HEADERS = {
-    'accept',
-    'accept-charset',
-    'accept-encoding',
-    'accept-language',
-    'accept-datetime',
-    'authorization',
-    'cache-control',
-    'connection',
-    'cookie',
-    'content-length',
-    'content-md5',
-    'content-type',
-    'date',
-    'expect',
-    'forwarded',
-    'from',
-    'host',
-    'if-match',
-    'if-modified-since',
-    'if-none-match',
-    'if-range',
-    'if-unmodified-since',
-    'max-forwards',
-    'origin',
-    'pragma',
-    'proxy-authorization',
-    'range',
-    'referer',
-    'te',
-    'user-agent',
-    'upgrade',
-    'via',
-    'warning',
 }
 
 DAYS = [
@@ -105,26 +69,21 @@ MONTHS = [
     'Dec',
 ]
 
-SERVER_NAME = "honey_potter"
-
-REPLIES = {
+STATUS_CODES = {
+    100 : '100 Continue',
     200 : '200 OK',
     400 : '400 Bad Request',
+    401 : '401 Unauthorized',
+    403 : '403 Forbidden',
     404 : '404 Not Found',
     414 : '414 URI Too Long',
     500 : '500 Internal Server Error',
     501 : '501 Not Implemented',
 }
 
-'''
-
-'''
 class HTTPPlugin(BasePlugin):
     def __init__(self, socket, framework):
         BasePlugin.__init__(self, socket, framework)
-
-        self.message = ""
-
         self.method = ""
         self.path = ""
         self.version = ""
@@ -135,17 +94,44 @@ class HTTPPlugin(BasePlugin):
         self.rfile = socket.SocketIO(self._skt, "r")
         self.wfile = socket.SocketIO(self._skt, "w")
 
-        if not self.read_message():
-            self._skt = None
+        if not self.parse_message():
+            self.finalize()
             return False
 
         if not self.handle_message():
-            self._skt = None
+            self.finalize()
             return False
+
+        self.fix_headers()
+
+        self.finalize()
+
+        try:
+            entry = {'test_http': {'METHOD' : self.method,
+                               'PATH' : self.path,
+                               'HEADERS' : self.headers,
+                               'BODY' : self.body}}
+
+            self.do_save(entry)
+        except:
+            return False
+
+        return True
+
+    def finalize(self):
+        try:
+            self.rfile.close()
+        except:
+            pass
+
+        try:
+            self.wfile.close()
+        except:
+            pass
 
         self._skt = None
 
-    def read_message(self):
+    def parse_message(self):
         if (not self.read_request()):
             return False
 
@@ -158,10 +144,17 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def read_request(self):
-        request_line = self.rfile.readline(2049)
+        try:
+            request_line = self.rfile.readline(2049)
+        except socket.timeout:
+            return False
 
         if (len(request_line) > 2048):
-            # too long exception 414 error
+            self.reply(414)
+            return False
+
+        if (len(request_line) == 0):
+            self.reply(400)
             return False
 
         request_line = request_line.split()
@@ -187,7 +180,14 @@ class HTTPPlugin(BasePlugin):
 
     def read_headers(self):
         while (True):
-            line = self.rfile.readline()
+            try:
+                line = self.rfile.readline(2049)
+            except socket.timeout:
+                return False
+
+            if (len(line) > 2048):
+                self.reply(400)
+                return False
 
             if line in (b'\r\n', b'\n', b''):
                 break
@@ -209,7 +209,20 @@ class HTTPPlugin(BasePlugin):
     def read_body(self):
         if 'content-length' in self.headers:
             size = self.headers['content-length']
-            print(size)
+
+            try:
+                size = int(size)
+            except ValueError:
+                return True
+
+            try:
+                self.body = str(self.rfile.read(size), 'utf-8')
+            except TypeError:
+                pass
+            except socket.timeout:
+                pass
+        else:
+            return True
 
         return True
 
@@ -220,23 +233,29 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def do_GET(self):
-        if (self.path == '/'):
+        if self.path == '/':
             self.reply(200, PAGE_LOGIN)
+        elif self.path == '/login':
+            self.reply(403)
         else:
             self.reply(404)
 
         return True
 
     def do_HEAD(self):
-        if (self.path == '/'):
+        if self.path == '/':
             self.reply(200, PAGE_LOGIN)
+        elif self.path == '/login':
+            self.reply(403)
         else:
             self.reply(404)
 
         return True
 
     def do_POST(self):
-        if (self.path == '/login'):
+        if (self.path == '/'):
+            self.reply(200, PAGE_LOGIN)
+        elif (self.path == '/login'):
             self.reply(500)
         else:
             self.reply(404)
@@ -264,23 +283,44 @@ class HTTPPlugin(BasePlugin):
         return True
 
     def reply(self, code, body=None):
-        self.wfile.write(b'HTTP/1.1 ')
-        self.wfile.write(bytes(REPLIES[code], 'utf-8'))
-        self.wfile.write(b'\r\n')
-        self.wfile.write(b'Date: ' + bytes(self.date_string(), 'utf-8'))
-        self.wfile.write(b'\r\n')
-        self.wfile.write(b'Content-Type: text/html; charset=UTF-8')
-        self.wfile.write(b'\r\n')
+        self.send_reply(code)
+        self.send_header(b'Date', bytes(self.date_string(), 'utf-8'))
+        self.send_header(b'Content-Type', b'text/html')
 
         if body == None:
-            body = "<html><head><h1>" + REPLIES[code] + "</h1></head></html>"
+            body = PAGE_ERROR % {'error' : STATUS_CODES[code]}
             body = bytes(body, 'utf-8')
 
-        self.wfile.write(b'Content-Length: ')
-        self.wfile.write(bytes(str(len(body)), 'utf-8'))
-        self.wfile.write(b'\r\n')
-        self.wfile.write(b'\r\n')
+        self.send_header(b'Content-Length', str(len(body)).encode())
+        self.send_header(b'Content', b'Closed')
+
+        self.end_headers()
+
         self.wfile.write(body)
+
+    def send_reply(self, code):
+        self.wfile.write(b'HTTP/1.1 ')
+        self.wfile.write(bytes(STATUS_CODES[code], 'utf-8'))
+        self.wfile.write(b'\r\n')
+
+    def send_header(self, type, content):
+        self.wfile.write(type)
+        self.wfile.write(b': ')
+        self.wfile.write(content)
+        self.wfile.write(b'\r\n')
+
+    def end_headers(self):
+        self.wfile.write(b'\r\n')
+
+    def fix_headers(self):
+        fixed_header = ""
+        for header in self.headers:
+            fixed_header += header
+            fixed_header += ': '
+            fixed_header += self.headers[header]
+            fixed_header += '\r\n'
+
+        self.headers = fixed_header
 
     def date_string(self):
         year, mon, mday, hour, min, sec, wday, yday, isdst = time.gmtime(time.time())
