@@ -46,11 +46,15 @@ class GlobalConfig_Test(unittest.TestCase):
     def test_refresh_instance(self):
 
         gconfig2 = Configuration(test_cfg_path, True).getInstance()
-        self.assertNotEqual(str(self.gconfig), str(gconfig2), "these 2 objects should NOT equal")
+        self.assertNotEqual(str(self.gconfig), str(gconfig2), "these 2 objects should NOT equal when refresh set to True")
 
-    def test_refresh_instance(self):
+    def test_refresh_instance_same(self):
         gconfig2 = Configuration(test_cfg_path, False).getInstance()
-        self.assertEqual(str(self.gconfig), str(gconfig2), "these 2 objects should equal")
+        self.assertEqual(str(self.gconfig), str(gconfig2), "these 2 objects should equal when False is set for Refresh")
+
+        gconfig2 = Configuration(test_cfg_path).getInstance()
+        self.assertEqual(str(self.gconfig), str(gconfig2), "these 2 objects should equal with default of False")
+
 
 if __name__ == "__main__":
     unittest.main()
