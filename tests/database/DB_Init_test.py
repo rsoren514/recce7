@@ -13,6 +13,7 @@ class DB_Init_test(unittest.TestCase):
     testpath_exist = os.getcwd() + '/tests/database/DB_Init_testDir'
     testpath_non_exist = os.getcwd() + '/tests/database/DB_Init_testDirDoesNotExist'
     testpath_with_db = os.getcwd() + '/tests/database/DB_Init_testDirDB/honeyDB'
+    testpath_mod_db = os.getcwd() + '/tests/database/DB_Init_testModDirDB/honeyDB'
 
 
     @patch('os.mkdir')
@@ -53,6 +54,7 @@ class DB_Init_test(unittest.TestCase):
         table_list_non_match = ['table2', 'table3', 'table4']
         self.assertTrue(DB_Init.table_list_diff(table_list, table_list_non_match) == ['table4'])
         self.assertTrue(DB_Init.table_list_diff(table_list, table_list_match) == [])
+
 
     def test_get_config_table_list(self):
         expected_tables = ['test_http_test', 'test_http2_test', 'test_telnet_test']
@@ -131,6 +133,18 @@ class DB_Init_test(unittest.TestCase):
 
     #TODO create a test for updating structure need to figure out how to change config
     #files in the middle of test
+
+    @patch('database.Table_Init.change_table_structure')
+    @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_with_db)
+    def test_update_table_structure(self,gci_get_db_dir,change_table_structure):
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg', True).getInstance()
+        DB_Init.update_table_structure(gci)
+        self.assertFalse(change_table_structure.called)
+        gci = Configuration('tests/database/test_configs/DB_Init_testMod.cfg', True).getInstance()
+        DB_Init.update_table_structure(gci)
+        self.assertTrue(change_table_structure.called)
+
+
 
 
 
