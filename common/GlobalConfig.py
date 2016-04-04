@@ -94,7 +94,11 @@ class GlobalConfig:
     :return: a string containing an absolute path
     '''
     def get_db_dir(self):
-        return (os.getenv('RECCE7_DB_PATH') or os.getenv('HOME')) + '/honeyDB'
+        db_dir = os.getenv('RECCE7_DB_PATH') or os.getenv('HOME')
+        if not db_dir:
+            return './honeyDB'
+        else:
+            return db_dir + '/honeyDB'
 
     '''
     Returns a list of ports with enabled plugins listening.
