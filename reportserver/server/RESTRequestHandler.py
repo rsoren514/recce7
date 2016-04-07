@@ -23,11 +23,10 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
         if self.path.startswith("/v1/analytics/"):
             if len(tokens) >= 4:
-                print ("4th token: " + tokens[3])
                 if str(tokens[3]) == "ports":
                     PortsServiceHandler().process(self, tokens)
+                #TODO:  here is where we add more urls like /ipaddresses/
                 else:
-                    print ("token[3] is: " + str(tokens[3]))
                     self.badRequest()
         else:
             self.notFound()
