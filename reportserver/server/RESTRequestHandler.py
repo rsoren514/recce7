@@ -1,8 +1,9 @@
 import json
 from http.server import BaseHTTPRequestHandler
 
-from reportserver.manager import utilities
+
 from reportserver.server.PortsServiceHandler import PortsServiceHandler
+
 
 notFoundPayload = {}
 
@@ -20,31 +21,32 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         tokens = self.path.split('/')
         print(tokens)
 
-        if self.path.startswith("/v1/analytics/ports"):
-            port_handler = PortsServiceHandler()
-            uom = None
-            units = None
-            if len(tokens) > 5:
-                time_period = utilities.validateTimePeriod(tokens)
-                uom = time_period[0]
-                units = time_period[1]
-            if len(tokens) >= 5:
-                portNbr = utilities.validatePortNumber(tokens[4])
-                print("requested: " + str(portNbr))
-                if portNbr is not None and 0 < portNbr < 9000:
-                    port_handler.getPortDataByTime(self, portNbr, uom, units)
+        if self.path.startswith("/v1/analytics/"):
+            if len(tokens) >= 4:
+                print ("4th token: " + tokens[3])
+                if str(tokens[3]) == "ports":
+                    PortsServiceHandler().process(self, tokens)
                 else:
-                    self.badRequest(portNbr)
-            else:
-                self.badRequest('')
+                    print ("token[3] is: " + str(tokens[3]))
+                    self.badRequest()
         else:
             self.notFound()
+
+
+
+    def getIndexPayload(self, path):
+        #TODO:  how to get full path here??
+        return  {'links': ['rel: ports, href:' + path + 'ports']}
+
+    def showIndex(self,path):
+        # send response code:
+        self.sendJsonResponse(self.getIndexPayload(path), 200)
 
     def notFound(self):
         # send response code:
         self.sendJsonResponse(notFoundPayload,404)
 
-    def badRequest(self, portNbr):
+    def badRequest(self):
         # send response code:
         self.sendJsonResponse(badRequestPayload,400)
 

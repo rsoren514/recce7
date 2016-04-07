@@ -23,17 +23,18 @@
 ################################################################################
 
 
+#Given a string, try to convert it to an int.
 def validatePortNumber(givenStr):
     print("given str is: " + givenStr)
     try:
-        returnval = int(givenStr)
-        return returnval
+        return int(givenStr)
     except Exception as e:
-        print("received invalid string to convert to int: " + givenStr)
+        print("Received invalid string to convert to int: " + givenStr)
         print (str(e))
         return None
 
 
+#Given a token
 def validateTimePeriod(tokens):
     #TODO:  validate the tokens given.
     return (None, None)
