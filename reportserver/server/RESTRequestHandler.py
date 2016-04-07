@@ -1,7 +1,9 @@
 import json
 from http.server import BaseHTTPRequestHandler
 
-from reportserver.manager import utilities
+
+from reportserver.server.PortsServiceHandler import PortsServiceHandler
+
 
 notFoundPayload = {}
 
@@ -19,24 +21,31 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         tokens = self.path.split('/')
         print(tokens)
 
-        if self.path.startswith("/v1/analytics/ports"):
-            if len(tokens) >= 5:
-                portNbr = utilities.getIntValue(tokens[4])
-                print("requested: " + str(portNbr))
-                if portNbr is not None and 0 < portNbr < 9000:
-                    self.getPortData(portNbr)
+        if self.path.startswith("/v1/analytics/"):
+            if len(tokens) >= 4:
+                if str(tokens[3]) == "ports":
+                    PortsServiceHandler().process(self, tokens)
+                #TODO:  here is where we add more urls like /ipaddresses/
                 else:
-                    self.badRequest(portNbr)
-            else:
-                self.badRequest('')
+                    self.badRequest()
         else:
             self.notFound()
+
+
+
+    def getIndexPayload(self, path):
+        #TODO:  how to get full path here??
+        return  {'links': ['rel: ports, href:' + path + 'ports']}
+
+    def showIndex(self,path):
+        # send response code:
+        self.sendJsonResponse(self.getIndexPayload(path), 200)
 
     def notFound(self):
         # send response code:
         self.sendJsonResponse(notFoundPayload,404)
 
-    def badRequest(self, portNbr):
+    def badRequest(self):
         # send response code:
         self.sendJsonResponse(badRequestPayload,400)
 

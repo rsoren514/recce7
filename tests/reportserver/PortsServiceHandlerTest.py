@@ -12,6 +12,6 @@ class PortsServiceHandlerTest(unittest.TestCase):
 
     def testGetPort(self):
         portsServiceHandler = PortsServiceHandler()
-        response = portsServiceHandler.getPort(80);
-        self.assertEqual(response, None);
+        response = portsServiceHandler.getPortData(80)
+        self.assertEqual(response, None)
 
