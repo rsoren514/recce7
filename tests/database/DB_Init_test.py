@@ -19,7 +19,7 @@ class DB_Init_test(unittest.TestCase):
     @patch('os.mkdir')
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_exist)
     def test_create_db_dir_exists(self, gci_get_db_dir, os_mkdir):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         DB_Init.create_db_dir(gci)
         self.assertFalse(os_mkdir.called)
 
@@ -27,7 +27,7 @@ class DB_Init_test(unittest.TestCase):
     @patch('os.mkdir')
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_non_exist)
     def test_create_db_dir_non_exist(self, gci_get_db_dir, os_mkdir):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         DB_Init.create_db_dir(gci)
         self.assertTrue(os_mkdir.called)
 
@@ -35,7 +35,7 @@ class DB_Init_test(unittest.TestCase):
     @patch('sqlite3.connect')
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_with_db)
     def test_create_db_database_exists(self, gci_get_db_dir, sqlite3_connect):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         DB_Init.create_db(gci)
         self.assertFalse(sqlite3_connect.called)
 
@@ -43,7 +43,7 @@ class DB_Init_test(unittest.TestCase):
     @patch('sqlite3.connect')
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_exist)
     def test_create_db_database_non_exist(self, gci_get_db_dir, sqlite3_connect):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         DB_Init.create_db(gci)
         self.assertTrue(sqlite3_connect.called)
 
@@ -58,13 +58,13 @@ class DB_Init_test(unittest.TestCase):
 
     def test_get_config_table_list(self):
         expected_tables = ['test_http_test', 'test_http2_test', 'test_telnet_test']
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         self.assertEqual(expected_tables, DB_Init.get_config_table_list(gci.get_ports(), gci.get_plugin_dictionary()))
 
 
     @patch('database.Table_Init.create_table')
     def test_create_non_exist_tables(self, Table_Init_mod):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         table_diff = ['test4']
         DB_Init.create_non_exist_tables(table_diff, gci)
         self.assertTrue(Table_Init_mod.called)
@@ -72,7 +72,7 @@ class DB_Init_test(unittest.TestCase):
 
     @patch('database.Table_Init.create_table')
     def test_count_create_non_exist_tables(self, Table_Init_mod):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         table_diff = ['test4', 'test5', 'test6']
         DB_Init.create_non_exist_tables(table_diff, gci)
         self.assertEqual(3, Table_Init_mod.call_count)
@@ -80,25 +80,25 @@ class DB_Init_test(unittest.TestCase):
 
     @patch('database.Table_Init.create_table')
     def test_create_non_exist_tables(self, Table_Init_mod):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         table_diff = []
         DB_Init.create_non_exist_tables(table_diff, gci)
         self.assertFalse(Table_Init_mod.called)
 
 
-    def test_create_dict_config_column(self):
-        expected_column_list = {'test_telnet_test': [[1, 'Test_col', 'TEXT'], [2, 'User_Data', 'TEXT']],
-                                'test_http2_test': [[1, 'someNumber', 'INTEGER'], [2, 'someText', 'TEXT']],
-                                'test_http_test': [[1, 'someNumber', 'INTEGER'], [2, 'someText', 'TEXT']]}
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+    def test_create_dict_config_column_good(self):
+        expected_column_list = {'test_telnet_test': [[1, 'user_data_telnet', 'TEXT'], [2, 'user_data_telnet2', 'TEXT']],
+                                'test_http_test': [[1, 'user_data', 'TEXT']],
+                                'test_http2_test': [[1, 'user_data2', 'TEXT']]}
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         self.assertTrue(expected_column_list == DB_Init.create_dict_config_column_list(gci))
 
 
-    def test_create_dict_config_column(self):
+    def test_create_dict_config_column_bad(self):
         wrong_column_list = {'test_telnet_test_wrong': [[1, 'Test_col', 'TEXT'], [2, 'User_Data', 'TEXT']],
                                 'test_http2_test': [[1, 'someNumber', 'INTEGER'], [2, 'someText', 'TEXT']],
                                 'test_http_test': [[1, 'someNumber', 'INTEGER'], [2, 'someText', 'TEXT']]}
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         self.assertFalse(wrong_column_list == DB_Init.create_dict_config_column_list(gci))
 
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_with_db)
@@ -119,12 +119,12 @@ class DB_Init_test(unittest.TestCase):
                                                      (3, 'localAddress', 'TEXT', 0, None, 0),
                                                      (4, 'user_data_telnet', 'TEXT', 0, None, 0),
                                                      (5, 'user_data_telnet2', 'TEXT', 0, None, 0)]}
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         self.assertTrue(expected_column_list == DB_Init.create_dict_schema_column_list(gci))
 
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath_with_db)
     def test_create_dict_transformed_column_list(self,gci_get_db_dir):
-        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg').getInstance()
+        gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         expected_column_dict = {'test_http2_test': [[4, 'user_data2', 'TEXT']],
                                 'test_telnet_test': [[4, 'user_data_telnet', 'TEXT'], [5, 'user_data_telnet2', 'TEXT']],
                                 'test_http_test': [[4, 'user_data', 'TEXT']]}
