@@ -37,4 +37,14 @@ def validatePortNumber(givenStr):
 #Given a token
 def validateTimePeriod(tokens):
     #TODO:  validate the tokens given.
-    return (None, None)
+    if len(tokens) != 7:
+        raise ValueError("token length expected is 7")
+
+    uom = None
+    units = None
+
+    uom = str(tokens[5])
+    units = int(tokens[6])
+
+    print(uom + ": " + str(units))
+    return (uom, units)

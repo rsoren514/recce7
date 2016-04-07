@@ -45,7 +45,7 @@ class PortManager:
             return False
 
     def getPort(self, port_number, uom, unit):
-        print("Retrieving port:" + str(port_number))
+        print("Retrieving port:" + str(port_number) + "uom:" + uom + " size: " + str(unit))
 
         if self.isPortValid(port_number):
             return DatabaseHandler.getJson(port_number, uom, unit)
