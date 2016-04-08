@@ -5,9 +5,7 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>' \
              'Dina Steeve<dsteeve@msudenver.edu>'
 
-#default location of the configuraiton file if an override environment variable not given
-#Environment var:  HPOTTR_CONFIG_LOC
-
+#default location unless a path is sent to us
 default_cfg_path = 'config/plugins.cfg'
 
 
@@ -15,9 +13,11 @@ class Configuration(object):
     __instance = None
 
 
-    def __new__(cls, path=None):
+    #Refresh should only be set to True when testing, or you want to refresh the information.
+    #This could be a threading issue if done in a multi-threaded environment!!  Be careful when setting Refresh=True
+    def __new__(cls, path=None, refresh=False):
         ##print ('new on config was called.')
-        if Configuration.__instance is None:
+        if Configuration.__instance is None or refresh == True:
             Configuration.__instance = object.__new__(cls)
             config_location = path or default_cfg_path
             Configuration.__instance.val = Configuration.__instance.__read_config(config_location)
@@ -25,10 +25,9 @@ class Configuration(object):
         return Configuration.__instance
 
 
-    #Resturns back an instance of the globalconfig class.
+    #Returns back an instance of the globalconfig class.
     def getInstance(self):
         return self.__instance.val
-
 
 
     # ToDo: Dont use eval!
