@@ -8,6 +8,9 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 #default location unless a path is sent to us
 default_cfg_path = 'config/plugins.cfg'
 
+#todo:  currently can't override this one
+default_global_cfg_file = 'config/global.cfg'
+
 
 class Configuration(object):
     __instance = None
@@ -59,32 +62,40 @@ class Configuration(object):
 
         config_parser.read(plugin_config_file)
 
-        config_dictionary= {}
+        plugin_dictionary= {}
         enabled_ports = []
 
         plugins = config_parser.sections()
         for plugin in plugins:
             (port, module, config_object) = self.__create_config_object(plugin,config_parser)
             if config_object['enabled'].lower() == 'yes':
-                config_dictionary[port] = config_object
+                plugin_dictionary[port] = config_object
                 enabled_ports.append(port)
 
-        #Todo:  read in report server config
-        rserver_dictionary={"host":"localhost", "port":8080}
+        # read in global config for reportserver and database sections
+        config_parser.read(default_global_cfg_file)
+        rserver_dictionary=config_parser['ReportServerSection']
+        database_dictionary = config_parser['DatabaseSection']
 
-        return GlobalConfig(config_dictionary, enabled_ports, rserver_dictionary)
+        return GlobalConfig(plugin_dictionary, enabled_ports, rserver_dictionary, database_dictionary)
 
 
 ##The actual thing that holds the configuration data in the *.cfg file
 class GlobalConfig:
-    def __init__(self, plugin_dictionary, ports, rs_dictionary):
+    def __init__(self, plugin_dictionary, ports, rs_dictionary, database_dictionary):
         self.__plugin_dictionary = plugin_dictionary
         self.__enabled_ports = ports
         self.__rserver_dictionary = rs_dictionary
+        self.__db_dictionary = database_dictionary
 
     #
     # Config API
     #
+
+
+
+    def get_db_name(self):
+        return self.__db_dictionary["database.name"]
 
     '''
     Returns a string indicating the location where the SQLite
@@ -93,11 +104,17 @@ class GlobalConfig:
     :return: a string containing an absolute path
     '''
     def get_db_dir(self):
-        db_dir = os.getenv('RECCE7_DB_PATH') or os.getenv('HOME')
-        if not db_dir:
-            return './honeyDB'
-        else:
-            return db_dir + '/honeyDB'
+        db_dir = os.getenv('RECCE7_DB_PATH') or os.getenv('HOME') or '.'
+        return db_dir + '/' + self.get_db_name()
+
+    def get_db_datetime_name(self):
+        return self.__db_dictionary["database.datetime.name"]
+
+    def get_db_peerAddress_name(self):
+        return self.__db_dictionary["database.peerAddress.name"]
+
+    def get_db_localAddress_name(self):
+        return self.__db_dictionary["database.localAddress.name"]
 
     '''
     Returns a list of ports with enabled plugins listening.
@@ -122,7 +139,10 @@ class GlobalConfig:
         return self.__plugin_dictionary
 
     def get_report_server_host(self):
-        return self.__rserver_dictionary["host"]
+        return self.__rserver_dictionary["reportserver.host"]
 
     def get_report_server_port(self):
-        return self.__rserver_dictionary["port"]
+        port = self.__rserver_dictionary["reportserver.port"]
+        return int(port)
+
+

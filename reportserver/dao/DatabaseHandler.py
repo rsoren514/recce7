@@ -61,6 +61,5 @@ def get_table_name(portnumber):
 
 
 # Returns the name of the datetime field from the config file.
-# TODO - get from config file?
 def get_table_datetime_field(portnumber):
-    return "eventDateTime"
+    return global_config.get_db_datetime_name()
