@@ -17,16 +17,24 @@ class PortsServiceHandler():
                 units = time_period[1]
             except ValueError:
                 rqst.badRequest(units)
+
         if len(tokens) >= 5:
             portNbr = utilities.validatePortNumber(tokens[4])
             print("requested: " + str(portNbr))
             if portNbr is not None and 0 < portNbr < 9000:
                 self.getPortDataByTime(rqst, portNbr, uom, units)
             else:
-                rqst.badRequest(portNbr)
-        else:
-            rqst.badRequest('')
+                rqst.badRequest()
 
+        if len(tokens) == 4:
+            self.get_port_list(rqst)
+        else:
+            rqst.badRequest()
+
+
+    def get_port_list(self,rqst):
+        jsondata = "{ports : [yeah not done yet]}"
+        rqst.sendJsonResponse(jsondata, 200)
 
     def getPortDataByTime(self, rqst, portnumber, uom, unit):
         #default if we aren't given valid uom and unit
