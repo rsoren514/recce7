@@ -63,7 +63,7 @@ class DB_Init_test(unittest.TestCase):
 
 
     @patch('database.Table_Init.create_table')
-    def test_create_non_exist_tables(self, Table_Init_mod):
+    def test_create_non_exist_tables_diff(self, Table_Init_mod):
         gci = Configuration('tests/database/test_configs/DB_Init_test.cfg',True).getInstance()
         table_diff = ['test4']
         DB_Init.create_non_exist_tables(table_diff, gci)
