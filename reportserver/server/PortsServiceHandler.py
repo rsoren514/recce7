@@ -33,7 +33,8 @@ class PortsServiceHandler():
 
 
     def get_port_list(self,rqst):
-        jsondata = "{ports : [yeah not done yet]}"
+        #todo:  finish this!
+        jsondata = "{links : [under construction]}"
         rqst.sendJsonResponse(jsondata, 200)
 
     def getPortDataByTime(self, rqst, portnumber, uom, unit):
