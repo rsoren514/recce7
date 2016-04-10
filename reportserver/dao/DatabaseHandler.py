@@ -43,8 +43,8 @@ def query_db(query, args=(), one=False):
 def get_json_by_time(portnumber, unit, unit_size):
     begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
     begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
-    tableName = get_table_name(portnumber)
-    date_time_field = get_table_datetime_field(portnumber)
+    tableName = global_config.get_plugin_config(portnumber)['table']
+    date_time_field = global_config.get_db_datetime_name()
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
     queryString = "SELECT * FROM %s where (%s > '%s')" % (tableName, date_time_field, begin_date_iso)
@@ -54,12 +54,3 @@ def get_json_by_time(portnumber, unit, unit_size):
 
     return results
 
-# Returns the table name of the given port number from the config file.
-def get_table_name(portnumber):
-    gc_dict = global_config.get_plugin_config(portnumber)
-    return gc_dict['table']
-
-
-# Returns the name of the datetime field from the config file.
-def get_table_datetime_field(portnumber):
-    return global_config.get_db_datetime_name()
