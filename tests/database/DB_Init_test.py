@@ -1,12 +1,10 @@
 from database import DB_Init
-from database import Table_Init
 from common.GlobalConfig import GlobalConfig
 from common.GlobalConfig import Configuration
 import unittest
-from unittest import mock
 from unittest.mock import patch
 import os
-import sqlite3
+
 
 class DB_Init_test(unittest.TestCase):
 
