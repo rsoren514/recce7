@@ -18,6 +18,7 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
     def do_GET(self) :
 
+        #self.send_header("Access-Control-Allow-Origin","http://127.0.0.1:8000")
         tokens = self.path.split('/')
         print(tokens)
 
@@ -62,6 +63,8 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         # http://stackoverflow.com/questions/23321887/python-3-http-server-sends-headers-as-output/35634827#35634827
         json_result = json.dumps(payload)
         self.send_response(responseCode)
+        #todo make this configurable
+        self.send_header("Access-Control-Allow-Origin","http://localhost:8000")
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', len(json_result))
         self.end_headers()
