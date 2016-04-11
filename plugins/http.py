@@ -25,8 +25,8 @@ PAGE_LOGIN = b"""<html>
 MAX_MESSAGE_LENGTH = 65536
 
 class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
-    def __init__(self, socket, framework):
-        BasePlugin.__init__(self, socket, framework)
+    def __init__(self, socket, config, framework):
+        BasePlugin.__init__(self, socket, config, framework)
 
         self.rfile = SocketIO(socket, "r")
         self.wfile = SocketIO(socket, "w")
