@@ -6,9 +6,10 @@ import datetime
 
 
 class BasePlugin(Thread):
-    def __init__(self, socket, framework):
+    def __init__(self, socket, config, framework):
         Thread.__init__(self)
         self._skt = socket
+        self._config = config
         self._framework = framework
         self._localAddress = socket.getsockname()[0]
         self._peerAddress = socket.getpeername()[0]

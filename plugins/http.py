@@ -1,6 +1,3 @@
-__author__ = 'jessenelson'
-__author__ = 'zkuhns'
-
 from plugins.base import BasePlugin
 from socket import SocketIO
 from socket import timeout
@@ -13,7 +10,6 @@ PAGE_LOGIN = b"""<html>
                 text-align: center;
             }
         </style>
-
         <section class="loginform cf">
         <form action="login" method="post">
             Username<br>
@@ -29,8 +25,8 @@ PAGE_LOGIN = b"""<html>
 MAX_MESSAGE_LENGTH = 65536
 
 class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
-    def __init__(self, socket, framework):
-        BasePlugin.__init__(self, socket, framework)
+    def __init__(self, socket, config, framework):
+        BasePlugin.__init__(self, socket, config, framework)
 
         self.rfile = SocketIO(socket, "r")
         self.wfile = SocketIO(socket, "w")
@@ -61,7 +57,6 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
                 if body_length > 65536:
                     body_length = 65536
                     too_long = True
-                self._skt.settimeout(body_length/100)
             except TypeError:
                 self.body = ''
                 return
@@ -76,27 +71,17 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
 
         print(self.body)
 
-    def get_session(self):
-        if self.headers == None:
-            self.body = ''
-            return
-        else:
-                try:
-                    session = self.headers.get('cookie')
-                    print(session)
-                except:
-                    pass
-
-
     def write_data(self):
         if self.command == None:
-            self.command = 'ERROR'
+            self.command = ''
         if self.path == None:
-            self.path = 'ERROR'
+            self.path = ''
         if self.headers == None:
-            self.headers = 'ERROR'
+            self.headers = ''
         else:
             self.headers = self.headers.as_string()
+        if self.body == None:
+            self.body = ''
 
         entry = {'test_http': {'METHOD' : self.command,
                                'PATH' : self.path,
