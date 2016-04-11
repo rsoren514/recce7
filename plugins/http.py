@@ -57,7 +57,6 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
                 if body_length > 65536:
                     body_length = 65536
                     too_long = True
-                self._skt.settimeout(body_length/100)
             except TypeError:
                 self.body = ''
                 return
@@ -72,27 +71,17 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
 
         print(self.body)
 
-    def get_session(self):
-        if self.headers == None:
-            self.body = ''
-            return
-        else:
-                try:
-                    session = self.headers.get('cookie')
-                    print(session)
-                except:
-                    pass
-
-
     def write_data(self):
         if self.command == None:
-            self.command = 'ERROR'
+            self.command = ''
         if self.path == None:
-            self.path = 'ERROR'
+            self.path = ''
         if self.headers == None:
-            self.headers = 'ERROR'
+            self.headers = ''
         else:
             self.headers = self.headers.as_string()
+        if self.body == None:
+            self.body = ''
 
         entry = {'test_http': {'METHOD' : self.command,
                                'PATH' : self.path,
