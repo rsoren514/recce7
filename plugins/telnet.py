@@ -21,6 +21,11 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
+
+"""
+
+"""
+
 from plugins.base import BasePlugin
 
 
@@ -63,7 +68,7 @@ class telnet(BasePlugin):
         self.login()
         uo.options(options_list, True)
 
-        user_input = ''
+        self.user_input = ''
         while not self.kill_plugin:
             try:
                 self._skt.send(b'. ')
@@ -85,16 +90,16 @@ class telnet(BasePlugin):
                     break
                 raise e
 
-            user_input += '%s' % data
+            self.user_input += '%s' % data
 
         if self._skt:
             self._skt.send(b'\nGoodbye.\n')
         self._skt = None
-        self.form_data_for_insert(user_input)
+        #self.form_data_for_insert(user_input)
 
-    def form_data_for_insert(self, raw_data):
+    '''def form_data_for_insert(self, raw_data):
         data = {'test_telnet': {'User_Data': raw_data, 'User_Name': self.username, 'Password': self.password}}
-        self.do_save(data)
+        self.do_save(data)'''
 
 
 class UserOptions(telnet):

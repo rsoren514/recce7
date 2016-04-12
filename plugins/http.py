@@ -1,3 +1,7 @@
+"""
+
+"""
+
 from plugins.base import BasePlugin
 from socket import SocketIO
 from socket import timeout
@@ -24,6 +28,7 @@ PAGE_LOGIN = b"""<html>
 
 MAX_MESSAGE_LENGTH = 65536
 
+
 class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
     def __init__(self, socket, config, framework):
         BasePlugin.__init__(self, socket, config, framework)
@@ -35,19 +40,20 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.path = None
         self.headers = None
         self.body = None
+        self.session = None
 
         socket.settimeout(60)
 
     def do_track(self):
         self.handle_one_request()
-        self.write_data()
+        self.format_data()
 
         self._skt = None
 
     def get_body(self):
         too_long = False
 
-        if self.headers == None:
+        if self.headers is None:
             self.body = ''
             return
         else:
@@ -71,27 +77,33 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
 
         print(self.body)
 
-    def write_data(self):
-        if self.command == None:
+    def get_session(self):
+        cookie = self.headers.get('cookie', None)
+        if cookie is None:
+            cookie = 'SESSION=' + self.date_time_string()
+            self.send_header('Set-Cookie', cookie)
+        print(cookie)
+
+    def format_data(self):
+        if self.command is None:
             self.command = ''
-        if self.path == None:
+        if self.path is None:
             self.path = ''
-        if self.headers == None:
+        if self.headers is None:
             self.headers = ''
         else:
             self.headers = self.headers.as_string()
-        if self.body == None:
+        if self.body is None:
             self.body = ''
 
-        entry = {'test_http': {'METHOD' : self.command,
-                               'PATH' : self.path,
-                               'HEADERS' : self.headers,
-                               'BODY' : self.body}}
-
-        self.do_save(entry)
-
     def address_string(self):
-        return self._skt.getpeername()[0]
+        return self.get_client_address()
+
+    def end_headers(self):
+        self.get_session()
+        if self.request_version != 'HTTP/0.9':
+            self._headers_buffer.append(b"\r\n")
+            self.flush_headers()
 
     def do_GET(self):
         self.do_HEAD()
@@ -120,7 +132,16 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
             self.get_body()
 
     def do_PUT(self):
-        '''self.send_response(100)
-        self.end_headers()
-        self.get_body()'''
+        self.send_error(501)
+
+    def do_OPTIONS(self):
+        self.send_error(501)
+
+    def do_DELETE(self):
+        self.send_error(501)
+
+    def do_TRACE(self):
+        self.send_error(501)
+
+    def do_CONNECT(self):
         self.send_error(501)
