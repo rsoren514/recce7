@@ -3,6 +3,7 @@ __author__ = 'Ben Phillips'
 #from honeypot.src.database import DB_Init
 import sqlite3
 from operator import itemgetter
+import os
 
 '''DB_Init.create_default_database()'''
 
@@ -13,6 +14,7 @@ from operator import itemgetter
 by the custom plugin are indeed in the database we can ignore these programatically
 as they are not controlled by the author'''
 default_columns = [['ID','INTEGER','PRIMARY KEY', 'NOT NULL'],
+                   ['session','TEXT','','NULL'],
                    ['eventDateTime','TEXT','','NULL'],
                    ['peerAddress','TEXT','','NULL'],
                    ['localAddress','TEXT','','NULL']]
@@ -34,6 +36,19 @@ def create_table(name,global_config_instance):
     #                                        'peerAddress TEXT NULL, localAddress Text NULL)')
     cursor.execute('CREATE TABLE ' + name + '(' + default_column_def + ')')
     connection.close()
+
+'''this method will run all db scripts in the scripts directory to create non-user defined sqlite objects'''
+def run_db_scripts(global_config_instance):
+    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    cursor = connection.cursor()
+    script_path = '/database/sql_scripts'
+    file_list = os.listdir(os.getcwd() + script_path)
+    for file in file_list:
+        open_file = open(os.getcwd() + script_path + '/' + file,'r')
+        cursor.execute(open_file.read())
+        open_file.close()
+    connection.close()
+
 
 
 '''add columns to the table, requires the name of the table and the column list
