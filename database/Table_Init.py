@@ -118,6 +118,10 @@ def change_table_structure(name,config_column_list,db_column_list,global_config_
 def delete_table(name,global_config_instance):
     connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
     cursor = connection.cursor()
+    '''if you are deleting a table due to changing the configuration of the columns lets remove any sessions from the
+       sessions table referencing the old table'''
+    if(cursor.execute("SELECT count(*) FROM sqlite_master WHERE type='table' and name='" + name + "_delme';").fetchall()[0][0] > 0):
+        cursor.execute("DELETE from sessions where table_name = '" + name + "';")
     cursor.execute("DROP TABLE IF EXISTS " + name + "_delme;")
     cursor.close
 
