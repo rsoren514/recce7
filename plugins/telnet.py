@@ -33,7 +33,7 @@ class telnet(BasePlugin):
         super().__init__(socket, config, framework)
         self.username = "NULL"
         self.password = "NULL"
-        self._session = str(BasePlugin.uuid4())
+        self._session = str(self.get_uuid4())
 
     def login(self):
         user_prompt = "Username: "
