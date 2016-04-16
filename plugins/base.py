@@ -9,6 +9,7 @@ import platform
 import socket
 import datetime
 from threading import Thread
+import uuid
 
 from uuid import uuid4
 
@@ -162,3 +163,6 @@ class BasePlugin(Thread):
             columns.append(i[1])
 
         return columns
+
+    def get_uuid4(self):
+        return str(uuid.uuid4())

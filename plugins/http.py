@@ -7,8 +7,6 @@ from socket import SocketIO
 from socket import timeout
 from http.server import BaseHTTPRequestHandler
 
-import uuid
-
 PAGE_LOGIN = b"""<html>
     <head>
         <style>
@@ -79,7 +77,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
     def get_session(self):
         cookie = self.headers.get('cookie', None)
         if cookie is None:
-            cookie = str(uuid.uuid4())
+            cookie = self.get_uuid4()
         else:
             cookie = cookie[len("SESSION="):]
         self.send_header('Set-Cookie', 'SESSION=' + cookie)
