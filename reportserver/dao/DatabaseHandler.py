@@ -31,6 +31,7 @@ def connect(database_name=db_path):
 # Query DB and return JSON
 # setting DB to TestDB created from DatabaseHandlerTest.py
 def query_db(query, args=(), one=False, db=db_path):
+    print ("args are: " +str(args))
     cur = connect(db).cursor()
     cur.execute(query, args)
     r = [dict((cur.description[i][0], value) \
@@ -43,16 +44,18 @@ def query_db(query, args=(), one=False, db=db_path):
 def get_json_by_time(portnumber, unit, unit_size):
     begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
     #begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
-    begin_date_iso = (dateTimeUtility.get_iso_format(begin_date),)
+    begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
     #tableName = global_config.get_plugin_config(portnumber)['table']
-    tableName = (global_config.get_plugin_config(portnumber)['table'],)
+    tableName = global_config.get_plugin_config(portnumber)['table']
     #date_time_field = global_config.get_db_datetime_name()
-    date_time_field = (global_config.get_db_datetime_name(),)
+    date_time_field = global_config.get_db_datetime_name()
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
-    #queryString = "SELECT * FROM %s where (%s >= '%s')" % (tableName, date_time_field, begin_date_iso)
-    queryString = "SELECT * FROM ? where (? >= ?)", (tableName, date_time_field, begin_date_iso)
-    # print("queryString is: " + queryString)
+    queryString = "SELECT * FROM %s where %s >= '%s'" % (tableName, date_time_field, begin_date_iso)
+    #queryString = '''SELECT * FROM ? where (? >=  '?')'''
+    #args = (tableName, date_time_field, begin_date_iso)
+    print("queryString is: " + str(queryString))
+    #print ("args to use: " + str(args))
     results = query_db(queryString)
     # print("results: " + results)
 

@@ -22,9 +22,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
+from reportserver.manager.UnitOfMeasure import UnitOfMeasure
+
 
 #Given a string, try to convert it to an int.
-def validatePortNumber(givenStr):
+def validate_port_number(givenStr):
     print("given str is: " + givenStr)
     try:
         return int(givenStr)
@@ -35,16 +37,35 @@ def validatePortNumber(givenStr):
 
 
 #Given a token
-def validateTimePeriod(tokens):
-    #TODO:  validate the tokens given.
-    if len(tokens) != 7:
-        raise ValueError("token length expected is 7")
+def validate_time_period(query_tokens):
 
     uom = None
     units = None
 
-    uom = str(tokens[5])
-    units = int(tokens[6])
+    print("given query_tokens:" + str(query_tokens))
 
-    print(uom + ": " + str(units))
+    for token in query_tokens:
+        uom,units = token.split('=')
+        if uom in UnitOfMeasure.get_values(UnitOfMeasure):
+            units = int(units)
+            break
+        else:
+            uom  = None
+            units = None
+
+    print("\n validate_time_period:" + str(uom) + ": " + str(units))
     return (uom, units)
+
+def get_path_query_tokens(path):
+    path_query_tokens = path.split('?')
+    query_tokens = []
+
+    path_tokens = path_query_tokens[0].split('/')
+    #print('path tokens: ', path_tokens)
+
+    if len(path_query_tokens) > 1:
+        query_tokens = path_query_tokens[1].split('&')
+        #print('query tokens: ', query_tokens)
+
+
+    return path_tokens, query_tokens
