@@ -80,10 +80,8 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
     def get_session(self):
         cookie = self.headers.get('cookie', None)
         if cookie is None:
-            cookie = 'SESSION=' + uuid.uuid4().hex
-            self.send_header('Set-Cookie', cookie)
-
-        print(cookie)
+            cookie = 'SESSION=' + str(uuid.uuid4())
+        self.send_header('Set-Cookie', cookie)
 
     def format_data(self):
         if self.command is None:
