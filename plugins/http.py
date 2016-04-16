@@ -7,6 +7,8 @@ from socket import SocketIO
 from socket import timeout
 from http.server import BaseHTTPRequestHandler
 
+import uuid
+
 PAGE_LOGIN = b"""<html>
     <head>
         <style>
@@ -40,7 +42,6 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.path = None
         self.headers = None
         self.body = None
-        self.session = None
 
         socket.settimeout(60)
 
@@ -48,7 +49,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.handle_one_request()
         self.format_data()
 
-        self._skt = None
+        #self._skt = None
 
     def get_body(self):
         too_long = False
@@ -75,14 +76,12 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
             except timeout:
                 self.body = ''
 
-        print(self.body)
-
     def get_session(self):
         cookie = self.headers.get('cookie', None)
         if cookie is None:
-            cookie = 'SESSION=' + self.date_time_string()
-            self.send_header('Set-Cookie', cookie)
-        print(cookie)
+            cookie = 'SESSION=' + str(uuid.uuid4())
+        self.send_header('Set-Cookie', cookie)
+        self._session = cookie
 
     def format_data(self):
         if self.command is None:
