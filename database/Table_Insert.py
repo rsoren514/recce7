@@ -22,7 +22,7 @@ def insert_data(name, data_list, session_value):
     cursor.execute(insert_string, data_list)
 
     if session_value is not None:
-        session_recorded = cursor.execute('select count(session) from sessions where session = "' + session_value + '"').fetchall()
+        session_recorded = cursor.execute('select count(session) from sessions where session = "' + session_value + '" and table_name = "' + name + '"').fetchall()
         if session_recorded[0][0] > 0:
             pass
         else:
