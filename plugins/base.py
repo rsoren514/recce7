@@ -34,7 +34,6 @@ class BasePlugin(Thread):
         """
         while self._skt and not self.kill_plugin:
             try:
-                print(self.get_table_columns())
                 self.do_track()
                 self.do_save()
             except ConnectionResetError as cre:
@@ -47,6 +46,9 @@ class BasePlugin(Thread):
         self._framework.plugin_stopped(self)
 
     def do_save(self):
+        """
+
+        """
         entry = {self.get_table_name() : {}}
         columns = self.get_table_columns()
 
@@ -56,7 +58,13 @@ class BasePlugin(Thread):
             except AttributeError:
                 entry[self.get_table_name()][i] = 'Attribute did not exist'
 
+        entry[self.get_table_name()]['peerAddress'] = self.get_client_address()
+        entry[self.get_table_name()]['localAddress'] = self.get_host_address()
+        entry[self.get_table_name()]['eventDateTime'] = datetime.datetime.now().isoformat()
+
         self._framework.insert_data(entry)
+
+        self._skt = None
 
     '''def do_save(self, data):
         """
@@ -146,8 +154,6 @@ class BasePlugin(Thread):
         """
         Returns the column names for this plugin.
         """
-        print(self._config)
-        print(self._config['tableColumns'])
         columns = []
 
         for i in self._config['tableColumns']:

@@ -48,7 +48,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.handle_one_request()
         self.format_data()
 
-        self._skt = None
+        #self._skt = None
 
     def get_body(self):
         too_long = False
@@ -75,14 +75,11 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
             except timeout:
                 self.body = ''
 
-        print(self.body)
-
     def get_session(self):
         cookie = self.headers.get('cookie', None)
         if cookie is None:
             cookie = 'SESSION=' + self.date_time_string()
             self.send_header('Set-Cookie', cookie)
-        print(cookie)
 
     def format_data(self):
         if self.command is None:
