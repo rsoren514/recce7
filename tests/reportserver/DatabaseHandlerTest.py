@@ -2,9 +2,11 @@ import unittest
 import sqlite3
 import os
 import datetime
+import shutil
 
 from common.GlobalConfig import Configuration
 from reportserver.dao import DatabaseHandler
+from database import DB_Init
 
 class DatabaseHandlerTest(unittest.TestCase):
 
@@ -34,34 +36,40 @@ class DatabaseHandlerTest(unittest.TestCase):
         self.assertIsNone(DatabaseHandler.connect(" "))
         self.assertIsNone(DatabaseHandler.connect(""))
 
-        # Testing for correct DB (Database must exist first for this test to pass)
+        # Testing for correct DB
         cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
         global_config = Configuration(cfg_path).getInstance()
+        DB_Init.create_db_dir(global_config)
+        DB_Init.create_db(global_config)
         db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
-        conn = sqlite3.connect(db_path)
-        self.assertEquals(DatabaseHandler.connect(db_path), conn)
 
-        # Test default
-        self.assertEquals(DatabaseHandler.connect(), conn)
+        self.assertTrue(sqlite3.connect(db_path))
+        self.assertTrue(DatabaseHandler.connect(db_path))
+        self.assertTrue(DatabaseHandler.connect())
+        shutil.rmtree('honeyDB')
 
     # TODO - MORE TESTS!!!
     def test_query_db(self):
-        json_query = DatabaseHandler.query_db("SELECT * FROM Castlevania where (system = 'NES')")
-        expected = [
-            {'title': 'Castlevania', 'system': 'NES', 'datetime': '1987-05-01T00:00:00'},
-            {'title': 'Castlevania II: Simons Quest', 'system': 'NES', 'datetime': '1988-12-01T00:00:00'},
-            {'title': 'Castlevania III: Draculas Curse', 'system': 'NES', 'datetime': '1990-09-01T00:00:00'}
-        ]
-        self.assertEqual(json_query, expected)
-
-        json_query = DatabaseHandler.query_db("SELECT * FROM Zelda where (year <= '1993')")
-        expected = [
-            {'system': 'NES', 'title': 'The Legend of Zelda', 'year': '1987'},
-            {'system': 'NES', 'title': 'Zelda II: The Adventure of Link', 'year': '1988'},
-            {'system': 'SNES', 'title': 'The Legend of Zelda: A Link to the Past', 'year': '1992'},
-            {'system': 'Game Boy', 'title': 'The Legend of Zelda: Links Awakening', 'year': '1993'}
-        ]
-        self.assertEqual(json_query, expected)
+        test_start_date = datetime.datetime(1999, month=12, day=31, hour=23, minute=59, second=59)
+#        successes = 0
+#        fails = 0
+        for x in range(0, 1000):
+            d = datetime.timedelta(weeks=x)
+            query_date = (test_start_date + d)
+            query_date_iso = query_date.isoformat()
+            query_string = "SELECT * FROM Dates where (eventDateTime >= '%s')" % query_date_iso
+            json_query = DatabaseHandler.query_db(query_string, db = "TestDB.sqlite")
+            for y in range(0, len(json_query) - 1):
+                date = json_query[y].get('eventDateTime')
+                self.assertGreaterEqual(date, query_date_iso)
+#                if date >= query_date_iso:
+#                    successes += 1
+#                else:
+#                    fails += 1
+#            with open("test_query_log.txt", "a") as log:
+#                log.write("Tested %s, had %d successes and %d fails\n" % (query_date_iso, successes, fails))
+#            successes = 0
+#            fails = 0
 
     # TODO - MORE TESTS!!!
     def test_get_json_by_time(self):
@@ -72,15 +80,9 @@ class DatabaseHandlerTest(unittest.TestCase):
         ]
         self.assertEqual(query, expected)
 
-    def test_get_table_name(self):
-        self.assertEqual(DatabaseHandler.get_table_name(8082), "test_http")
-        self.assertEqual(DatabaseHandler.get_table_name(8083), "test_http2")
-        self.assertEqual(DatabaseHandler.get_table_name(8023), "test_telnet")
-
-    def test_get_table_datetime_field(self):
-        self.assertEqual(DatabaseHandler.get_table_datetime_field(8082), "eventDateTime")
-        self.assertEqual(DatabaseHandler.get_table_datetime_field(8083), "eventDateTime")
-        self.assertEqual(DatabaseHandler.get_table_datetime_field(8023), "eventDateTime")
+#    def jsonstr(self, json_dict):
+#        str_json = str(json_dict)
+#        return str_json.replace("'", "\"")
 
     def tearDown(self):
         os.remove("TestDB.sqlite")
