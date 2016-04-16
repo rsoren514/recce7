@@ -30,3 +30,6 @@ class UnitOfMeasure(Enum):
     HOUR = "hours"
     DAY = "days"
     WEEK = "weeks"
+
+    def get_values(self):
+        return [m.value for m in UnitOfMeasure]
