@@ -28,12 +28,12 @@
 
 from plugins.base import BasePlugin
 
-
 class telnet(BasePlugin):
     def __init__(self, socket, config, framework):
         super().__init__(socket, config, framework)
         self.username = "NULL"
         self.password = "NULL"
+        self._session = str(BasePlugin.uuid4())
 
     def login(self):
         user_prompt = "Username: "

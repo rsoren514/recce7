@@ -80,6 +80,8 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         cookie = self.headers.get('cookie', None)
         if cookie is None:
             cookie = str(uuid.uuid4())
+        else:
+            cookie = cookie[len("SESSION="):]
         self.send_header('Set-Cookie', 'SESSION=' + cookie)
         self._session = cookie
 

@@ -10,6 +10,7 @@ import socket
 import datetime
 from threading import Thread
 
+from uuid import uuid4
 
 class BasePlugin(Thread):
     """
