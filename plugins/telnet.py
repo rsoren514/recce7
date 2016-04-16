@@ -28,91 +28,74 @@
 
 from plugins.base import BasePlugin
 
-class telnet(BasePlugin):
+
+class TelnetPlugin(BasePlugin):
+    STATES = ['username',
+              'password',
+              'command',]
+
     def __init__(self, socket, config, framework):
-        super().__init__(socket, config, framework)
-        self.username = "NULL"
-        self.password = "NULL"
+        BasePlugin.__init__(self, socket, config, framework)
+        self.state = 0
+        self.input_type = None
+        self.user_input = None
         self._session = str(self.get_uuid4())
 
-    def login(self):
-        user_prompt = "Username: "
-        pw_prompt = "Password: "
-
-        for prompt in [user_prompt, pw_prompt]:
-            try:
-                self._skt.send(prompt.encode())
-                if prompt == pw_prompt:
-                    self.password = self._skt.recv(1024).decode().replace('\r\n', '')
-                else:
-                    self.username = self._skt.recv(1024).decode().replace('\r\n', '')
-            except OSError as e:
-                if not self._skt:
-                    # TODO log that the socket was closed
-                    pass
-                raise e
-            except AttributeError as ae:
-                # TODO log was not able to capture the either the username or password properly so decode fails
-                raise ae
-
     def do_track(self):
+        getattr(self, self.STATES[self.state])()
 
-        # user options
-        opt = 'options'
-        hlp = 'help'
-        ech = 'echo'
-        qt = 'quit'
-        options_list = [opt, hlp, ech, qt]
-        uo = UserOptions(self._skt)
+    def get_input(self):
+        self.input_type = self.STATES[self.state]
+        data = self._skt.recv(1024).decode()
+        data = data.strip('\r\n')
+        data = data.strip('\n')
+        return data
 
-        self.login()
-        uo.options(options_list, True)
+    def username(self):
+        try:
+            self._skt.send(b'Username: ')
+            data = self.get_input()
+        except OSError:
+            pass
+        except AttributeError:
+            pass
 
-        self.user_input = ''
-        while not self.kill_plugin:
-            try:
-                self._skt.send(b'. ')
-                data = self._skt.recv(1024).decode()
-                d = data.replace('\r\n', '')
+        self.user_input = data
+        self.state += 1
 
-                if d in options_list:
-                    if d == opt:
-                        uo.options(options_list, False)
-                    elif d == hlp:
-                        uo.help()
-                    elif d == ech:
-                        data = uo.echo()
-                    elif d == qt:
-                        self.kill_plugin = uo.quit()
+    def password(self):
+        try:
+            self._skt.send(b'Password: ')
+            data = self.get_input()
+        except OSError:
+            pass
+        except AttributeError:
+            pass
 
-            except OSError as e:
-                if not self._skt:
-                    break
-                raise e
+        self.user_input = data
+        self.state += 1
+        self.options()
 
-            self.user_input += '%s' % data
+    def command(self):
+        self._skt.send(b'. ')
+        data = self.get_input()
+        try:
+            getattr(self, data)()
+        except AttributeError:
+            self._skt.send(b'Command not supported')
+        self.user_input = data
 
-        if self._skt:
-            self._skt.send(b'\nGoodbye.\n')
-        #self._skt = None
-        #self.form_data_for_insert(user_input)
+    OPTIONS = ['options',
+               'help',
+               'echo',
+               'quit']
 
-    '''def form_data_for_insert(self, raw_data):
-        data = {'test_telnet': {'User_Data': raw_data, 'User_Name': self.username, 'Password': self.password}}
-        self.do_save(data)'''
-
-
-class UserOptions(telnet):
-    def __init__(self, socket):
-        self._skt = socket
-
-    def options(self, options_list, is_login):
-        if is_login:
-            self._skt.send(b'\r\nWelcome, Please choose from the following options\r\n')
-        for opt in options_list:
-            opt += '\t'
-            self._skt.sendall(opt.encode())
-        self._skt.send('\n'.encode())
+    def options(self):
+        self._skt.send(b'\r\nWelcome, Please choose from the following options\r\n')
+        for option in self.OPTIONS:
+            option += '\t'
+            self._skt.sendall(option.encode())
+        self._skt.send(b'\r\n')
 
     def help(self):
         help_msg = b'Command echo:\t\tprompt to echo back typing\r\nCommand help:\t\tdetailed description of ' \
@@ -121,14 +104,14 @@ class UserOptions(telnet):
         self._skt.send(help_msg)
 
     def echo(self):
-        self._skt.sendall('text? '.encode())
+        self._skt.send(b'text? ')
         try:
             data = self._skt.recv(1024).decode()
         except OSError as e:
             # TODO log error here
             raise e
-        self._skt.sendall(data.encode())
-        return data
+        self._skt.send(data.encode())
 
     def quit(self):
-        return True
+        self._skt.send(b'\nGoodbye\n')
+        self._skt = None

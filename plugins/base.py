@@ -25,8 +25,8 @@ class BasePlugin(Thread):
         self._skt = socket
         self._config = config
         self._framework = framework
-        self._localAddress = self.get_host_address()
-        self._peerAddress = self.get_client_address()
+        self._localAddress = self._skt.getsockname()[0]
+        self._peerAddress = self._skt.getpeername()[0]
         self._session = None
         self.kill_plugin = False
 
@@ -60,44 +60,12 @@ class BasePlugin(Thread):
             except AttributeError:
                 entry[self.get_table_name()][i] = 'Attribute did not exist'
 
-        entry[self.get_table_name()]['peerAddress'] = self.get_client_address()
-        entry[self.get_table_name()]['localAddress'] = self.get_host_address()
+        entry[self.get_table_name()]['peerAddress'] = self._peerAddress
+        entry[self.get_table_name()]['localAddress'] = self._localAddress
         entry[self.get_table_name()]['eventDateTime'] = datetime.datetime.now().isoformat()
         entry[self.get_table_name()]['session'] = self._session
 
         self._framework.insert_data(entry)
-
-        self._skt = None
-
-    '''def do_save(self, data):
-        """
-
-        """
-        data_malformed = False
-        #Add default values for all plugins
-        keys = list(data.keys())
-        # Should only be one key for the table name in the outer dictionary
-        if len(keys) == 1:
-            data_values_list = list(data.values())
-            # Should only be one (inner) dictionary for the key
-            if len(data_values_list) == 1:
-                data_values = data_values_list[0]
-                data_values['peerAddress'] = self._peerAddress
-                data_values['localAddress'] = self._localAddress
-                data_values['eventDateTime'] = datetime.datetime.now().isoformat()
-                #data_values['session'] = self._session
-                self._framework.insert_data({keys[0]:data_values})
-            else:
-                data_malformed = True
-                pass
-        else:
-            data_malformed = True
-            pass
-
-        if data_malformed:
-            print("Data to be inserted from plugin is malformed: " + self.name)
-            #TODO log here
-            self.shutdown()'''
 
     def shutdown(self):
         """
@@ -134,18 +102,6 @@ class BasePlugin(Thread):
         Returns the port for this plugin.
         """
         return self._config['port']
-
-    def get_host_address(self):
-        """
-        Returns the host's ip address.
-        """
-        return self._skt.getsockname()[0]
-
-    def get_client_address(self):
-        """
-        Returns the client's ip address.
-        """
-        return self._skt.getpeername()[0]
 
     def get_table_name(self):
         """

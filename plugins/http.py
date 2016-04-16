@@ -46,8 +46,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
     def do_track(self):
         self.handle_one_request()
         self.format_data()
-
-        #self._skt = None
+        self.kill_plugin = True
 
     def get_body(self):
         too_long = False
@@ -96,7 +95,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
             self.body = ''
 
     def address_string(self):
-        return self.get_client_address()
+        return self._skt.getsockname()[0]
 
     def end_headers(self):
         self.get_session()
