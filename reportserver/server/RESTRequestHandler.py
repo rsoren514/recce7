@@ -1,8 +1,10 @@
 import json
+from reportserver.manager import utilities
 from http.server import BaseHTTPRequestHandler
 
 
 from reportserver.server.PortsServiceHandler import PortsServiceHandler
+
 
 
 notFoundPayload = {}
@@ -18,14 +20,14 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
     def do_GET(self) :
 
-        #self.send_header("Access-Control-Allow-Origin","http://127.0.0.1:8000")
-        tokens = self.path.split('/')
-        print(tokens)
+        path_query_tuple = utilities.get_path_query_tokens(self.path)
+        path_tokens = path_query_tuple[0]
+        query_tokens = path_query_tuple[1]
 
         if self.path.startswith("/v1/analytics"):
-            if len(tokens) >= 4:
-                if str(tokens[3]) == "ports":
-                    PortsServiceHandler().process(self, tokens)
+            if len(path_tokens) >= 4:
+                if str(path_tokens[3]) == "ports":
+                    PortsServiceHandler().process(self, path_tokens, query_tokens)
                 #TODO:  here is where we add more urls like /ipaddresses/
                 else:
                     self.badRequest()
