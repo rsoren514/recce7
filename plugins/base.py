@@ -61,6 +61,7 @@ class BasePlugin(Thread):
         entry[self.get_table_name()]['peerAddress'] = self.get_client_address()
         entry[self.get_table_name()]['localAddress'] = self.get_host_address()
         entry[self.get_table_name()]['eventDateTime'] = datetime.datetime.now().isoformat()
+        entry[self.get_table_name()]['session'] = self._session
 
         self._framework.insert_data(entry)
 

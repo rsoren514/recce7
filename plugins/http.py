@@ -42,7 +42,6 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.path = None
         self.headers = None
         self.body = None
-        self.session = None
 
         socket.settimeout(60)
 
@@ -82,6 +81,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         if cookie is None:
             cookie = 'SESSION=' + str(uuid.uuid4())
         self.send_header('Set-Cookie', cookie)
+        self._session = cookie
 
     def format_data(self):
         if self.command is None:
