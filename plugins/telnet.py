@@ -32,7 +32,8 @@ from plugins.base import BasePlugin
 class TelnetPlugin(BasePlugin):
     STATES = ['username',
               'password',
-              'command',]
+              'command',
+              'handle_echo']
 
     def __init__(self, socket, config, framework):
         BasePlugin.__init__(self, socket, config, framework)
@@ -85,6 +86,13 @@ class TelnetPlugin(BasePlugin):
             self._skt.send(b'Command not supported')
         self.user_input = data
 
+    def handle_echo(self):
+        data = self.get_input()
+        self._skt.send(data.encode())
+        self.input_type = 'echo'
+        self.user_input = data
+        self.state = 2
+
     OPTIONS = ['options',
                'help',
                'echo',
@@ -105,12 +113,7 @@ class TelnetPlugin(BasePlugin):
 
     def echo(self):
         self._skt.send(b'text? ')
-        try:
-            data = self._skt.recv(1024).decode()
-        except OSError as e:
-            # TODO log error here
-            raise e
-        self._skt.send(data.encode())
+        self.state = 3
 
     def quit(self):
         self._skt.send(b'\nGoodbye\n')
