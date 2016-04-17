@@ -4,7 +4,7 @@ import os
 import datetime
 import shutil
 
-from common.GlobalConfig import Configuration
+from common.globalconfig import Configuration
 from reportserver.dao import DatabaseHandler
 from database import DB_Init
 

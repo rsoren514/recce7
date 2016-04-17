@@ -1,5 +1,5 @@
 import time
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 from http.server import HTTPServer
 
 from reportserver.server.RESTRequestHandler import RestRequestHandler
@@ -10,7 +10,9 @@ from reportserver.server.RESTRequestHandler import RestRequestHandler
 
 class SimpleHttpServer:
     def __init__(self):
-        self.g_config = Configuration().getInstance()
+        self.g_config = GlobalConfig()
+        self.g_config.read_plugin_config()
+        self.g_config.read_global_config()
         self.host = self.g_config.get_report_server_host()
         self.port = self.g_config.get_report_server_port()
 

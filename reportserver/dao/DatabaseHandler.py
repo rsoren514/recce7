@@ -7,11 +7,14 @@ and return JSON.
 import os
 import sqlite3
 
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 from reportserver.manager import dateTimeUtility
 
-cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-global_config = Configuration(cfg_path).getInstance()
+plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
+global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+global_config = GlobalConfig(plugin_cfg_path, global_cfg_path)
+global_config.read_global_config()
+global_config.read_plugin_config()
 db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
 
 # Connect to given database.
@@ -45,9 +48,9 @@ def get_json_by_time(portnumber, unit, unit_size):
     begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
     #begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
     begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
-    #tableName = global_config.get_plugin_config(portnumber)['table']
+    #tableName = _global_config.get_plugin_config(portnumber)['table']
     tableName = global_config.get_plugin_config(portnumber)['table']
-    #date_time_field = global_config.get_db_datetime_name()
+    #date_time_field = _global_config.get_db_datetime_name()
     date_time_field = global_config.get_db_datetime_name()
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))

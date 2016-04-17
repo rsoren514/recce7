@@ -21,7 +21,7 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 from reportserver.dao import DatabaseHandler
 
 
@@ -34,7 +34,7 @@ class PortManager:
     validPortNumbers = ()
 
     def __init__(self):
-        self.g_config = Configuration().getInstance()
+        self.g_config = GlobalConfig()
         self.validPortNumbers = self.g_config.get_ports()
 
 

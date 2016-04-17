@@ -1,4 +1,4 @@
-from common.GlobalConfig import Configuration
+from common.globalconfig import Configuration
 import unittest;
 
 test_cfg_path = 'tests/common/test.cfg'

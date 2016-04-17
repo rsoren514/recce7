@@ -14,13 +14,7 @@ import uuid
 from uuid import uuid4
 
 class BasePlugin(Thread):
-    """
-
-    """
     def __init__(self, socket, config, framework):
-        """
-
-        """
         Thread.__init__(self)
         self._skt = socket
         self._config = config
@@ -31,9 +25,6 @@ class BasePlugin(Thread):
         self.kill_plugin = False
 
     def run(self):
-        """
-
-        """
         while self._skt and not self.kill_plugin:
             try:
                 self.do_track()
@@ -48,9 +39,6 @@ class BasePlugin(Thread):
         self._framework.plugin_stopped(self)
 
     def do_save(self):
-        """
-
-        """
         entry = {self.get_table_name() : {}}
         columns = self.get_table_columns()
 
@@ -100,9 +88,6 @@ class BasePlugin(Thread):
             self.shutdown()'''
 
     def shutdown(self):
-        """
-
-        """
         self.kill_plugin = True
 
         if self._skt:
@@ -128,12 +113,6 @@ class BasePlugin(Thread):
         Implemented by the plugin writer.
         """
         pass
-
-    def get_plugin_port(self):
-        """
-        Returns the port for this plugin.
-        """
-        return self._config['port']
 
     def get_host_address(self):
         """
