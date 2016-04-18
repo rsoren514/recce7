@@ -18,42 +18,31 @@ class GlobalConfig:
             self._plugin_cfg_path = plugin_cfg_path
             self._global_cfg_path = global_cfg_path
 
+            self._global_cfg_dict = {}
             self._plugin_cfg_dict = {}
-            self._db_cfg_dict = {}
-            self._report_server_cfg_dict = {}
 
             self._enabled_ports = []
 
-        def _create_plugin_dict(self, plugin, config_parser):
-            port = int(config_parser.get(plugin, 'port'))
-            table_name = config_parser.get(plugin, 'table')
-            enabled = config_parser.get(plugin, 'enabled')
-            # TODO: Don't use eval!
-            column_defs = eval(config_parser.get(plugin, 'tableColumns'))
-            module = config_parser.get(plugin, 'module')
-            module_class = config_parser.get(plugin, 'moduleClass')
-            raw_socket = config_parser.get(plugin, 'rawSocket')
-
-            config_object = {
-                'port': port,
-                'table': table_name,
-                'enabled': enabled,
-                'tableColumns': column_defs,
-                'module': module,
-                'moduleClass': module_class,
-                'rawSocket': raw_socket
-            }
-
-            return port, module, config_object
+        def create_plugin_dict(self, plugin, config_parser):
+            config_object = dict(config_parser[plugin])
+            #TODO: Don't use eval!
+            config_object['port'] = int(config_object['port'])
+            config_object['tableColumns'] = eval(config_object['tableColumns'])
+            return (
+                int(config_object['port']),
+                config_object['module'],
+                config_object
+            )
 
         def read_plugin_config(self):
-            config_parser = configparser.ConfigParser()
+            config_parser = configparser.RawConfigParser()
+            config_parser.optionxform = lambda option: option
             config_parser.read(self._plugin_cfg_path)
 
             plugin_sections = config_parser.sections()
             for plugin in plugin_sections:
                 (port, module, config_object) = \
-                    self._create_plugin_dict(plugin, config_parser)
+                    self.create_plugin_dict(plugin, config_parser)
                 if config_object['enabled'].lower() == 'yes':
                     self._plugin_cfg_dict[port] = config_object
                     self._enabled_ports.append(port)
@@ -62,9 +51,12 @@ class GlobalConfig:
             config_parser = configparser.ConfigParser()
             config_parser.read(default_global_cfg_file)
 
-            self._report_server_cfg_dict = \
-                config_parser['ReportServerSection']
-            self._db_cfg_dict = config_parser['DatabaseSection']
+            sections = config_parser.sections()
+            for section in sections:
+                self._global_cfg_dict[section] = config_parser[section]
+
+            self._report_server_cfg_dict = config_parser['ReportServer']
+            self._db_cfg_dict = config_parser['Database']
 
         #
         # Config API
@@ -115,11 +107,14 @@ class GlobalConfig:
             return self._plugin_cfg_dict[port]
 
         def get_report_server_host(self):
-            return self._report_server_cfg_dict["reportserver.host"]
+            return self._report_server_cfg_dict['reportserver.host']
 
         def get_report_server_port(self):
-            port = self._report_server_cfg_dict["reportserver.port"]
+            port = self._report_server_cfg_dict['reportserver.port']
             return int(port)
+
+        def __getitem__(self, item):
+            return self._global_cfg_dict[item]
 
     def __new__(cls, plugin_cfg_path=None, global_cfg_path=None, refresh=False):
         """
@@ -146,3 +141,7 @@ class GlobalConfig:
 
     def __setattr__(self, name, value):
         return setattr(GlobalConfig.__instance, name, value)
+
+    def __getitem__(self, item):
+        print("outer getitem")
+        return GlobalConfig.__instance[item]

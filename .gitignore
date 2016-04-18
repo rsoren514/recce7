@@ -6,3 +6,6 @@
 out
 htmlcov*
 TestDB.db
+.coverage
+*.log
+
