@@ -12,7 +12,7 @@ from common.globalconfig import GlobalConfig
 
 def insert_data(name, data_list, session_value):
     config = GlobalConfig()
-    connection = sqlite3.connect(config.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(config['Database']['path'])
     cursor = connection.cursor()
     print(data_list)
     delimiter = ','

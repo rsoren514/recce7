@@ -15,7 +15,7 @@ global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
 global_config = GlobalConfig(plugin_cfg_path, global_cfg_path)
 global_config.read_global_config()
 global_config.read_plugin_config()
-db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
+db_path = global_config['Database']['path']
 
 # Connect to given database.
 # Defaults to the honeypot db, but another path can be passed in (mainly for testing).
@@ -48,7 +48,7 @@ def get_json_by_time(portnumber, unit, unit_size):
     begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
     begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
     tableName = global_config.get_plugin_config(portnumber)['table']
-    date_time_field = global_config.get_db_datetime_name()
+    date_time_field = global_config['Database']['datetime.name']
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
     queryString = "SELECT * FROM %s where %s >= '%s'" % (tableName, date_time_field, begin_date_iso)

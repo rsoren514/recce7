@@ -16,10 +16,10 @@ class GlobalConfig:
     class __GlobalConfig:
         def __init__(self, plugin_cfg_path, global_cfg_path):
             self._plugin_cfg_path = plugin_cfg_path
-            self._global_cfg_path = global_cfg_path
-
-            self._global_cfg_dict = {}
             self._plugin_cfg_dict = {}
+
+            self._global_cfg_path = global_cfg_path
+            self._global_cfg_dict = {}
 
             self._enabled_ports = []
 
@@ -28,11 +28,8 @@ class GlobalConfig:
             #TODO: Don't use eval!
             config_object['port'] = int(config_object['port'])
             config_object['tableColumns'] = eval(config_object['tableColumns'])
-            return (
-                int(config_object['port']),
-                config_object['module'],
-                config_object
-            )
+            return (int(config_object['port']), config_object['module'],
+                    config_object)
 
         def read_plugin_config(self):
             config_parser = configparser.RawConfigParser()
@@ -64,28 +61,6 @@ class GlobalConfig:
 
         def get_plugin_dictionary(self):
             return self._plugin_cfg_dict
-
-        def get_db_name(self):
-            return self._db_cfg_dict["database.name"]
-
-        def get_db_dir(self):
-            """
-            Returns a string indicating the location where the SQLite
-            database file will be stored.
-
-            :return: a string containing an absolute path
-            """
-            db_dir = os.getenv('RECCE7_DB_PATH') or os.getenv('HOME') or '.'
-            return db_dir + '/' + self.get_db_name()
-
-        def get_db_datetime_name(self):
-            return self._db_cfg_dict["database.datetime.name"]
-
-        def get_db_peerAddress_name(self):
-            return self._db_cfg_dict["database.peerAddress.name"]
-
-        def get_db_localAddress_name(self):
-            return self._db_cfg_dict["database.localAddress.name"]
 
         def get_ports(self):
             """

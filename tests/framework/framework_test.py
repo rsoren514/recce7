@@ -82,10 +82,10 @@ class FrameworkTest(unittest.TestCase):
         main()
         self.assertTrue(mock_framework_start.called)
 
-    def test_get_db_dir(self):
-        fw = Framework(config_path)
-        self.assertEqual(fw.global_config.get_db_dir(),
-                         os.getenv('HOME') + '/honeyDB')
+    # def test_get_db_dir(self):
+    #     fw = Framework(config_path)
+    #     self.assertEqual(fw.global_config.get_db_dir(),
+    #                      os.getenv('HOME') + '/honeyDB')
 
     @patch('os.getuid', return_value = 0)
     @patch('os.setgroups')

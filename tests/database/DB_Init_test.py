@@ -1,6 +1,5 @@
 from database import DB_Init
 from common.globalconfig import GlobalConfig
-from common.globalconfig import Configuration
 import unittest
 from unittest.mock import patch
 import os

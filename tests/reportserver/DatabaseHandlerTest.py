@@ -45,7 +45,7 @@ class DatabaseHandlerTest(unittest.TestCase):
         global_config = Configuration(cfg_path).getInstance()
         DB_Init.create_db_dir(global_config)
         DB_Init.create_db(global_config)
-        db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
+        db_path = global_config['Database']['path']
 
         self.assertTrue(sqlite3.connect(db_path))
         self.assertTrue(DatabaseHandler.connect(db_path))

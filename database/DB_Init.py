@@ -1,3 +1,4 @@
+import ntpath
 import os
 import sqlite3
 from database import Table_Init
@@ -16,16 +17,18 @@ def create_default_database(global_config_instance):
 '''creates the database directory if it does not exist'''
 def create_db_dir(global_config_instance):
     """if database directory does not exist create it"""
-    if not os.path.isdir(global_config_instance.get_db_dir()):
+    (db_dir, db_name) = ntpath.split(global_config_instance['Database']['path'])
+    if not os.path.isdir(db_dir):
         print("Database Directory not found, creating database directory...")
-        os.mkdir(global_config_instance.get_db_dir())
+        os.mkdir(db_dir)
 
 '''creates the database if it does not exist'''
 def create_db(global_config_instance):
     '''if database file does not exist in directory create it'''
-    if not os.path.exists(global_config_instance.get_db_dir() + '/honeyDB.sqlite'):
+    (db_dir, db_name) = ntpath.split(global_config_instance['Database']['path'])
+    if not os.path.exists(global_config_instance['Database']['path']):
         print("Database File not found, creating database file...")
-        connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+        connection = sqlite3.connect(global_config_instance['Database']['path'])
         connection.close()
 
 '''calls the appropriate methods to update the database tables with changes to columns'''

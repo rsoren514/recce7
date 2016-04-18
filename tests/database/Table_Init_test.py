@@ -3,7 +3,6 @@ import sqlite3
 from database import Table_Init
 from database import DB_Init
 from common.globalconfig import GlobalConfig
-from common.globalconfig import Configuration
 from unittest.mock import patch
 import os
 #unit tests
@@ -15,7 +14,7 @@ class TableCreationTestCase(unittest.TestCase):
 
 
     def setUp(self):
-        self.gci = Configuration('tests/database/test_configs/Table_Init_test.cfg').getInstance()
+        self.gci = GlobalConfig('tests/database/test_configs/Table_Init_test.cfg')
 
 
     @patch.object(GlobalConfig, 'get_db_dir', return_value=testpath)

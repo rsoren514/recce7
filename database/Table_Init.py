@@ -20,7 +20,7 @@ default_columns = [['ID','INTEGER','PRIMARY KEY', 'NOT NULL'],
                    ['localAddress','TEXT','','NULL']]
 
 def create_table(name,global_config_instance):
-    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(global_config_instance['Database']['path'])
     cursor = connection.cursor()
 
     default_column_def = ''
@@ -39,7 +39,7 @@ def create_table(name,global_config_instance):
 
 '''this method will run all db scripts in the scripts directory to create non-user defined sqlite objects'''
 def run_db_scripts(global_config_instance):
-    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(global_config_instance['Database']['path'])
     cursor = connection.cursor()
     script_path = '/database/sql_scripts'
     file_list = os.listdir(os.getcwd() + script_path)
@@ -57,7 +57,7 @@ def run_db_scripts(global_config_instance):
 
 def add_columns(name,column_list,global_config_instance):
     verify_data_types(column_list)
-    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(global_config_instance['Database']['path'])
     cursor = connection.cursor()
     column_list_sorted = sorted(column_list, key=itemgetter(0))
     for x in column_list_sorted:
@@ -82,7 +82,7 @@ def verify_data_types(column_list):
 
 
 def check_table_exists(name,global_config_instance):
-    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(global_config_instance['Database']['path'])
     cursor = connection.cursor()
     table_count = cursor.execute("SELECT count(*) FROM sqlite_master WHERE type='table' and name='" + name + "';").fetchall()
     connection.close()
@@ -96,7 +96,7 @@ def check_table_exists(name,global_config_instance):
 
 def change_table_structure(name,config_column_list,db_column_list,global_config_instance):
     '''rename old table'''
-    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(global_config_instance['Database']['path'])
     cursor = connection.cursor()
     cursor.execute("ALTER TABLE " + name + " RENAME TO " + name + "_delme")
     '''create new table'''
@@ -116,7 +116,7 @@ def change_table_structure(name,config_column_list,db_column_list,global_config_
 
 '''deletes table'''
 def delete_table(name,global_config_instance):
-    connection = sqlite3.connect(global_config_instance.get_db_dir() + '/honeyDB.sqlite')
+    connection = sqlite3.connect(global_config_instance['Database']['path'])
     cursor = connection.cursor()
     '''if you are deleting a table due to changing the configuration of the columns lets remove any sessions from the
        sessions table referencing the old table'''
