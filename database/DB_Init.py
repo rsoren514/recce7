@@ -8,11 +8,11 @@ __author__ = 'Ben Phillips'
 
 '''calls methods needed to create the database'''
 def create_default_database(global_config_instance):
-
     create_db_dir(global_config_instance)
     create_db(global_config_instance)
-    update_schema(global_config_instance)
     Table_Init.run_db_scripts(global_config_instance)
+    update_schema(global_config_instance)
+
 '''creates the database directory if it does not exist'''
 def create_db_dir(global_config_instance):
     """if database directory does not exist create it"""
