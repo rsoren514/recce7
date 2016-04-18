@@ -38,17 +38,18 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
 
 
-    def getIndexPayload(self, path):
-        #TODO:  how to get full path here??
+    def get_full_url_path(self):
+        # TODO:  how to get full path here??
         print("address : " + str(self.client_address))
-        full_path = 'http://%s:%s' % (str(self.client_address[0]), str(8080))
+        full_path = 'http://%s:%s/v1/analytics' % (str(self.client_address[0]), str(8080))
+        return full_path
 
-        #fullpath = "http://"+self.address_string[0] + ":" + self.address_string[1] + self.path
-        return  {'links': ['rel: ports, href: ' + full_path + path + '/ports']}
+    def getIndexPayload(self):
+        return  {'links': ['rel: ports, href: ' + self.get_full_url_path() + '/ports']}
 
     def showIndex(self):
         # send response code:
-        self.sendJsonResponse(self.getIndexPayload(self.path), 200)
+        self.sendJsonResponse(self.getIndexPayload(), 200)
 
     def notFound(self):
         # send response code:
@@ -65,7 +66,7 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         # http://stackoverflow.com/questions/23321887/python-3-http-server-sends-headers-as-output/35634827#35634827
         json_result = json.dumps(payload)
         self.send_response(responseCode)
-        #todo make this configurable
+        #todo make this configurable for allow-origin
         self.send_header("Access-Control-Allow-Origin","http://localhost:8000")
         self.send_header('Content-Type', 'application/json')
         self.send_header('Content-Length', len(json_result))

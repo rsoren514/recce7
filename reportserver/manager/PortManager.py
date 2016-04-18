@@ -53,3 +53,16 @@ class PortManager:
             return None
 
 
+    def get_port_attack_count(self, tablename):
+
+        sql = "select count(distinct session) as total_attacks from %s" %(tablename)
+        #print("sql is:" + sql)
+        result = DatabaseHandler.query_db(sql)[0]
+        return int(result['total_attacks'])
+
+    def get_unique_ips(self, tablename):
+
+        sql = "select count(distinct localAddress) as unique_ips from %s" % (tablename)
+        #print("sql is:" + sql)
+        result = DatabaseHandler.query_db(sql)[0]
+        return int(result['unique_ips'])
