@@ -1,5 +1,7 @@
+from common.logger import Logger
 from threading import Thread, Condition
 from database import DataQueue, DB_Init, Table_Insert
+
 __author__ = 'Ben Phillips'
 
 '''we will need threading and a condition variable for synchronization
@@ -16,6 +18,7 @@ class DataManager(Thread):
         self.q = DataQueue.DataQueue(global_config_instance)
         self.condition = Condition()
         self.kill = False
+        self.logger = Logger().get('database.DataManager.DataManager')
 
     '''Overriding the thread run method. This will insert all data
     in the queue and then once finished give up control of the
@@ -50,13 +53,12 @@ class DataManager(Thread):
             self.condition.release()
 
     def shutdown(self):
-        print('Data Manager shutting down...', end='')
         self.kill = True
         self.condition.acquire()
         self.condition.notify()
         self.condition.release()
         self.join()
-        print('done.')
+        self.logger.debug('Data manager has shut down.')
 
     def check_kill_status(self):
         return self.kill

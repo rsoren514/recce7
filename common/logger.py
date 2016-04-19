@@ -3,28 +3,40 @@ import logging
 __author__ = 'Randy Sorensen <sorensra@msudenver.edu>'
 
 
-open_logs = []
+class Logger:
+    __instance = None
+    class __Logger:
+        def __init__(self, log_path, level):
+            self._log_level = getattr(logging, level)
+            self._open_logs = []
+            logging.basicConfig(filename=log_path, level=self._log_level)
 
+        def get(self, module_name):
+            if module_name in self._open_logs:
+                return logging.getLogger(module_name)
 
-def init(log_path):
-    logging.basicConfig(filename=log_path, level=logging.INFO)
+            logger = logging.getLogger(module_name)
+            logger.setLevel(self._log_level)
 
+            log_handler = logging.StreamHandler()
+            log_handler.setLevel(self._log_level)
 
-def get(module_name):
-    if module_name in open_logs:
-        return logging.getLogger(module_name)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            log_handler.setFormatter(formatter)
 
-    logger = logging.getLogger(module_name)
-    logger.setLevel(logging.DEBUG)
+            logger.addHandler(log_handler)
 
-    log_handler = logging.StreamHandler()
-    log_handler.setLevel(logging.DEBUG)
+            self._open_logs.append(module_name)
+            return logger
 
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    log_handler.setFormatter(formatter)
+    def __new__(cls, log_path='recce7.log', level='INFO'):
+        if not Logger.__instance:
+            Logger.__instance = Logger.__Logger(log_path, level)
+        return Logger.__instance
 
-    logger.addHandler(log_handler)
+    def __getattr__(self, item):
+        return getattr(Logger.__instance, item)
 
-    open_logs.append(module_name)
-    return logger
+    def __setattr__(self, item, value):
+        return setattr(Logger.__instance, item, value)

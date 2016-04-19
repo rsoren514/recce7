@@ -1,7 +1,7 @@
 import platform
 import socket
 
-from common import logger
+from common.logger import Logger
 from threading import Thread, Lock
 
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
@@ -19,7 +19,7 @@ class NetworkListener(Thread):
         self._lock = Lock()
         self._running = False
         self.__connection_count = 0
-        self._logger = logger.get('framework.networklistener.NetworkListener')
+        self._logger = Logger().get('framework.networklistener.NetworkListener')
 
     @property
     def connection_count(self):

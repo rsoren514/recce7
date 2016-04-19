@@ -5,7 +5,7 @@ import signal
 
 from importlib import import_module
 from common.globalconfig import GlobalConfig
-from common import logger
+from common.logger import Logger
 from database.DataManager import DataManager
 from framework.networklistener import NetworkListener
 
@@ -29,7 +29,7 @@ class Framework:
 
         def start(self):
             self.set_shutdown_hook()
-            print('Press Ctrl+C to exit.\n')
+            print('Press Ctrl+C to exit.')
             if not self.drop_permissions():
                 return
 
@@ -44,8 +44,10 @@ class Framework:
             self.start_listeners()
 
         def start_logging(self):
-            logger.init(self._global_config['Framework']['logName'])
-            self._logger = logger.get('framework.frmwork.Framework')
+            log_path = self._global_config['Framework']['logName']
+            log_level = self._global_config['Framework']['logLevel']
+            self._logger = Logger(log_path, log_level)
+            self._logger = self._logger.get('framework.frmwork.Framework')
             self._logger.info('RECCE7 started (PID %d)' % self._pid)
 
         @staticmethod

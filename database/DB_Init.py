@@ -3,9 +3,12 @@ import os
 import sqlite3
 from database import Table_Init
 from database.DataValidation import DataValidation
+from common.logger import Logger
 
 __author__ = 'Ben Phillips'
 '''use to create a folder and sqlite data file in the users home directory'''
+
+log = Logger().get('database.DB_Init')
 
 '''calls methods needed to create the database'''
 def create_default_database(global_config_instance):
@@ -19,7 +22,7 @@ def create_db_dir(global_config_instance):
     """if database directory does not exist create it"""
     (db_dir, db_name) = ntpath.split(global_config_instance['Database']['path'])
     if not os.path.isdir(db_dir):
-        print("Database Directory not found, creating database directory...")
+        log.info("Database directory not found, creating database directory...")
         os.mkdir(db_dir)
 
 '''creates the database if it does not exist'''
@@ -27,7 +30,7 @@ def create_db(global_config_instance):
     '''if database file does not exist in directory create it'''
     (db_dir, db_name) = ntpath.split(global_config_instance['Database']['path'])
     if not os.path.exists(global_config_instance['Database']['path']):
-        print("Database File not found, creating database file...")
+        log.info("Database file not found, creating database file...")
         connection = sqlite3.connect(global_config_instance['Database']['path'])
         connection.close()
 
@@ -83,9 +86,9 @@ def create_non_exist_tables(table_diff,global_config_instance):
     if len(table_diff) > 0:
         for table in table_diff:
             Table_Init.create_table(table, global_config_instance)
-        print('Updated database schema, table names now match configuration.')
+        log.info('Updated database schema, table names now match configuration.')
     else:
-        print('Database Schema and Configuration table names already match.')
+        log.info('Database Schema and Configuration table names already match.')
 
 '''get a dictionary of tables and corresponding columns from the config'''
 def create_dict_config_column_list(global_config_instance):

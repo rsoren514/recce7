@@ -4,17 +4,20 @@ import sqlite3
 from database import DB_Init
 from database import DataValidation
 from common.globalconfig import GlobalConfig
+from common.logger import Logger
+
+log = Logger().get('database.Table_Insert')
+
+
 '''this method will have to change somewhat. The group decided they wanted the plugin
    writers to populate a dictionary instead of a list that maps the name (column) to the
    value to be inserted that way they do not have to worry about order when calling this
    function'''
-
-
 def insert_data(name, data_list, session_value):
     config = GlobalConfig()
     connection = sqlite3.connect(config['Database']['path'])
     cursor = connection.cursor()
-    print(data_list)
+    log.debug(data_list)
     delimiter = ','
     param_placeholder = delimiter.join('?' * len(data_list))
     #print(param_placeholder)
@@ -57,8 +60,7 @@ def prepare_data_for_insertion(schema, data):
         session_value = data_dict.get('session')
 
     #build a list of data in the correct order
-    print('Inserting Data:')
-    print(data_dict)
+    log.debug('Inserting Data: ' + str(data_dict))
     insert_list = []
     for col in table_schema:
         if col[1] == 'ID':

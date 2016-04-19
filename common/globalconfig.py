@@ -1,14 +1,8 @@
 import configparser
-import os
 
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
              'Randy Sorensen <sorensra@msudenver.edu>' \
              'Dina Steeve <dsteeve@msudenver.edu>'
-
-default_cfg_path = 'config/plugins.cfg'
-
-# TODO: currently can't override this one
-default_global_cfg_file = 'config/global.cfg'
 
 
 class GlobalConfig:
@@ -28,8 +22,7 @@ class GlobalConfig:
             #TODO: Don't use eval!
             config_object['port'] = int(config_object['port'])
             config_object['tableColumns'] = eval(config_object['tableColumns'])
-            return (int(config_object['port']), config_object['module'],
-                    config_object)
+            return config_object
 
         def read_plugin_config(self):
             config_parser = configparser.RawConfigParser()
@@ -38,22 +31,19 @@ class GlobalConfig:
 
             plugin_sections = config_parser.sections()
             for plugin in plugin_sections:
-                (port, module, config_object) = \
-                    self.create_plugin_dict(plugin, config_parser)
+                config_object = self.create_plugin_dict(plugin, config_parser)
+                port = int(config_object['port'])
                 if config_object['enabled'].lower() == 'yes':
                     self._plugin_cfg_dict[port] = config_object
                     self._enabled_ports.append(port)
 
         def read_global_config(self):
             config_parser = configparser.ConfigParser()
-            config_parser.read(default_global_cfg_file)
+            config_parser.read(self._global_cfg_path)
 
             sections = config_parser.sections()
             for section in sections:
                 self._global_cfg_dict[section] = config_parser[section]
-
-            self._report_server_cfg_dict = config_parser['ReportServer']
-            self._db_cfg_dict = config_parser['Database']
 
         #
         # Config API
@@ -118,5 +108,4 @@ class GlobalConfig:
         return setattr(GlobalConfig.__instance, name, value)
 
     def __getitem__(self, item):
-        print("outer getitem")
         return GlobalConfig.__instance[item]
