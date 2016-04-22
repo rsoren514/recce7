@@ -28,21 +28,23 @@
 
 from plugins.base import BasePlugin
 
-
 class TelnetPlugin(BasePlugin):
     STATES = ['username',
               'password',
               'command',
-              'handle_echo']
+              'handle',]
 
     def __init__(self, socket, config, framework):
         BasePlugin.__init__(self, socket, config, framework)
         self.state = 0
         self.input_type = None
         self.user_input = None
+        self.arguments = None
+        self.handle_command = None
         self._session = str(self.get_uuid4())
 
     def do_track(self):
+        self.input_type = self.STATES[self.state]
         getattr(self, self.STATES[self.state])()
 
     def get_input(self):
@@ -55,48 +57,53 @@ class TelnetPlugin(BasePlugin):
     def username(self):
         try:
             self._skt.send(b'Username: ')
-            data = self.get_input()
+            self.user_input = self.get_input()
         except OSError:
             pass
         except AttributeError:
             pass
 
-        self.user_input = data
-        self.state += 1
+        self.state = 1
 
     def password(self):
         try:
             self._skt.send(b'Password: ')
-            data = self.get_input()
+            self.user_input = self.get_input()
         except OSError:
             pass
         except AttributeError:
             pass
 
-        self.user_input = data
-        self.state += 1
+        self.state = 2
         self.options()
 
     def command(self):
         self._skt.send(b'. ')
-        data = self.get_input()
-        try:
-            getattr(self, data)()
-        except AttributeError:
-            self._skt.send(b'Command not supported')
-        self.user_input = data
+        self.user_input = self.get_input()
+        self.arguments = self.user_input.split()
 
-    def handle_echo(self):
-        data = self.get_input()
-        self._skt.send(data.encode())
-        self.input_type = 'echo'
-        self.user_input = data
+        try:
+            self.handle_command = self.arguments.pop(0)
+        except IndexError:
+            return
+
+        try:
+            getattr(self, self.handle_command)()
+        except AttributeError:
+            self._skt.send(b'%unrecognized command - type options for a list\r\n')
+
+    def handle(self):
+        print(self.handle_command)
+        try:
+            getattr(self, 'handle_' + self.handle_command)()
+        except AttributeError:
+            pass
         self.state = 2
 
     OPTIONS = ['options',
                'help',
                'echo',
-               'quit']
+               'quit',]
 
     def options(self):
         self._skt.send(b'\r\nWelcome, Please choose from the following options\r\n')
@@ -106,14 +113,25 @@ class TelnetPlugin(BasePlugin):
         self._skt.send(b'\r\n')
 
     def help(self):
-        help_msg = b'Command echo:\t\tprompt to echo back typing\r\nCommand help:\t\tdetailed description of ' \
-                   b'options\r\nCommand options:\tbasic list of options available to user\r\nCommand quit:\t\t' \
-                   b'close telnet connection to server\r\n'
+        help_msg = b'echo:\t\tprompt to echo back typing\r\n' \
+                   b'help:\t\tdetailed description of options\r\n' \
+                   b'options:\tbasic list of options available to user\r\n' \
+                   b'quit:\t\tclose telnet connection to server\r\n'
         self._skt.send(help_msg)
 
     def echo(self):
+        if len(self.arguments) > 0:
+            for i in self.arguments:
+                self._skt.send(i.encode())
+        else:
+            self.state = 3
+
+    def handle_echo(self):
+        print("get here")
         self._skt.send(b'text? ')
-        self.state = 3
+        self.user_input = self.get_input()
+        self._skt.send(self.user_input.encode())
+        self._skt.send(b'\r\n')
 
     def quit(self):
         self._skt.send(b'\nGoodbye\n')
