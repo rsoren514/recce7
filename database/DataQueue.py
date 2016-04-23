@@ -6,9 +6,9 @@ __author__ = 'Ben Phillips'
 
 class DataQueue:
 
-    def __init__(self, global_config_instance):
+    def __init__(self, global_config):
         self.dataQueue = queue.Queue()
-        self.dv = DataValidation.DataValidation(global_config_instance)
+        self.dv = DataValidation.DataValidation(global_config)
     """we want to check the data here and fail early
         if the data is good then we want to put it in the data queue
         we will want another python script for the validations (DataValidation.py)

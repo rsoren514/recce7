@@ -1,6 +1,7 @@
 from common.logger import Logger
 from threading import Thread, Condition
-from database import DataQueue, DB_Init, Table_Insert
+from database import DataQueue, Table_Insert
+from database.DB_Init import Database
 
 __author__ = 'Ben Phillips'
 
@@ -12,10 +13,11 @@ the plugins'''
 
 class DataManager(Thread):
 
-    def __init__(self, global_config_instance):
+    def __init__(self, global_config):
         super().__init__()
-        DB_Init.create_default_database(global_config_instance)
-        self.q = DataQueue.DataQueue(global_config_instance)
+        self.db = Database(global_config)
+        self.db.create_default_database()
+        self.q = DataQueue.DataQueue(global_config)
         self.condition = Condition()
         self.kill = False
         self.logger = Logger().get('database.DataManager.DataManager')
@@ -33,7 +35,8 @@ class DataManager(Thread):
 
             while not self.q.check_empty():
                 value = self.q.get_next_item()
-                Table_Insert.prepare_data_for_insertion(self.q.dv.table_schema, value)
+                Table_Insert.prepare_data_for_insertion(
+                    self.q.dv.table_schema, value)
                 '''we have the lock acquired so we can notify'''
                 self.condition.notify()
 

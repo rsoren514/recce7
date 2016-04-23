@@ -1,13 +1,15 @@
 import sqlite3
+
+from common.logger import Logger
 from copy import deepcopy
 from database import Table_Init
 
 __author__ = 'Ben Phillips'
 
-'''this file will validate data and provide functionality to sort data by the columns defined in the database
-from honeypot.src.database import DB_Init
-from honeypot.src.database.config_temp import TempConfigObject'''
-
+#
+# this file will validate data and provide functionality to sort
+# data by the columns defined in the database
+#
 
 
 class DataValidation:
@@ -31,6 +33,7 @@ class DataValidation:
         #table = co.get_config(8082).get('table')
         self.table_schema = {}
         self.tables = []
+        self.log = Logger()
         connection = sqlite3.connect(global_config_instance['Database']['path'])
         cursor = connection.cursor()
         #will want to loop here through all tables found and store each schema
@@ -60,9 +63,6 @@ class DataValidation:
             table_def = cursor.execute('PRAGMA table_info(' + table + ');').fetchall()
             self.table_schema[table] = table_def
         cursor.close()
-
-
-
 
     #return the class level variable tables
     def get_tables(self):
@@ -160,10 +160,10 @@ class DataValidation:
         collection_copy = deepcopy(collection)
         if isinstance(collection_copy,list):
             for col in Table_Init.default_columns:
-
                 if col[0] in collection_copy:
                     collection_copy.remove(col[0])
             return collection_copy
+
         if isinstance(collection_copy,dict):
             for col in Table_Init.default_columns:
                 if col[0] in collection_copy:
@@ -185,13 +185,4 @@ class DataValidation:
             return True
         else:
             return False
-
-
-
-
-
-
-
-
-
 
