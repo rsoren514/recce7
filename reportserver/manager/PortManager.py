@@ -36,6 +36,7 @@ class PortManager:
     def __init__(self):
         self.g_config = GlobalConfig()
         self.validPortNumbers = self.g_config.get_ports()
+        self.date_time_field = self.g_config.get_db_datetime_name()
 
 
     def isPortValid(self, port_number):
@@ -53,16 +54,17 @@ class PortManager:
             return None
 
 
-    def get_port_attack_count(self, tablename):
+    def get_port_attack_count(self, tablename, unit, uom):
+        fromDate = DatabaseHandler.get_begin_date_iso(unit, uom)
 
-        sql = "select count(distinct session) as total_attacks from %s" %(tablename)
-        #print("sql is:" + sql)
+        sql = "select count(distinct session) as total_attacks from %s where %s >= '%s' " %(tablename, self.date_time_field, fromDate)
+        print("sql is:" + sql)
         result = DatabaseHandler.query_db(sql)[0]
         return int(result['total_attacks'])
 
-    def get_unique_ips(self, tablename):
-
-        sql = "select count(distinct localAddress) as unique_ips from %s" % (tablename)
-        #print("sql is:" + sql)
+    def get_unique_ips(self, tablename, unit, uom):
+        fromDate = DatabaseHandler.get_begin_date_iso(unit, uom)
+        sql = "select count(distinct localAddress) as unique_ips from %s where %s >= '%s' " % (tablename, self.date_time_field, fromDate)
+        print("sql is:" + sql)
         result = DatabaseHandler.query_db(sql)[0]
         return int(result['unique_ips'])
