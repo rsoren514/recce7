@@ -39,11 +39,10 @@ def query_db(query, args=(), one=False, db=db_path):
     cur.connection.close()
     return (r[0] if r else None) if one else r
 
-# Unit of Measure could be "weeks", "days", "hours", etc.
+# Unit of Measure could be "weeks", "days", "hours", "minutes".
 # Return all data from the DB within that measure of time as JSON.
-def get_json_by_time(portnumber, unit, unit_size):
-    begin_date = dateTimeUtility.get_begin_date(unit, unit_size)
-    begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
+def get_json_by_time(portnumber, uom, units):
+    begin_date_iso = get_begin_date_iso(uom, units)
     tableName = global_config.get_plugin_config(portnumber)['table']
     date_time_field = global_config.get_db_datetime_name()
 
@@ -56,4 +55,10 @@ def get_json_by_time(portnumber, unit, unit_size):
     # print("results: " + results)
 
     return results
+
+def get_begin_date_iso(uom, units):
+    begin_date = dateTimeUtility.get_begin_date(uom, units)
+    begin_date_iso = dateTimeUtility.get_iso_format(begin_date)
+    return begin_date_iso
+
 
