@@ -34,6 +34,8 @@ coverage3 run -a tests/common/GlobalConfig_Test.py > /dev/null
 
 coverage3 run -a tests/reportserver/dateTimeUtilityTest.py > /dev/null
 coverage3 run -a tests/reportserver/utilities_test.py > /dev/null
+coverage3 run -a tests/reportserver/DatabaseHandlerTest.py > /dev/null
+
 
 # generate coverage reports
 coverage3 report | grep -v "__init__.py"

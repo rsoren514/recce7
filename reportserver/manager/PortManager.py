@@ -46,7 +46,7 @@ class PortManager:
             return False
 
     def getPort(self, port_number, uom, unit):
-        print("Retrieving port:" + str(port_number) + "uom:" + uom + " size: " + str(unit))
+        print("#info Retrieving port:" + str(port_number) + "uom:" + uom + " size: " + str(unit))
 
         if self.isPortValid(port_number):
             return DatabaseHandler.get_json_by_time(port_number, uom, unit)
@@ -58,13 +58,14 @@ class PortManager:
         fromDate = DatabaseHandler.get_begin_date_iso(unit, uom)
 
         sql = "select count(distinct session) as total_attacks from %s where %s >= '%s' " %(tablename, self.date_time_field, fromDate)
-        print("sql is:" + sql)
+        print("#debug sql is:" + sql)
         result = DatabaseHandler.query_db(sql)[0]
         return int(result['total_attacks'])
 
     def get_unique_ips(self, tablename, unit, uom):
         fromDate = DatabaseHandler.get_begin_date_iso(unit, uom)
         sql = "select count(distinct localAddress) as unique_ips from %s where %s >= '%s' " % (tablename, self.date_time_field, fromDate)
-        print("sql is:" + sql)
+        print("#debug sql is:" + sql)
         result = DatabaseHandler.query_db(sql)[0]
         return int(result['unique_ips'])
+
