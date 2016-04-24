@@ -42,11 +42,6 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.rfile = SocketIO(socket, "r")
         self.wfile = SocketIO(socket, "w")
 
-        self.command = None
-        self.path = None
-        self.headers = None
-        self.body = None
-
         socket.settimeout(60)
 
     def do_track(self):
@@ -58,9 +53,9 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
     def get_body(self):
         too_long = False
 
-        if self.headers is None:
-            self.body = ''
+        if not hasattr(self, 'headers'):
             return
+
         else:
 
             try:
@@ -81,6 +76,9 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
                 self.body = ''
 
     def get_session(self):
+        if not hasattr(self, 'headers'):
+            return
+
         try:
             cookie = self.headers.get('cookie', None)
         except AttributeError:
@@ -99,15 +97,15 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self._session = cookie
 
     def format_data(self):
-        if self.command is None:
+        if not hasattr(self, 'command'):
             self.command = ''
-        if self.path is None:
+        if not hasattr(self, 'path'):
             self.path = ''
-        if self.headers is None:
+        if not hasattr(self, 'headers'):
             self.headers = ''
         else:
             self.headers = self.headers.as_string()
-        if self.body is None:
+        if not hasattr(self, 'body'):
             self.body = ''
 
     def address_string(self):

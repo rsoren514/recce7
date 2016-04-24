@@ -28,12 +28,8 @@
 
 from plugins.base import BasePlugin
 
-class TelnetPlugin(BasePlugin):
-    STATES = ['username',
-              'password',
-              'command',
-              'handle',]
 
+class TelnetPlugin(BasePlugin):
     def __init__(self, socket, config, framework):
         BasePlugin.__init__(self, socket, config, framework)
         self.input_type = None
