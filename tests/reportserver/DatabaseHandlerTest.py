@@ -41,9 +41,11 @@ class DatabaseHandlerTest(unittest.TestCase):
         self.assertIsNone(DatabaseHandler().connect(""))
 
         # Testing for correct DB
-        plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+        plugin_cfg_path = 'tests/reportserver/testconfig/plugins.cfg'
+        global_cfg_path = 'tests/reportserver/testconfig/global.cfg'
         global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
         db = Database()
         db.create_db_dir()
         db.create_db()
@@ -82,8 +84,11 @@ class DatabaseHandlerTest(unittest.TestCase):
         self.assertEqual(json_query[0].get('eventDateTime'), '2000-01-07T23:59:59')
 
     def test_get_json_by_time(self):
-        cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        global_config = Configuration(cfg_path).getInstance()
+        plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
+        global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+        global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
         test_start_date = datetime.datetime(1999, month=12, day=31, hour=23, minute=59, second=59)
 #        successes = 0
 #        fails = 0
