@@ -9,16 +9,13 @@ __author__ = 'Ben Phillips'
 
 
 class Database:
-    """
-    use to create a folder and sqlite data file in the users home directory
-    """
     def __init__(self, global_config):
         self.global_config = global_config
-        self.log = Logger().get('database.DB_Init')
+        self.log = Logger().get('database.database.Database')
         
     def create_default_database(self):
         """
-        calls methods needed to create the database
+        Calls methods needed to create the database.
         """
         self.create_db_dir()
         self.create_db()
@@ -27,39 +24,36 @@ class Database:
     
     def create_db_dir(self):
         """
-        creates the database directory if it does not exist
+        Creates the database directory if it doesn't already exist.
         """
 
         # if database directory does not exist create it
-        (db_dir, db_name) = ntpath.split(self.global_config['Database']['path'])
+        db_path = self.global_config['Database']['path']
+        (db_dir, db_name) = ntpath.split(db_path)
         if not os.path.isdir(db_dir):
-            self.log.info("Database directory not found, creating database directory...")
+            self.log.info("Database directory not found, "
+                          "creating database directory...")
             os.mkdir(db_dir)
     
     def create_db(self):
         """
-        creates the database if it does not exist
+        Creates the database if it doesn't already exist.
         """
 
-        # if database file does not exist in directory create it
+        # if database file does not exist in the directory, create it
         (db_dir, db_name) = ntpath.split(self.global_config['Database']['path'])
         if not os.path.exists(self.global_config['Database']['path']):
             self.log.info("Database file not found, creating database file...")
+
+            # this actually creates the database file
             connection = sqlite3.connect(self.global_config['Database']['path'])
             connection.close()
     
     def update_schema(self):
         """
-        calls the appropriate methods to update the database tables with
-        changes to columns
+        Migrates the database when columns have been added or
+        removed to the schema.
         """
-
-        #
-        # now the database is guaranteed to exist, we must find out if the
-        # schema is correct and create the appropriate tables I am creating
-        # another validation object for this purpose and am also storing the
-        # schema and port list locally so that it is easy to do this'''
-        #
 
         #
         # holds the list of tables defined in the configuration
@@ -68,6 +62,8 @@ class Database:
         #
         self.create_non_exist_tables(
             self.table_list_diff(
+                #RANDY this may be unnecessary coupling or a good reason
+                #to absorb DataValidation into DB_Init.
                 DataValidation(self.global_config).get_tables(),
                 self.get_config_table_list(
                     self.global_config.get_ports(),

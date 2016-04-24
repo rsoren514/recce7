@@ -7,6 +7,7 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 
 class GlobalConfig:
     __instance = None
+
     class __GlobalConfig:
         def __init__(self, plugin_cfg_path, global_cfg_path):
             self._plugin_cfg_path = plugin_cfg_path
@@ -72,11 +73,14 @@ class GlobalConfig:
             return self._plugin_cfg_dict[port]
 
         def get_report_server_host(self):
-            return self._report_server_cfg_dict['reportserver.host']
+            return self['ReportServer']['reportserver.host']
 
         def get_report_server_port(self):
-            port = self._report_server_cfg_dict['reportserver.port']
+            port = self['ReportServer']['reportserver.port']
             return int(port)
+
+        def get_db_datetime_name(self):
+            return self['Database']['datetime.name']
 
         def __getitem__(self, item):
             return self._global_cfg_dict[item]

@@ -1,11 +1,10 @@
 from reportserver.manager.PortManager import PortManager
 from reportserver.manager import utilities
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 
 
 
 class PortsServiceHandler():
-
     def process(self, rqst, path_tokens, query_tokens):
         uom = None
         units = None
@@ -55,7 +54,7 @@ class PortsServiceHandler():
             rqst.notFound()
 
     def construct_port_summary_list(self, rqst, uom, units):
-        g_config = Configuration().getInstance()
+        g_config = GlobalConfig()
         plugins_dictionary = g_config.get_plugin_dictionary()
 
         json_list = []

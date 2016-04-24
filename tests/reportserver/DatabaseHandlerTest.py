@@ -6,7 +6,7 @@ import shutil
 
 from common.globalconfig import Configuration
 from reportserver.dao import DatabaseHandler
-from database import DB_Init
+from database import database
 
 class DatabaseHandlerTest(unittest.TestCase):
 
@@ -43,8 +43,8 @@ class DatabaseHandlerTest(unittest.TestCase):
         # Testing for correct DB
         cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
         global_config = Configuration(cfg_path).getInstance()
-        DB_Init.create_db_dir(global_config)
-        DB_Init.create_db(global_config)
+        database.create_db_dir(global_config)
+        database.create_db(global_config)
         db_path = global_config['Database']['path']
 
         self.assertTrue(sqlite3.connect(db_path))
