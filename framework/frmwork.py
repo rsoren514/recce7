@@ -16,7 +16,7 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 class Framework:
     __instance = None
 
-    class __Framework:
+    class _Framework:
         def __init__(self, plugin_cfg_path, global_cfg_path):
             self._global_config = GlobalConfig(plugin_cfg_path, global_cfg_path)
             self._plugin_imports = {}
@@ -174,7 +174,7 @@ class Framework:
 
     def __new__(cls, plugin_cfg_path, default_cfg_path):
         if not Framework.__instance:
-            Framework.__instance = Framework.__Framework(
+            Framework.__instance = Framework._Framework(
                 plugin_cfg_path, default_cfg_path)
         return Framework.__instance
 
