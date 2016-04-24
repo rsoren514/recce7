@@ -22,7 +22,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 from common.GlobalConfig import Configuration
-from reportserver.dao import DatabaseHandler
+from reportserver.dao.DatabaseHandler import DatabaseHandler
 from reportserver.manager import dateTimeUtility
 
 import dateutil.parser
@@ -54,7 +54,7 @@ class PortManager:
         items = []
 
         if self.isPortValid(port_number):
-            results = DatabaseHandler.get_json_by_time(port_number, uom, unit)
+            results = DatabaseHandler().get_json_by_time(port_number, uom, unit)
             items = self.process_port_data(results)
 
         port_json = {
@@ -71,14 +71,14 @@ class PortManager:
 
         sql = "select count(distinct session) as total_attacks from %s where %s >= '%s' " %(tablename, self.date_time_field, fromDate)
         print("#debug sql is:" + sql)
-        result = DatabaseHandler.query_db(sql)[0]
+        result = DatabaseHandler().query_db(sql)[0]
         return int(result['total_attacks'])
 
     def get_unique_ips(self, tablename, unit, uom):
         fromDate = dateTimeUtility.get_begin_date_iso(unit, uom)
         sql = "select count(distinct localAddress) as unique_ips from %s where %s >= '%s' " % (tablename, self.date_time_field, fromDate)
         print("#debug sql is:" + sql)
-        result = DatabaseHandler.query_db(sql)[0]
+        result = DatabaseHandler().query_db(sql)[0]
         return int(result['unique_ips'])
 
 
