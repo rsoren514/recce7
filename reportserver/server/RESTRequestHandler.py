@@ -31,6 +31,8 @@ class RestRequestHandler (BaseHTTPRequestHandler):
                     PortsServiceHandler().process(self, path_tokens, query_tokens)
                 elif str(path_tokens[3]) == "ipaddresses":
                     IpsServiceHandler().process(self, path_tokens, query_tokens)
+                elif str(path_tokens[3] == ""):
+                    self.showIndex()
                 else:
                     self.badRequest()
             else:
@@ -48,7 +50,7 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
     def getIndexPayload(self):
         return  {'links': ['rel: ports, href: ' + self.get_full_url_path() + '/ports',
-                           'rel: ipaddress, href:' + self.get_full_url_path() + '/ipaddresses']}
+                           'rel: ipaddresses, href:' + self.get_full_url_path() + '/ipaddresses']}
 
     def showIndex(self):
         # send response code:

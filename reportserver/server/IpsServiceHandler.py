@@ -30,6 +30,8 @@ class IpsServiceHandler():
             print("#debug requested: " + str(ipaddress))
             if ipaddress is not None :
                 self.get_ips_data_by_time(rqst, ipaddress, uom, units)
+            elif ipaddress == None:
+                self.get_ips_data_by_time(rqst, "", uom, units)
             else:
                 rqst.badRequest()
                 return
