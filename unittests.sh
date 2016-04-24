@@ -35,6 +35,7 @@ coverage3 run -a tests/common/GlobalConfig_Test.py > /dev/null
 coverage3 run -a tests/reportserver/dateTimeUtilityTest.py > /dev/null
 coverage3 run -a tests/reportserver/utilities_test.py > /dev/null
 coverage3 run -a tests/reportserver/DatabaseHandlerTest.py > /dev/null
+coverage3 run -a tests/reportserver/PortManagerTest.py > /dev/null
 
 
 # generate coverage reports
