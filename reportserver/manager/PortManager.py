@@ -51,14 +51,19 @@ class PortManager:
     def getPort(self, port_number, uom, unit):
         print("#info Retrieving port:" + str(port_number) + "uom:" + uom + " size: " + str(unit))
 
+        items = []
+
         if self.isPortValid(port_number):
             results = DatabaseHandler.get_json_by_time(port_number, uom, unit)
-            if (results == None):
-                return results
-            else:
-                return self.process_port_data(results)
-        else:
-            return None
+            items = self.process_port_data(results)
+
+        port_json = {
+            'port': str(port_number),
+            'timespan': uom + "=" + str(unit),
+            'items':items
+        }
+
+        return port_json
 
 
     def get_port_attack_count(self, tablename, unit, uom):
@@ -78,14 +83,16 @@ class PortManager:
 
 
     def process_port_data(self, results):
+        if (results == None or len(results) == 0):
+            return results
+
+        #we know we have more than one row
         first_row = results[0]
         current_session = first_row['session']
+        port_data_json = [] #object to return at end of day.
 
-        port_data_json = []
-
-        session_json = self.setup_session_json(first_row)
-
-        session_rows= []
+        session_json = self.setup_session_json(first_row)  #port_data_json is a list of these
+        session_rows= [] #session_json has a list of these
 
         for row in results:
             #handle session changes
