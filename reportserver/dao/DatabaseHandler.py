@@ -19,12 +19,12 @@ db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
 # Database needs to exist first.
 def connect(database_name=db_path):
     if not os.path.exists(database_name):
-        print("Database does not exist in path: " + database_name)
+        print("Error: Database does not exist in path: " + database_name)
         return None
     try:
         conn = sqlite3.connect(database_name)
     except sqlite3.OperationalError:
-        print("Error connecting to database at: " + database_name)
+        print("Error:  Problem connecting to database at: " + database_name)
     else:
         return conn
 
@@ -47,12 +47,12 @@ def get_json_by_time(portnumber, uom, units):
     date_time_field = global_config.get_db_datetime_name()
 
     #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
-    queryString = "SELECT * FROM %s where %s >= '%s'" % (tableName, date_time_field, begin_date_iso)
+    queryString = "SELECT * FROM %s where %s >= '%s' order by id, %s" % (tableName, date_time_field, begin_date_iso, date_time_field)
     #args = (tableName, date_time_field, begin_date_iso)
-    print("queryString is: " + str(queryString))
+    print("#info queryString is: " + str(queryString))
     #print ("args to use: " + str(args))
     results = query_db(queryString)
-    # print("results: " + results)
+    print("#debug results: " + str(results))
 
     return results
 
