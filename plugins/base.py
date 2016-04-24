@@ -34,10 +34,12 @@ class BasePlugin(Thread):
         """
 
         """
-        while self._skt and not self.kill_plugin:
+
+        self.do_track()
+
+        '''while self._skt and not self.kill_plugin:
             try:
                 self.do_track()
-                self.do_save()
             except ConnectionResetError as cre:
                 error_number = cre.errno
                 if error_number == 54:  # ERRNO 54 is 'connection reset by peer'
@@ -45,7 +47,7 @@ class BasePlugin(Thread):
                     print("Maybe we are being scanned")
                     pass
 
-        self._framework.plugin_stopped(self)
+        self._framework.plugin_stopped(self)'''
 
     def do_save(self):
         """

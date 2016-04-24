@@ -46,6 +46,7 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
     def do_track(self):
         self.handle_one_request()
         self.format_data()
+        self.do_save()
         self.kill_plugin = True
 
     def get_body(self):
@@ -107,6 +108,10 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         self.do_HEAD()
         if self.path == '/':
             self.wfile.write(PAGE_LOGIN)
+        elif self.path == '/index.html':
+            self.wfile.write(PAGE_LOGIN)
+        else:
+            sel
 
     def do_HEAD(self):
         if self.path == '/':
