@@ -28,10 +28,17 @@ def get_begin_date(unit="days", unit_size=1):
 
     return calc_date(d)
 
+# Return the iso format of date for how far back to query DB.
+# If not specified (uom and units are None, then defaults to 1 day.
+def get_begin_date_iso(uom, units):
+    begin_date = get_begin_date(uom, units)
+    return get_iso_format(begin_date)
+
 def calc_date(delta):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().replace(microsecond=0)
     return (now - delta)
 
 # Takes the datetime object and returns a string in ISO 8601 format.
 def get_iso_format(begin_date):
     return begin_date.isoformat()
+
