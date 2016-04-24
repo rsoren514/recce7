@@ -45,13 +45,14 @@ def validate_time_period(query_tokens):
     print("#info given query_tokens:" + str(query_tokens))
 
     for token in query_tokens:
-        uom,units = token.split('=')
-        if uom in UnitOfMeasure.get_values(UnitOfMeasure):
-            units = int(units)
-            break
-        else:
-            uom  = None
-            units = None
+        if '=' in token:
+            uom,units = token.split('=')
+            if uom in UnitOfMeasure.get_values(UnitOfMeasure):
+                units = int(units)
+                break
+            else:
+                uom  = None
+                units = None
 
     #print("\n#debug validate_time_period: " + str(uom) + ": " + str(units))
     return (uom, units)
