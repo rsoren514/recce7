@@ -1,4 +1,6 @@
+import os
 import time
+
 from common.globalconfig import GlobalConfig
 from http.server import HTTPServer
 
@@ -10,7 +12,9 @@ from reportserver.server.RESTRequestHandler import RestRequestHandler
 
 class SimpleHttpServer:
     def __init__(self):
-        self.g_config = GlobalConfig()
+        plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
+        global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+        self.g_config = GlobalConfig(plugin_cfg_path, global_cfg_path)
         self.g_config.read_plugin_config()
         self.g_config.read_global_config()
         self.host = self.g_config.get_report_server_host()

@@ -40,6 +40,10 @@ class Utilities_Test(unittest.TestCase):
         result = utilities.validate_time_period(["weeks=10", "minutes=10"])
         self.assertEqual(("weeks", 10), result, "expected a tuple of weeks, 10")
 
+        #the equal sign is missing...we should return None, None and give up.
+        result = utilities.validate_time_period(["days1000"])
+        self.assertEqual((None, None), result, "expected a tuple of None,None")
+
     def test_get_path_query_tokens(self):
         result = utilities.get_path_query_tokens("/v1/analytics/ports/23")
         answer = ( ["","v1","analytics","ports","23"],[] )
@@ -55,6 +59,11 @@ class Utilities_Test(unittest.TestCase):
 
         result = utilities.get_path_query_tokens("/v1/analytics/ports/23?foo=bar&minutes=100")
         answer = (["", "v1", "analytics", "ports", "23"], ["foo=bar","minutes=100"])
+        self.assertSequenceEqual(answer, result, "expected: " + str(answer))
+
+        #the = sign is forgotten in the token
+        result = utilities.get_path_query_tokens("/v1/analytics/ports/23?foobar")
+        answer = (["", "v1", "analytics", "ports", "23"], ["foobar"])
         self.assertSequenceEqual(answer, result, "expected: " + str(answer))
 
 if __name__ == "__main__":

@@ -100,5 +100,13 @@ class DateTimeTest(unittest.TestCase):
         test_iso = "1999-12-31T23:59:59"
         self.assertEqual(dateTimeUtility.get_iso_format(test_date), test_iso)
 
+    def test_get_begin_date_iso(self):
+        # Test with weeks
+        delta = datetime.timedelta(weeks=3)
+        test_date = (datetime.datetime.now() - delta).replace(microsecond=0)
+        expected_iso_date = dateTimeUtility.get_iso_format(test_date)
+        received_iso_date = dateTimeUtility.get_begin_date_iso("weeks", 3)
+
+        self.assertEqual(received_iso_date, expected_iso_date)
 if __name__ == "__main__":
     unittest.main()
