@@ -1,6 +1,7 @@
 import os
 import time
 
+from common.logger import Logger
 from common.globalconfig import GlobalConfig
 from http.server import HTTPServer
 
@@ -19,7 +20,9 @@ class SimpleHttpServer:
         self.g_config.read_global_config()
         self.host = self.g_config.get_report_server_host()
         self.port = self.g_config.get_report_server_port()
-
+        log_path = self.g_config['ReportServer']['reportserver.logName']
+        log_level = self.g_config['ReportServer']['reportserver.logLevel']
+        self.log = Logger(log_path, log_level).get('reportserver.server.SimpleHTTPServer.SimpleHTTPServer')
 
     def setupAndStart(self):
 

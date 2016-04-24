@@ -8,7 +8,7 @@ __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
 class GlobalConfig:
     __instance = None
 
-    class __GlobalConfig:
+    class _GlobalConfig:
         def __init__(self, plugin_cfg_path, global_cfg_path):
             self._plugin_cfg_path = plugin_cfg_path
             self._plugin_cfg_dict = {}
@@ -101,7 +101,7 @@ class GlobalConfig:
         :return: A GlobalConfig instance.
         """
         if refresh or not GlobalConfig.__instance:
-            GlobalConfig.__instance = GlobalConfig.__GlobalConfig(
+            GlobalConfig.__instance = GlobalConfig._GlobalConfig(
                 plugin_cfg_path, global_cfg_path)
         return GlobalConfig.__instance
 

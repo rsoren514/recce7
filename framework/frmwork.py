@@ -24,7 +24,7 @@ class Framework:
             self._running_plugins_list = []
             self._data_manager = None
             self._shutting_down = False
-            self._logger = None
+            self._log = None
             self._pid = os.getpid()
 
         def start(self):
@@ -46,9 +46,8 @@ class Framework:
         def start_logging(self):
             log_path = self._global_config['Framework']['logName']
             log_level = self._global_config['Framework']['logLevel']
-            self._logger = Logger(log_path, log_level)
-            self._logger = self._logger.get('framework.frmwork.Framework')
-            self._logger.info('RECCE7 started (PID %d)' % self._pid)
+            self._log = Logger(log_path, log_level).get('framework.frmwork.Framework')
+            self._log.info('RECCE7 started (PID %d)' % self._pid)
 
         @staticmethod
         def drop_permissions():
@@ -101,15 +100,15 @@ class Framework:
         def shutdown(self, *args):
             self._shutting_down = True
 
-            self._logger.debug('Shutting down network listeners')
+            self._log.debug('Shutting down network listeners')
             for listener in self._listener_list.values():
                 listener.shutdown()
 
-            self._logger.debug('Shutting down plugins')
+            self._log.debug('Shutting down plugins')
             for plugin in self._running_plugins_list:
                 plugin.shutdown()
 
-            self._logger.debug('Shutting down data manager')
+            self._log.debug('Shutting down data manager')
             self._data_manager.shutdown()
 
             print('Goodbye!')

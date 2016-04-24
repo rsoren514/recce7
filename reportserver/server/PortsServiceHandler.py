@@ -1,14 +1,18 @@
 from reportserver.manager.PortManager import PortManager
 from reportserver.manager import utilities
+from common.logger import Logger
 from common.globalconfig import GlobalConfig
 
 
 
 class PortsServiceHandler():
+    def __init__(self):
+        self.log = Logger().get('reportserver.server.PortServiceHandler.PortServiceHandler')
+
     def process(self, rqst, path_tokens, query_tokens):
         uom = None
         units = None
-        print("#info processing ports request:" + str(path_tokens) + str(query_tokens))
+        self.log.info("processing ports request:" + str(path_tokens) + str(query_tokens))
 
         if len(query_tokens) > 0:
             try:
@@ -26,7 +30,7 @@ class PortsServiceHandler():
 
         if len(path_tokens) == 5:
             portNbr = utilities.validate_port_number(path_tokens[4])
-            print("#debug requested: " + str(portNbr))
+            self.log.debug("requested: " + str(portNbr))
             if portNbr is not None and 0 < portNbr < 9000:
                 self.get_port_data_by_time(rqst, portNbr, uom, units)
             else:
