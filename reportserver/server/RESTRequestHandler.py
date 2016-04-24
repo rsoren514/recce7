@@ -4,13 +4,14 @@ from http.server import BaseHTTPRequestHandler
 
 
 from reportserver.server.PortsServiceHandler import PortsServiceHandler
+from reportserver.server.IpsServiceHandler import IpsServiceHandler
 
 
 
 notFoundPayload = {}
 
 badRequestPayload = {
-    'error': 'invalid port number'}
+    'error': 'invalid analytics request'}
 
 
 #  Handles the service request, determines what was requested,
@@ -28,7 +29,8 @@ class RestRequestHandler (BaseHTTPRequestHandler):
             if len(path_tokens) >= 4:
                 if str(path_tokens[3]) == "ports":
                     PortsServiceHandler().process(self, path_tokens, query_tokens)
-                #TODO:  here is where we add more urls like /ipaddresses/
+                elif str(path_tokens[3]) == "ipaddress":
+                    IpsServiceHandler().process(self, path_tokens, query_tokens)
                 else:
                     self.badRequest()
             else:
@@ -45,7 +47,8 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         return full_path
 
     def getIndexPayload(self):
-        return  {'links': ['rel: ports, href: ' + self.get_full_url_path() + '/ports']}
+        return  {'links': ['rel: ports, href: ' + self.get_full_url_path() + '/ports',
+                           'rel: ipaddress, href:' + self.get_full_url_path() + '/ipaddress']}
 
     def showIndex(self):
         # send response code:

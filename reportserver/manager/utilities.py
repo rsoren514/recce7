@@ -70,3 +70,10 @@ def get_path_query_tokens(path):
 
 
     return path_tokens, query_tokens
+
+
+#Given a string, check that it is format of an ipaddress
+def validate_ipaddress(givenStr):
+    print("#debug given ipaddress is: " + givenStr)
+    #todo:  some validation here
+    return givenStr
