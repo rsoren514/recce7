@@ -1,25 +1,29 @@
 import ntpath
-import os
-import sqlite3
-from database import Table_Init
-from database.DataValidation import DataValidation
+
+from common.globalconfig import GlobalConfig
 from common.logger import Logger
+from database import Table_Init
+from database.util import *
+from database.datavalidator import DataValidator
 
 __author__ = 'Ben Phillips'
 
 
 class Database:
-    def __init__(self, global_config):
-        self.global_config = global_config
+    def __init__(self):
+        self.global_config = GlobalConfig()
         self.log = Logger().get('database.database.Database')
-        
+
     def create_default_database(self):
         """
         Calls methods needed to create the database.
         """
         self.create_db_dir()
         self.create_db()
-        Table_Init.run_db_scripts(self.global_config)
+
+        # Execute scripts BEFORE updating schema
+        run_db_scripts(self.global_config)
+
         self.update_schema()
     
     def create_db_dir(self):
@@ -51,59 +55,23 @@ class Database:
     
     def update_schema(self):
         """
-        Migrates the database when columns have been added or
-        removed to the schema.
+        Updates the database when columns have been added to, or
+        removed from, the schema.
         """
 
-        #
-        # holds the list of tables defined in the configuration
-        # if the distinct sets of tables are not equal
-        # create database tables that do not exist
-        #
-        self.create_non_exist_tables(
-            self.table_list_diff(
-                #RANDY this may be unnecessary coupling or a good reason
-                #to absorb DataValidation into DB_Init.
-                DataValidation(self.global_config).get_tables(),
-                self.get_config_table_list(
-                    self.global_config.get_ports(),
-                    self.global_config.get_plugin_dictionary())))
+        # Create any new tables that have been added to the plugin
+        # config schema.
+        db_tables = DataValidator().get_tables()
+        cfg_tables = get_config_table_list(
+            self.global_config.get_ports(),
+            self.global_config.get_plugin_dictionary())
+        table_diff = list(set(cfg_tables) - set(db_tables))
+        self.create_non_exist_tables(table_diff)
 
-        # now that the tables do exist lets update the information from the
-        # database
-        DataValidation(self.global_config).update_tables_and_schema(self.global_config)
-        # now our tables exist with a primary key sequence of ID
-        # now i must check each table and add columns
-        # create a dictionary of config column lists
-        # create a dictionary of database column lists
-        #
-
-        # transform database column list this contains the column definitions
-        # in the same way as the config does'''
+        # Populate the newly created tables with their column
+        # definitions.
+        DataValidator().update_tables_and_schema()
         self.update_table_structure()
-
-    def get_config_table_list(self, port_list, schema_dict):
-        """
-        returns the table list from the configuration singleton that
-        correspond to ports provided
-        """
-        config_table_list = []
-        for port in port_list:
-            config = schema_dict.get(port)
-            config_table_list.append(config.get('table'))
-        return config_table_list
-
-    def table_list_diff(self, current_database_table_list, config_table_list):
-        """
-        return list of tables that are different between the current database
-         table list and the config's table list
-        """
-        if not set(current_database_table_list) == set(config_table_list):
-            # return the left hand difference between the schema and config
-            # table sets
-            return list(set(config_table_list) - set(current_database_table_list))
-        else:
-            return []
 
     def create_non_exist_tables(self, table_diff):
         """
@@ -125,18 +93,7 @@ class Database:
             value = self.global_config.get_plugin_dictionary().get(port)
             config_column_lists[value.get('table')] = value.get('tableColumns')
         return config_column_lists
-    
-    def create_dict_schema_column_list(self):
-        """
-        get a dictionary of tables and corresponding columns from the existing
-        database
-        """
-        database_column_lists = {}
-        database_schema = DataValidation(self.global_config).get_schema()
-        for schema in database_schema:
-            database_column_lists[schema] = database_schema.get(schema)
-        return database_column_lists
-    
+
     def create_dict_transformed_column_list(self, database_column_lists):
         """
         returns only custom plugin defined columns from database schema i.e.
@@ -144,12 +101,11 @@ class Database:
         """
         transformed_db_column_list = {}
         for table in database_column_lists:
-            col_list = database_column_lists.get(table)
-            for column in col_list:
-                transformed_db_column_list[table] = []
+            col_list = database_column_lists[table]
+            transformed_db_column_list[table] = []
             # default column ids to ignore
             default_list = []
-            for default in Table_Init.default_columns:
+            for default in default_columns:
                 default_list.append(default[0])
             for column in col_list:
                 # ignores the default columns
@@ -159,10 +115,13 @@ class Database:
         return transformed_db_column_list
     
     def update_table_structure(self):
-        for table in self.create_dict_config_column_list():
-                if not [(x[1],x[2]) for x in self.create_dict_config_column_list().get(table)] == \
-                       [(x[1],x[2]) for x in self.create_dict_transformed_column_list(self.create_dict_schema_column_list()).get(table)]:
-                    Table_Init.change_table_structure(table,
-                                                      self.create_dict_config_column_list().get(table),
-                                                      self.create_dict_schema_column_list().get(table),
-                                                      self.global_config)
+        cfg_schema = self.create_dict_config_column_list()
+        db_schema = DataValidator().get_schema()
+        db_schema_sans_defaults = self.create_dict_transformed_column_list(db_schema)
+
+        for table in cfg_schema:
+            if not [(x[1], x[2]) for x in cfg_schema[table]] == \
+                   [(x[1], x[2]) for x in db_schema_sans_defaults[table]]:
+                Table_Init.change_table_structure(
+                    table, cfg_schema[table], db_schema[table],
+                    self.global_config)

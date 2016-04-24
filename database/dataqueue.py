@@ -1,21 +1,21 @@
 import queue
 
+from common.globalconfig import GlobalConfig
 from common.logger import Logger
-from database import DataValidation
+from database import datavalidator
 
 __author__ = 'Ben Phillips'
 
-
 class DataQueue:
-    def __init__(self, global_config):
+    def __init__(self):
         self.dataQueue = queue.Queue()
-        self.dv = DataValidation.DataValidation(global_config)
-        self.log = Logger().get('database.DataQueue.DataQueue')
+        self.dv = datavalidator.DataValidator()
+        self.log = Logger().get('database.dataqueue.DataQueue')
     """we want to check the data here and fail early
         if the data is good then we want to put it in the data queue
-        we will want another python script for the validations (DataValidation.py)
+        we will want another python script for the validations (datavalidator.py)
         we need to enforce type constraints because the database will not
-        see DataValidation.py"""
+        see datavalidator.py"""
     def insert_into_data_queue(self, value):
         if not self.dv.run_all_checks(value):
             self.log.error('--> Validation failed! Unable to add data '
@@ -25,7 +25,7 @@ class DataQueue:
         try:
             self.dataQueue.put(value)
         except queue.Full as e:
-            self.log.critical('data queue is full!')
+            self.log.critical('Data queue is full!')
         finally:
             return True
 

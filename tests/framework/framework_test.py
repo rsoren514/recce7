@@ -4,7 +4,7 @@ import pwd
 import socket
 import unittest
 import unittest.mock
-from database.DataManager import DataManager
+from database.datamanager import DataManager
 from framework.frmwork import Framework
 from framework.frmwork import main
 from framework.networklistener import NetworkListener

@@ -1,8 +1,6 @@
-import sqlite3
-
+from common.globalconfig import GlobalConfig
 from common.logger import Logger
-from copy import deepcopy
-from database import Table_Init
+from database.util import *
 
 __author__ = 'Ben Phillips'
 
@@ -12,35 +10,31 @@ __author__ = 'Ben Phillips'
 #
 
 
-class DataValidation:
-    def __init__(self,global_config_instance):
+class DataValidator:
+    def __init__(self):
+        self.config = GlobalConfig()
         self.table_schema = {}
         self.tables = []
-        self.log = Logger().get('database.DataValidation.DataValidation')
-        connection = sqlite3.connect(global_config_instance['Database']['path'])
-        cursor = connection.cursor()
-        #will want to loop here through all tables found and store each schema
-        #as an element in a list, this will require code changes throughout this file
-        rows = cursor.execute("select name from sqlite_master where type = 'table';").fetchall()
-        #transform list of tuples to a list of strings
-        for row in rows:
-            self.tables.append(row[0])
-        for table in self.tables:
-            table_def = cursor.execute('PRAGMA table_info(' + table + ');').fetchall()
-            self.table_schema[table] = table_def
-        cursor.close()
+        self.log = Logger().get('database.datavalidator.DataValidator')
+        self.get_schema_from_database()
 
     # for updating tables and table schema class variables
-    def update_tables_and_schema(self,global_config_instance):
+    def update_tables_and_schema(self):
         self.table_schema.clear()
-        del self.tables[:]
-        connection = sqlite3.connect(global_config_instance['Database']['path'])
+        self.tables.clear()
+        self.get_schema_from_database()
+
+    def get_schema_from_database(self):
+        connection = sqlite3.connect(self.config['Database']['path'])
         cursor = connection.cursor()
         #will want to loop here through all tables found and store each schema
         #as an element in a list, this will require code changes throughout this file
-        rows = cursor.execute("select name from sqlite_master where type = 'table';").fetchall()
+        db_rows = cursor.execute(
+            "SELECT name "
+            "FROM sqlite_master "
+            "WHERE type = 'table';").fetchall()
         #transform list of tuples to a list of strings
-        for row in rows:
+        for row in db_rows:
             self.tables.append(row[0])
         for table in self.tables:
             table_def = cursor.execute('PRAGMA table_info(' + table + ');').fetchall()
@@ -74,7 +68,7 @@ class DataValidation:
 
     # Checks that the key in the dictionary is a string
     def check_key_in_dict_string(self, value):
-        key = DataValidation.get_first_key_value_of_dictionary(value)
+        key = get_first_key_value_of_dictionary(value)
         if not isinstance(key, str):
             self.log.error('Table name must be a string: got ' +
                            type(key) +
@@ -85,7 +79,7 @@ class DataValidation:
     # Checks that the key in the dictionary is
     # a real table name in the database
     def check_key_is_valid_table_name(self,value):
-        table_name = DataValidation.get_first_key_value_of_dictionary(value)
+        table_name = get_first_key_value_of_dictionary(value)
         if table_name not in self.tables:
             self.log.error('No such table: ' + table_name)
             return False
@@ -93,7 +87,7 @@ class DataValidation:
 
     # Checks that the row data is actually a dictionary
     def check_row_value_is_dict(self,value):
-        key = self.get_first_key_value_of_dictionary(value)
+        key = get_first_key_value_of_dictionary(value)
         if not isinstance(value.get(key), dict):
             self.log.error('Row data must be a dictionary: got ' +
                            type(value.get(key)) +
@@ -101,14 +95,9 @@ class DataValidation:
             return False
         return True
 
-    #gets the first key value in a dictionary
-    @staticmethod
-    def get_first_key_value_of_dictionary(value):
-        return next(iter(value.keys()))
-
     #checks that all of the keys in the row data are strings
     def check_all_col_names_strings(self,value):
-        key = self.get_first_key_value_of_dictionary(value)
+        key = get_first_key_value_of_dictionary(value)
         dict = value.get(key)
         count = len(dict.keys())
         compare = 0
@@ -119,16 +108,16 @@ class DataValidation:
 
     # Verifies that no additional columns were provided by a
     # plugin that aren't referred to in the database schema.
-    def check_all_col_exist(self,value):
-        key = self.get_first_key_value_of_dictionary(value)
+    def check_all_col_exist(self, value):
+        key = get_first_key_value_of_dictionary(value)
         schema = self.table_schema[key]
 
         # remove default columns because we do not require the plugin author
         # to provide these
-        schema_col_list = DataValidation.remove_default_columns_from_list([row[1] for row in schema])
+        schema_col_list = remove_default_columns_from_list([row[1] for row in schema])
 
         # get a list of column names from the table referenced in value
-        prep_list = DataValidation.remove_default_columns_from_list(value[key])
+        prep_list = remove_default_columns_from_list(value[key])
         col_list = list(prep_list.keys())
 
         extra_cols = set(col_list) - set(schema_col_list)
@@ -136,21 +125,6 @@ class DataValidation:
             self.log.error('Unknown column(s) in table \'' + key + '\': ' + str(extra_cols))
             return False
         return True
-
-    @staticmethod
-    def remove_default_columns_from_list(collection):
-        collection_copy = deepcopy(collection)
-        if isinstance(collection_copy,list):
-            for col in Table_Init.default_columns:
-                if col[0] in collection_copy:
-                    collection_copy.remove(col[0])
-            return collection_copy
-
-        if isinstance(collection_copy,dict):
-            for col in Table_Init.default_columns:
-                if col[0] in collection_copy:
-                    del collection_copy[col[0]]
-            return collection_copy
 
     # TODO determine how to do this with regex
     def check_data_types(self, value):

@@ -1,8 +1,10 @@
-__author__ = 'Ben Phillips'
-
 import sqlite3
-from operator import itemgetter
 import os
+
+from database.util import *
+from operator import itemgetter
+
+__author__ = 'Ben Phillips'
 
 # create a table in the sqlite database with the name of the table passed in
 
@@ -11,16 +13,6 @@ import os
 # this is useful because when we are verifying that all of the columns provided
 # by the custom plugin are indeed in the database we can ignore these programatically
 # as they are not controlled by the author
-
-
-# Column format: [Name, Type, Constraint List ...]
-default_columns = [
-    ['ID', 'INTEGER', 'NOT NULL', 'PRIMARY KEY'],
-    ['session', 'TEXT', 'NULL'],
-    ['eventDateTime', 'TEXT', 'NULL'],
-    ['peerAddress', 'TEXT', 'NULL'],
-    ['localAddress', 'TEXT', 'NULL']
-]
 
 
 def create_table(name, global_config):
@@ -35,20 +27,6 @@ def create_table(name, global_config):
     cursor.execute('CREATE TABLE ' + name + '(' + default_column_def + ')')
     connection.close()
 
-
-def run_db_scripts(global_config):
-    """
-    this method will run all db scripts in the scripts directory to create
-    non-user defined sqlite objects
-    """
-    connection = sqlite3.connect(global_config['Database']['path'])
-    cursor = connection.cursor()
-    script_path = '/database/sql_scripts'
-    file_list = os.listdir(os.getcwd() + script_path)
-    for file_name in file_list:
-        with open(os.getcwd() + script_path + '/' + file_name,'r') as file:
-            cursor.execute(file.read())
-    connection.close()
 
 
 def add_columns(name, column_list, global_config):

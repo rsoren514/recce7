@@ -1,9 +1,10 @@
 __author__ = 'Ben Phillips'
 
 import sqlite3
-from database import DataValidation
+
 from common.globalconfig import GlobalConfig
 from common.logger import Logger
+from database.util import *
 
 def insert_data(name, data_list, session_value):
     config = GlobalConfig()
@@ -32,11 +33,10 @@ def insert_data(name, data_list, session_value):
 
 def prepare_data_for_insertion(schema, data):
     #get the correct table schema we want to sort to
-    table_schema = schema[
-        DataValidation.DataValidation.get_first_key_value_of_dictionary(data)]
+    table_schema = schema[get_first_key_value_of_dictionary(data)]
     #print(table_schema)
     #break the table/data dictionary into a table name and a dictionary of data
-    table_name = DataValidation.DataValidation.get_first_key_value_of_dictionary(data)
+    table_name = get_first_key_value_of_dictionary(data)
     #print(table_name)
     data_dict = data[table_name]
 

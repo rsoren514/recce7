@@ -6,7 +6,7 @@ import signal
 from importlib import import_module
 from common.globalconfig import GlobalConfig
 from common.logger import Logger
-from database.DataManager import DataManager
+from database.datamanager import DataManager
 from framework.networklistener import NetworkListener
 
 __author__ = 'Jesse Nelson <jnels1242012@gmail.com>, ' \
@@ -38,7 +38,7 @@ class Framework:
             self.start_logging()
 
             self._global_config.read_plugin_config()
-            self._data_manager = DataManager(self._global_config)
+            self._data_manager = DataManager()
             self._data_manager.start()
 
             self.start_listeners()

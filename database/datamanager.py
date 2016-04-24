@@ -1,7 +1,8 @@
 from common.logger import Logger
-from threading import Thread, Condition
-from database import DataQueue, Table_Insert
+from database.dataqueue import DataQueue
 from database.database import Database
+from database import Table_Insert
+from threading import Thread, Condition
 
 __author__ = 'Ben Phillips'
 
@@ -12,14 +13,14 @@ class DataManager(Thread):
     the condition variable for synchronization between it, the framework and
     the plugins
     """
-    def __init__(self, global_config):
+    def __init__(self):
         super().__init__()
-        self.db = Database(global_config)
+        self.db = Database()
         self.db.create_default_database()
-        self.q = DataQueue.DataQueue(global_config)
+        self.q = DataQueue()
         self.condition = Condition()
         self.kill = False
-        self.logger = Logger().get('database.DataManager.DataManager')
+        self.logger = Logger().get('database.datamanager.DataManager')
 
     def run(self):
         """
