@@ -7,7 +7,8 @@ and return JSON.
 import os
 import sqlite3
 
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
+from common.logger import Logger
 from reportserver.manager import dateTimeUtility
 
 
@@ -17,10 +18,13 @@ from reportserver.manager import dateTimeUtility
 class DatabaseHandler:
 
     def __init__(self):
-        self.cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        self.global_config = Configuration(self.cfg_path).getInstance()
-        self.db_path = self.global_config.get_db_dir() + '/honeyDB.sqlite'
-
+        self.plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
+        self.global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+        self.global_config = GlobalConfig(self.plugin_cfg_path, self.global_cfg_path)
+        self.global_config.read_global_config()
+        self.global_config.read_plugin_config()
+        self.db_path = self.global_config['Database']['path']
+        self.log = Logger().get('reportserver.dao.DatabaseHandler.DatabaseHandler')
 
     # Connect to given database.
     # Defaults to the honeypot db, but another path can be passed in (mainly for testing).
@@ -30,12 +34,12 @@ class DatabaseHandler:
             database_name = self.db_path
 
         if not os.path.exists(database_name):
-            print("Error: Database does not exist in path: " + database_name)
+            self.log.error("Database does not exist in path: " + database_name)
             return None
         try:
             conn = sqlite3.connect(database_name)
         except sqlite3.OperationalError:
-            print("Error:  Problem connecting to database at: " + database_name)
+            self.log.error("Problem connecting to database at: " + database_name)
         else:
             return conn
 
@@ -59,10 +63,10 @@ class DatabaseHandler:
         #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
         queryString = "SELECT * FROM %s where %s >= '%s' order by id, %s" % (tableName, date_time_field, begin_date_iso, date_time_field)
         #args = (tableName, date_time_field, begin_date_iso)
-        print("#info queryString is: " + str(queryString))
+        self.log.info("queryString is: " + str(queryString))
         #print ("args to use: " + str(args))
         results = self.query_db(queryString)
-        print("#debug results: " + str(results))
+        self.log.debug("results: " + str(results))
 
         return results
 

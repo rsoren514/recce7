@@ -1,6 +1,6 @@
 import unittest
 
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 
 from reportserver.manager.PortManager import PortManager
 
@@ -9,7 +9,9 @@ from reportserver.manager.PortManager import PortManager
 class PortManagerTest(unittest.TestCase):
 
     def setUp(self):
-        Configuration("./testconfig").getInstance()
+        plugin_cfg_path = "tests/reportserver/testconfig/plugins.cfg"
+        global_cfg_path = "tests/reportserver/testconfig/global.cfg"
+        self.config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
         self.unit = PortManager()
 
     def test_setup_session_json(self):

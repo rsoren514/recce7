@@ -1,4 +1,4 @@
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 import unittest;
 
 test_cfg_path = 'tests/common/test.cfg'
@@ -6,15 +6,15 @@ test_cfg_path = 'tests/common/test.cfg'
 
 class GlobalConfig_Test(unittest.TestCase):
     def setUp(self):
-        self.gconfig = Configuration(test_cfg_path).getInstance()
+        self.gconfig = GlobalConfig(test_cfg_path, refresh=True)
 
     def test_getInstance(self):
 
-        gconfig2 = Configuration().getInstance()
+        gconfig2 = GlobalConfig()
 
         self.assertEqual(str(self.gconfig),str(gconfig2),"these 2 objects should equal")
 
-        gconfig3 = Configuration().getInstance()
+        gconfig3 = GlobalConfig()
 
         self.assertEqual(str(self.gconfig), str(gconfig3), "these 2 objects should equal")
         self.assertEqual(str(gconfig2), str(gconfig3), "these 2 objects should equal")
@@ -44,24 +44,27 @@ class GlobalConfig_Test(unittest.TestCase):
 
     def test_refresh_instance(self):
 
-        gconfig2 = Configuration(test_cfg_path, True).getInstance()
+        gconfig2 = GlobalConfig(test_cfg_path, refresh=True)
         self.assertNotEqual(str(self.gconfig), str(gconfig2), "these 2 objects should NOT equal when refresh set to True")
 
     def test_refresh_instance_same(self):
-        gconfig2 = Configuration(test_cfg_path, False).getInstance()
+        gconfig2 = GlobalConfig()
         self.assertEqual(str(self.gconfig), str(gconfig2), "these 2 objects should equal when False is set for Refresh")
 
-        gconfig2 = Configuration(test_cfg_path).getInstance()
+        gconfig2 = GlobalConfig()
         self.assertEqual(str(self.gconfig), str(gconfig2), "these 2 objects should equal with default of False")
 
     def test_get_date_time_name(self):
-        self.assertEqual("eventDateTime", self.gconfig.get_db_datetime_name())
+        self.assertEqual("eventDateTime",
+                         self.gconfig['Database']['datetime.name'])
 
     def test_get_db_peerAddress_nameself(self):
-        self.assertEqual("peerAddress", self.gconfig.get_db_peerAddress_name())
+        self.assertEqual("peerAddress",
+                         self.gconfig['Database']['peerAddress.name'])
 
     def test_get_db_localAddress_name(self):
-        self.assertEqual("localAddress", self.gconfig.get_db_localAddress_name())
+        self.assertEqual("localAddress",
+                         self.gconfig['Database']['localAddress.name'])
 
 
 if __name__ == "__main__":

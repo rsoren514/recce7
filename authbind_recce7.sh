@@ -1,8 +1,10 @@
 #!/bin/sh
 
 if which authbind > /dev/null; then
-    mkdir -p ~/honeyDB
-    chmod 777 ~/honeyDB
+    touch recce7.log
+    chmod 777 recce7.log
+    mkdir -p ./honeyDB
+    chmod 777 ./honeyDB
     sudo authbind ./recce7.sh
 else
     echo "You don't seem to have authbind installed. Authbind is only available"
