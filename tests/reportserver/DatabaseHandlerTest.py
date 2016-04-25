@@ -4,9 +4,9 @@ import os
 import datetime
 import shutil
 
-from common.GlobalConfig import Configuration
-from reportserver.dao import DatabaseHandler
-from database import DB_Init
+from common.globalconfig import GlobalConfig
+from reportserver.dao.DatabaseHandler import DatabaseHandler
+from database.database import Database
 
 class DatabaseHandlerTest(unittest.TestCase):
 
@@ -32,56 +32,63 @@ class DatabaseHandlerTest(unittest.TestCase):
     # Tests connecting to the DB. Includes testing for incorrect paths.
     def test_connect(self):
         # Negative testing
-        self.assertIsNone(DatabaseHandler.connect("database"))
-        self.assertIsNone(DatabaseHandler.connect("database.db"))
-        self.assertIsNone(DatabaseHandler.connect("asdl;kfjeiei"))
-        self.assertIsNone(DatabaseHandler.connect("./honeyDB/honeyDB.sqllite"))
-        self.assertIsNone(DatabaseHandler.connect("./honeyDB/honeyDB.db"))
-        self.assertIsNone(DatabaseHandler.connect(" "))
-        self.assertIsNone(DatabaseHandler.connect(""))
+        self.assertIsNone(DatabaseHandler().connect("database"))
+        self.assertIsNone(DatabaseHandler().connect("database.db"))
+        self.assertIsNone(DatabaseHandler().connect("asdl;kfjeiei"))
+        self.assertIsNone(DatabaseHandler().connect("./honeyDB/honeyDB.sqllite"))
+        self.assertIsNone(DatabaseHandler().connect("./honeyDB/honeyDB.db"))
+        self.assertIsNone(DatabaseHandler().connect(" "))
+        self.assertIsNone(DatabaseHandler().connect(""))
 
         # Testing for correct DB
-        cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        global_config = Configuration(cfg_path).getInstance()
-        DB_Init.create_db_dir(global_config)
-        DB_Init.create_db(global_config)
-        db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
+        plugin_cfg_path = 'tests/reportserver/testconfig/plugins.cfg'
+        global_cfg_path = 'tests/reportserver/testconfig/global.cfg'
+        global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
+        db = Database()
+        db.create_db_dir()
+        db.create_db()
+        db_path = global_config['Database']['path']
 
         self.assertTrue(sqlite3.connect(db_path))
-        self.assertTrue(DatabaseHandler.connect(db_path))
-        self.assertTrue(DatabaseHandler.connect())
-        shutil.rmtree('honeyDB')
+        self.assertTrue(DatabaseHandler().connect(db_path))
+        self.assertTrue(DatabaseHandler().connect(None))
+        #shutil.rmtree('honeyDB')
 
 
     def test_query_db(self):
         query_string = "SELECT * FROM test_http where port = 8082"
-        json_query = DatabaseHandler.query_db(query_string, db="TestDB.sqlite")
+        json_query = DatabaseHandler().query_db(query_string, db="TestDB.sqlite")
         for y in range(0, len(json_query) - 1):
             port_number = json_query[y].get('port')
             self.assertEqual(port_number, 8082)
         query_string = "SELECT * FROM test_http where port = 8083"
-        json_query = DatabaseHandler.query_db(query_string, db="TestDB.sqlite")
+        json_query = DatabaseHandler().query_db(query_string, db="TestDB.sqlite")
         self.assertEqual(json_query, [])
         query_string = "SELECT * FROM test_http where port = 8023"
-        json_query = DatabaseHandler.query_db(query_string, db="TestDB.sqlite")
+        json_query = DatabaseHandler().query_db(query_string, db="TestDB.sqlite")
         self.assertEqual(json_query, [])
 
         query_string = "SELECT * FROM test_http2 where port = 8083 AND eventDateTime = '1999-12-31T23:59:59'"
-        json_query = DatabaseHandler.query_db(query_string, db="TestDB.sqlite")
+        json_query = DatabaseHandler().query_db(query_string, db="TestDB.sqlite")
         self.assertEqual(len(json_query), 1)
         self.assertEqual(json_query[0].get('port'), 8083)
         self.assertEqual(json_query[0].get('eventDateTime'), '1999-12-31T23:59:59')
 
         query_string = "SELECT * FROM test_telnet where eventDateTime > '1999-12-31T23:59:59' " \
                        "AND eventDateTime < '2000-01-14T23:59:59'"
-        json_query = DatabaseHandler.query_db(query_string, db="TestDB.sqlite")
+        json_query = DatabaseHandler().query_db(query_string, db="TestDB.sqlite")
         self.assertEqual(len(json_query), 1)
         self.assertEqual(json_query[0].get('port'), 8023)
         self.assertEqual(json_query[0].get('eventDateTime'), '2000-01-07T23:59:59')
 
     def test_get_json_by_time(self):
-        cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        global_config = Configuration(cfg_path).getInstance()
+        plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
+        global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+        global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
         test_start_date = datetime.datetime(1999, month=12, day=31, hour=23, minute=59, second=59)
 #        successes = 0
 #        fails = 0
@@ -98,7 +105,7 @@ class DatabaseHandlerTest(unittest.TestCase):
                 query_date_iso = query_date.isoformat()
                 tableName = global_config.get_plugin_config(portnumber)['table']
                 query_string = "SELECT * FROM %s where (eventDateTime >= '%s')" % (tableName, query_date_iso)
-                json_query = DatabaseHandler.query_db(query_string, db="TestDB.sqlite")
+                json_query = DatabaseHandler().query_db(query_string, db="TestDB.sqlite")
                 for y in range(0, len(json_query) - 1):
                     date = json_query[y].get('eventDateTime')
                     self.assertGreaterEqual(date, query_date_iso)
