@@ -37,52 +37,56 @@ class TelnetPlugin(BasePlugin):
         self._session = None
 
     def do_track(self):
-        self.username()
-        self.password()
-        self.options()
-        while not self.kill_plugin:
-            self.command()
+        self.get_session()
+
+        try:
+            self.username()
+            self.password()
+            self.options()
+            while self._skt and not self.kill_plugin:
+                self.command()
+        except OSError:
+            self.kill_plugin = True
+            return
+        except AttributeError:
+            self.kill_plugin = True
+            return
+        except UnicodeDecodeError:
+            self.kill_plugin = True
+            return
 
     def get_session(self):
         self._session = str(self.get_uuid4())
 
     def get_input(self):
-        data = self._skt.recv(1024).decode()
+        try:
+            data = self._skt.recv(1024).decode()
+        except OSError:
+            self.kill_plugin = True
+            return
+
         data = data.strip('\r\n')
         data = data.strip('\n')
         return data
 
     def username(self):
         self._skt.send(b'Username: ')
+
         self.input_type = 'username'
         self.user_input = self.get_input()
         self.do_save()
 
-        '''try:
-            self._skt.send(b'Username: ')
-            self.user_input = self.get_input()
-        except OSError:
-            pass
-        except AttributeError:
-            pass'''
-
     def password(self):
         self._skt.send(b'Password: ')
+
         self.input_type = 'password'
         self.user_input = self.get_input()
         self.do_save()
 
-        '''try:
-            self._skt.send(b'Password: ')
-            self.user_input = self.get_input()
-        except OSError:
-            pass
-        except AttributeError:
-            pass'''
-
     def command(self):
         self.input_type = 'command'
         self._skt.send(b'. ')
+
         self.user_input = self.get_input()
         self.do_save()
         arguments = self.user_input.split(' ', 1)
@@ -115,7 +119,6 @@ class TelnetPlugin(BasePlugin):
         self._skt.send(help_msg)
 
     def echo(self, arguments=None):
-        print(arguments)
         if len(arguments) > 0:
             for i in arguments:
                 self._skt.send(i.encode())

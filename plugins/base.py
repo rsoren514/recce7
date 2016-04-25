@@ -33,22 +33,17 @@ class BasePlugin(Thread):
         """
 
         """
-
-        self.do_track()
-
-        '''while self._skt and not self.kill_plugin:
-            try:
-                self.do_track()
-            except ConnectionResetError as cre:
+        try:
+            self.do_track()
+        except ConnectionResetError as cre:
                 error_number = cre.errno
                 if error_number == 54:  # ERRNO 54 is 'connection reset by peer'
                     # Log that it is possible we are being scanned, would want to write this to the db
                     print("Maybe we are being scanned")
                     pass
 
-        self._framework.plugin_stopped(self)'''
-
         self.shutdown()
+        self._framework.plugin_stopped(self)
 
     def get_entry(self):
         entry = {self.get_table_name(): {}}
