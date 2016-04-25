@@ -45,7 +45,18 @@ class HTTPPlugin(BasePlugin, BaseHTTPRequestHandler):
         socket.settimeout(60)
 
     def do_track(self):
-        self.handle_one_request()
+        try:
+            self.handle_one_request()
+        except OSError:
+            self.kill_plugin = True
+            return
+        except AttributeError:
+            self.kill_plugin = True
+            return
+        except UnicodeDecodeError:
+            self.kill_plugin = True
+            return
+
         self.format_data()
         self.do_save()
         self.kill_plugin = True
