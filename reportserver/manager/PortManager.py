@@ -21,7 +21,8 @@
 #   You should have received a copy of the GNU General Public licenses         #
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
-from common.GlobalConfig import Configuration
+from common.logger import Logger
+from common.globalconfig import GlobalConfig
 from reportserver.dao.DatabaseHandler import DatabaseHandler
 from reportserver.manager import dateTimeUtility
 from reportserver.manager import utilities
@@ -38,9 +39,12 @@ class PortManager:
     validPortNumbers = ()
 
     def __init__(self):
-        self.g_config = Configuration().getInstance()
+        self.g_config = GlobalConfig()
+        self.g_config.read_global_config()
+        self.g_config.read_plugin_config()
         self.validPortNumbers = self.g_config.get_ports()
         self.date_time_field = self.g_config.get_db_datetime_name()
+        self.log = Logger().get('reportserver.manager.PortManager.PortManager')
 
 
     def isPortValid(self, port_number):
@@ -50,7 +54,7 @@ class PortManager:
             return False
 
     def getPort(self, port_number, uom, unit):
-        print("#info Retrieving port:" + str(port_number) + "uom:" + uom + " size: " + str(unit))
+        self.log.info("Retrieving port:" + str(port_number) + "uom:" + uom + " size: " + str(unit))
 
         items = []
 
@@ -71,14 +75,14 @@ class PortManager:
         fromDate = dateTimeUtility.get_begin_date_iso(unit, uom)
 
         sql = "select count(distinct session) as total_attacks from %s where %s >= '%s' " %(tablename, self.date_time_field, fromDate)
-        print("#debug sql is:" + sql)
+        self.log.debug("sql is:" + sql)
         result = DatabaseHandler().query_db(sql)[0]
         return int(result['total_attacks'])
 
     def get_unique_ips(self, tablename, unit, uom):
         fromDate = dateTimeUtility.get_begin_date_iso(unit, uom)
         sql = "select count(distinct localAddress) as unique_ips from %s where %s >= '%s' " % (tablename, self.date_time_field, fromDate)
-        print("#debug sql is:" + sql)
+        self.log.debug("sql is:" + sql)
         result = DatabaseHandler().query_db(sql)[0]
         return int(result['unique_ips'])
 

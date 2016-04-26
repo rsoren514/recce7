@@ -4,9 +4,9 @@ import os
 import datetime
 import shutil
 
-from common.GlobalConfig import Configuration
+from common.globalconfig import GlobalConfig
 from reportserver.dao.DatabaseHandler import DatabaseHandler
-from database import DB_Init
+from database.database import Database
 
 class DatabaseHandlerTest(unittest.TestCase):
 
@@ -41,11 +41,15 @@ class DatabaseHandlerTest(unittest.TestCase):
         self.assertIsNone(DatabaseHandler().connect(""))
 
         # Testing for correct DB
-        cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        global_config = Configuration(cfg_path).getInstance()
-        DB_Init.create_db_dir(global_config)
-        DB_Init.create_db(global_config)
-        db_path = global_config.get_db_dir() + '/honeyDB.sqlite'
+        plugin_cfg_path = 'tests/reportserver/testconfig/plugins.cfg'
+        global_cfg_path = 'tests/reportserver/testconfig/global.cfg'
+        global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
+        db = Database()
+        db.create_db_dir()
+        db.create_db()
+        db_path = global_config['Database']['path']
 
         self.assertTrue(sqlite3.connect(db_path))
         self.assertTrue(DatabaseHandler().connect(db_path))
@@ -80,8 +84,11 @@ class DatabaseHandlerTest(unittest.TestCase):
         self.assertEqual(json_query[0].get('eventDateTime'), '2000-01-07T23:59:59')
 
     def test_get_json_by_time(self):
-        cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        global_config = Configuration(cfg_path).getInstance()
+        plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
+        global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
+        global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
         test_start_date = datetime.datetime(1999, month=12, day=31, hour=23, minute=59, second=59)
 #        successes = 0
 #        fails = 0

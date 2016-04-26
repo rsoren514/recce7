@@ -22,13 +22,15 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.      #
 ################################################################################
 
+from common.logger import Logger
 from reportserver.manager.UnitOfMeasure import UnitOfMeasure
 import dateutil.parser
 
 
 #Given a string, try to convert it to an int.
 def validate_port_number(givenStr):
-    print("#debug given str is: " + givenStr)
+    log = Logger().get('reportserver.manager.utilities')
+    log.debug("given str is: " + givenStr)
     try:
         return int(givenStr)
     except Exception as e:
@@ -43,7 +45,8 @@ def validate_time_period(query_tokens):
     uom = None
     units = None
 
-    print("#info given query_tokens:" + str(query_tokens))
+    log = Logger().get('reportserver.manager.utilities')
+    log.info("given query_tokens:" + str(query_tokens))
 
     for token in query_tokens:
         if '=' in token:
