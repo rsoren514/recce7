@@ -18,11 +18,7 @@ from reportserver.manager import dateTimeUtility
 class DatabaseHandler:
 
     def __init__(self):
-        self.plugin_cfg_path = os.getenv('RECCE7_PLUGIN_CONFIG') or 'config/plugins.cfg'
-        self.global_cfg_path = os.getenv('RECCE7_GLOBAL_CONFIG') or 'config/global.cfg'
-        self.global_config = GlobalConfig(self.plugin_cfg_path, self.global_cfg_path)
-        self.global_config.read_global_config()
-        self.global_config.read_plugin_config()
+        self.global_config = GlobalConfig()
         self.db_path = self.global_config['Database']['path']
         self.log = Logger().get('reportserver.dao.DatabaseHandler.DatabaseHandler')
 

@@ -27,26 +27,27 @@ from reportserver.manager.UnitOfMeasure import UnitOfMeasure
 import dateutil.parser
 
 
+
 #Given a string, try to convert it to an int.
 def validate_port_number(givenStr):
     log = Logger().get('reportserver.manager.utilities')
     log.debug("given str is: " + givenStr)
+
     try:
         return int(givenStr)
     except Exception as e:
-        print("Error: Received invalid string to convert to int: " + givenStr)
-        print (str(e))
+        log.error("Error:  Received invalid string to convert to int: " + givenStr)
+        log.error (str(e))
         return None
 
 
 #Given a token
 def validate_time_period(query_tokens):
+    log = Logger().get('reportserver.manager.utilities')
+    log.debug("given query_tokens:" + str(query_tokens))
 
     uom = None
     units = None
-
-    log = Logger().get('reportserver.manager.utilities')
-    log.info("given query_tokens:" + str(query_tokens))
 
     for token in query_tokens:
         if '=' in token:
@@ -78,7 +79,7 @@ def get_path_query_tokens(path):
 
 #Given a string, check that it is format of an ipaddress
 def validate_ipaddress(givenStr):
-    print("#debug given ipaddress is: " + givenStr)
+    #log.debug("given ipaddress is: " + givenStr)
     #todo:  some validation here
     return givenStr
 
@@ -136,7 +137,8 @@ def get_date_delta(iso_date_from, iso_date_to):
         date_to = dateutil.parser.parse(iso_date_to)
         delta = date_to - date_from
     except Exception as e:
-        print("Error: " + e.message)
+        log = Logger().get('reportserver.manager.utilities')
+        log.error("Error: " + str(e))
         delta = 0
 
     return str(delta)

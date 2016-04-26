@@ -1,15 +1,17 @@
 from reportserver.manager.IpsManager import IpsManager
 from reportserver.manager import utilities
-from common.GlobalConfig import Configuration
+from common.logger import Logger
 
 
 
 class IpsServiceHandler():
+    def __init__(self):
+        self.log = Logger().get('reportserver.manager.IpsManager.py')
 
     def process(self, rqst, path_tokens, query_tokens):
         uom = None
         units = None
-        print("#info processing ipaddress request:" + str(path_tokens) + str(query_tokens))
+        self.log.info("processing ipaddress request:" + str(path_tokens) + str(query_tokens))
 
         if len(query_tokens) > 0:
             try:
@@ -27,7 +29,7 @@ class IpsServiceHandler():
 
         if len(path_tokens) == 5:
             ipaddress = utilities.validate_ipaddress(path_tokens[4])
-            print("#debug requested: " + str(ipaddress))
+            self.log.debug("requested: " + str(ipaddress))
             if ipaddress is not None :
                 self.get_ips_data_by_time(rqst, ipaddress, uom, units)
             elif ipaddress == None:

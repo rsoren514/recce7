@@ -35,13 +35,10 @@ class PortManager:
     # Port Manager: calls necessary managers and utilities to generate parameters for sql.
     # List of valid ports it can receive is taken from the Configuration setup.
     #
-    #
     validPortNumbers = ()
 
     def __init__(self):
         self.g_config = GlobalConfig()
-        self.g_config.read_global_config()
-        self.g_config.read_plugin_config()
         self.validPortNumbers = self.g_config.get_ports()
         self.date_time_field = self.g_config.get_db_datetime_name()
         self.log = Logger().get('reportserver.manager.PortManager.PortManager')

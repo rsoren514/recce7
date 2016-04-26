@@ -44,7 +44,7 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
     def get_full_url_path(self):
         # TODO:  how to get full path here??
-        print("address : " + str(self.client_address))
+        #print("address : " + str(self.client_address))
         full_path = 'http://%s:%s/v1/analytics' % (str(self.client_address[0]), str(8080))
         return full_path
 
