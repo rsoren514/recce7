@@ -78,7 +78,7 @@ class PortManager:
 
     def get_unique_ips(self, tablename, unit, uom):
         fromDate = dateTimeUtility.get_begin_date_iso(unit, uom)
-        sql = "select count(distinct localAddress) as unique_ips from %s where %s >= '%s' " % (tablename, self.date_time_field, fromDate)
+        sql = "select count(distinct peerAddress) as unique_ips from %s where %s >= '%s' " % (tablename, self.date_time_field, fromDate)
         self.log.debug("sql is:" + sql)
         result = DatabaseHandler().query_db(sql)[0]
         return int(result['unique_ips'])

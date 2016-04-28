@@ -42,7 +42,7 @@ class IpsManager:
         date_time_field = self.g_config.get_db_datetime_name()
 
         #  query = query_db("SELECT * FROM %s where (datetime > '%s')" % (tableName, query_date_iso))
-        queryString = "SELECT * FROM %s where %s >= '%s' and localAddress = '%s' order by id, %s" % (
+        queryString = "SELECT * FROM %s where %s >= '%s' and peerAddress = '%s' order by id, %s" % (
             table_name, date_time_field, begin_date_iso, ipaddress, date_time_field)
         # args = (tableName, date_time_field, begin_date_iso)
         self.log.info("queryString is: " + str(queryString))
