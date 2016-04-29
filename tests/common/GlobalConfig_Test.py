@@ -1,12 +1,15 @@
 from common.globalconfig import GlobalConfig
-import unittest;
+import unittest
 
 test_cfg_path = 'tests/common/test.cfg'
-
+test_global_cfg_path = 'tests/common/test_global.cfg'
 
 class GlobalConfig_Test(unittest.TestCase):
     def setUp(self):
-        self.gconfig = GlobalConfig(test_cfg_path, refresh=True)
+
+        self.gconfig = GlobalConfig(test_cfg_path, test_global_cfg_path, refresh=True)
+        self.gconfig.read_plugin_config()
+        self.gconfig.read_global_config()
 
     def test_getInstance(self):
 
@@ -44,7 +47,7 @@ class GlobalConfig_Test(unittest.TestCase):
 
     def test_refresh_instance(self):
 
-        gconfig2 = GlobalConfig(test_cfg_path, refresh=True)
+        gconfig2 = GlobalConfig(test_cfg_path, test_global_cfg_path, refresh=True)
         self.assertNotEqual(str(self.gconfig), str(gconfig2), "these 2 objects should NOT equal when refresh set to True")
 
     def test_refresh_instance_same(self):

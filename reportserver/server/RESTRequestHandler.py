@@ -4,13 +4,14 @@ from http.server import BaseHTTPRequestHandler
 
 
 from reportserver.server.PortsServiceHandler import PortsServiceHandler
+from reportserver.server.IpsServiceHandler import IpsServiceHandler
 
 
 
 notFoundPayload = {}
 
 badRequestPayload = {
-    'error': 'invalid port number'}
+    'error': 'invalid analytics request'}
 
 
 #  Handles the service request, determines what was requested,
@@ -28,7 +29,10 @@ class RestRequestHandler (BaseHTTPRequestHandler):
             if len(path_tokens) >= 4:
                 if str(path_tokens[3]) == "ports":
                     PortsServiceHandler().process(self, path_tokens, query_tokens)
-                #TODO:  here is where we add more urls like /ipaddresses/
+                elif str(path_tokens[3]) == "ipaddresses":
+                    IpsServiceHandler().process(self, path_tokens, query_tokens)
+                elif str(path_tokens[3] == ""):
+                    self.showIndex()
                 else:
                     self.badRequest()
             else:
@@ -40,12 +44,13 @@ class RestRequestHandler (BaseHTTPRequestHandler):
 
     def get_full_url_path(self):
         # TODO:  how to get full path here??
-        print("address : " + str(self.client_address))
+        #print("address : " + str(self.client_address))
         full_path = 'http://%s:%s/v1/analytics' % (str(self.client_address[0]), str(8080))
         return full_path
 
     def getIndexPayload(self):
-        return  {'links': ['rel: ports, href: ' + self.get_full_url_path() + '/ports']}
+        return  {'links': ['rel: ports, href: ' + self.get_full_url_path() + '/ports',
+                           'rel: ipaddresses, href:' + self.get_full_url_path() + '/ipaddresses']}
 
     def showIndex(self):
         # send response code:
@@ -55,9 +60,9 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         # send response code:
         self.sendJsonResponse(notFoundPayload,404)
 
-    def badRequest(self):
+    def badRequest(self, rqstPayload=badRequestPayload):
         # send response code:
-        self.sendJsonResponse(badRequestPayload,400)
+        self.sendJsonResponse(rqstPayload,400)
 
     def sendJsonResponse(self, payload, responseCode):
 

@@ -33,6 +33,8 @@ class PortsServiceHandler():
             self.log.debug("requested: " + str(portNbr))
             if portNbr is not None and 0 < portNbr < 9000:
                 self.get_port_data_by_time(rqst, portNbr, uom, units)
+            elif portNbr == None or "":
+                self.get_port_list_json(rqst, uom, units)
             else:
                 rqst.badRequest()
                 return

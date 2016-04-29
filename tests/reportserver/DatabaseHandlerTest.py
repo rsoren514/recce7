@@ -12,6 +12,13 @@ class DatabaseHandlerTest(unittest.TestCase):
 
     # Creates a test DB with 1 table and 1000 entries with different timestamps.
     def setUp(self):
+        # Testing for correct DB
+        plugin_cfg_path = 'tests/reportserver/testconfig/plugins.cfg'
+        global_cfg_path = 'tests/reportserver/testconfig/global.cfg'
+        global_config = GlobalConfig(plugin_cfg_path, global_cfg_path, True)
+        global_config.read_global_config()
+        global_config.read_plugin_config()
+        
         conn = sqlite3.connect("TestDB.sqlite")
         c = conn.cursor()
         c.execute('''CREATE TABLE test_http (port int, data text, eventDateTime text)''')
