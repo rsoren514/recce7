@@ -60,9 +60,9 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         # send response code:
         self.sendJsonResponse(notFoundPayload,404)
 
-    def badRequest(self):
+    def badRequest(self, rqstPayload=badRequestPayload):
         # send response code:
-        self.sendJsonResponse(badRequestPayload,400)
+        self.sendJsonResponse(rqstPayload,400)
 
     def sendJsonResponse(self, payload, responseCode):
 

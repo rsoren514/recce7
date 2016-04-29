@@ -3,6 +3,8 @@ from reportserver.manager import utilities
 from common.logger import Logger
 
 
+badIpAddress = {
+    'error': 'invalid ipaddress given'}
 
 class IpsServiceHandler():
     def __init__(self):
@@ -28,11 +30,16 @@ class IpsServiceHandler():
             units = 1
 
         if len(path_tokens) == 5:
-            ipaddress = utilities.validate_ipaddress(path_tokens[4])
+            ipaddress = path_tokens[4].strip()
             self.log.debug("requested: " + str(ipaddress))
-            if ipaddress is not None :
-                self.get_ips_data_by_time(rqst, ipaddress, uom, units)
-            elif ipaddress == None:
+            if ipaddress is not None or ipaddress is not "":
+                try:
+                    ipaddress = utilities.validate_ipaddress(ipaddress)
+                    self.get_ips_data_by_time(rqst, ipaddress, uom, units)
+                except ValueError:
+                    rqst.badRequest(badIpAddress)
+                    return
+            elif ipaddress == None or ipaddress == "":
                 self.get_ips_data_by_time(rqst, "", uom, units)
             else:
                 rqst.badRequest()

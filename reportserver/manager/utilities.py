@@ -25,6 +25,7 @@
 from common.logger import Logger
 from reportserver.manager.UnitOfMeasure import UnitOfMeasure
 import dateutil.parser
+import socket
 
 
 
@@ -77,10 +78,13 @@ def get_path_query_tokens(path):
     return path_tokens, query_tokens
 
 
-#Given a string, check that it is format of an ipaddress
+#Given a string, check that it is a format of an ipaddress
 def validate_ipaddress(givenStr):
-    #log.debug("given ipaddress is: " + givenStr)
-    #todo:  some validation here
+    try:
+        socket.inet_aton(givenStr)  #works only on IPv4
+    except socket.error:
+        raise ValueError("ipAddress given is invalid, please recheck")
+
     return givenStr
 
 
