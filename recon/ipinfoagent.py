@@ -60,7 +60,7 @@ class IPInfoAgent(Thread):
         if not peer_info:
             request_str = 'http://ipinfo.io/' + self.peer_address
             self.log.debug('making REST request to ' + request_str)
-            response = requests.get(request_str)
+            response = requests.get(request_str, timeout=10)
             peer_info = response.json()
 
             peer_info['timestamp'] = datetime.now()

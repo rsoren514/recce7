@@ -39,7 +39,7 @@ class P0fAgent(Thread):
             return
         except Exception as e:
             self.log.error('unknown p0f error occurred on address ' +
-                           self.peer_address)
+                           self.peer_address + ': ' + str(e))
             return
 
         # prettify C/null-terminated byte arrays in p0f info dict
