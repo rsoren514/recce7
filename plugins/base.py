@@ -8,6 +8,8 @@ Contents
 import platform
 import socket
 import datetime
+
+from recon.p0fagent import P0fAgent
 from threading import Thread
 from uuid import uuid4
 
@@ -36,14 +38,32 @@ class BasePlugin(Thread):
         try:
             self.do_track()
         except ConnectionResetError as cre:
-                error_number = cre.errno
-                if error_number == 54:  # ERRNO 54 is 'connection reset by peer'
-                    # Log that it is possible we are being scanned, would want to write this to the db
-                    print("Maybe we are being scanned")
-                    pass
+            error_number = cre.errno
+            if error_number == 54:  # ERRNO 54 is 'connection reset by peer'
+                # Log that it is possible we are being scanned, would want to write this to the db
+                print("Maybe we are being scanned")
 
-        self.shutdown()
+        self.get_p0f_info()
+
+        #
+        # NOTE: Do NOT call self.shutdown() here! To shutdown this
+        # thread, just return from this run() method.
+        #
+        # self.shutdown() allows the framework to force this
+        # thread to shutdown; you never need to call it.
+        #
+        # Calling self.shutdown() from here will cause this thread
+        # to join itself - this will block forever. This in turn
+        # will exceed the open file limit and cause the framework
+        # to die.
+        #
+        # So don't call that method here! Just return from this.
+        #
         self._framework.plugin_stopped(self)
+
+    def get_p0f_info(self):
+        agent = P0fAgent(self._peerAddress, self._framework, self._session)
+        agent.start()
 
     def get_entry(self):
         entry = {self.get_table_name(): {}}
