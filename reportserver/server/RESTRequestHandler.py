@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler
 
 from reportserver.server.PortsServiceHandler import PortsServiceHandler
 from reportserver.server.IpsServiceHandler import IpsServiceHandler
+from reportserver.server.WorldmapServiceHandler import WorldmapServiceHandler
 
 
 
@@ -31,6 +32,8 @@ class RestRequestHandler (BaseHTTPRequestHandler):
                     PortsServiceHandler().process(self, path_tokens, query_tokens)
                 elif str(path_tokens[3]) == "ipaddresses":
                     IpsServiceHandler().process(self, path_tokens, query_tokens)
+                elif str(path_tokens[3]) == "worldmap":
+                    WorldmapServiceHandler().process(self, path_tokens, query_tokens)
                 elif str(path_tokens[3] == ""):
                     self.showIndex()
                 else:
@@ -81,6 +84,25 @@ class RestRequestHandler (BaseHTTPRequestHandler):
         self.wfile.write(bytes(json_result, "utf-8"))
 
         self.wfile.flush()
+
+        return
+
+    def sendPngResponse(self, filepath, responseCode):
+
+        # Note:  responseCode must be set before headers in python3!!
+        # see this post:
+        # http://stackoverflow.com/questions/23321887/python-3-http-server-sends-headers-as-output/35634827#35634827
+        f=open(filepath, 'rb')
+        self.send_response(responseCode)
+        # todo make this configurable for allow-origin
+        self.send_header("Access-Control-Allow-Origin", "http://localhost:8000")
+        self.send_header('Content-Type', 'image/png')
+        #self.send_header('Content-Length', len(json_result))
+        self.end_headers()
+        self.flush_headers()
+        self.wfile.write(f.read())
+        self.wfile.flush()
+        f.close()
 
         return
 
