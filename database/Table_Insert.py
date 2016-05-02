@@ -20,7 +20,7 @@ def insert_data(name, data_list, session_value, has_id=False):
 
     if session_value is not None:
         session_recorded_sessions = cursor.execute('select count(session) from sessions where session = "' + session_value + '" and table_name = "' + name + '"').fetchall()
-        if session_recorded_sessions[0][0] > 0:
+        if session_recorded_sessions[0][0] > 0 or name == 'p0f':
             pass
         else:
             cursor.execute('insert into sessions values("' + session_value + '","' + name + '")')
@@ -117,3 +117,5 @@ def prepare_data_for_insertion(schema, data):
             pass
         else:
             insert_data(table_name, insert_list, None , has_id)
+    connection.commit()
+    connection.close()

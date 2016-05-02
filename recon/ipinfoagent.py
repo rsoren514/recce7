@@ -79,7 +79,13 @@ class IPInfoAgent(Thread):
 
         peer_info['plugin_instance'] = self.instance_name
 
-        self.framework.insert_data({'ipInfo': peer_info})
+        clean_dict = {}
+        known_cols = ['ip', 'hostname', 'city', 'region', 'country', 'lat',
+                      'long', 'org', 'postal', 'timestamp', 'plugin_instance']
+        for col in known_cols:
+            if col in peer_info:
+                clean_dict[col] = peer_info[col]
+        self.framework.insert_data({'ipInfo': clean_dict})
 
         self.log.debug('ipinfo.io data for ' +
                        self.peer_address +
