@@ -94,19 +94,27 @@ def prepare_data_for_insertion(schema, data):
             insert_list.append(None)
         else:
             insert_list.append(data_dict[col[1]])
+
     plugin_tables = []
     for port in GlobalConfig().get_plugin_dictionary():
         config_dict = GlobalConfig().get_plugin_config(port)
         plugin_tables.append(config_dict['table'])
+
     if table_name in plugin_tables:
         insert_data(table_name,insert_list,session_value, has_id)
+
     elif table_name == 'p0f':
-        where_string = 'where session = ' + '"' + session_value + '"'
-        session_recorded_p0f = cursor.execute('select count(session) from p0f where session = "' + session_value + '"').fetchall()
-        if session_recorded_p0f[0][0] > 0:
-            update_data(table_name, insert_list, table_schema, where_string)
-        else:
-            insert_data(table_name, insert_list, session_value, has_id)
+        if session_value:
+            session_recorded_p0f = cursor.execute(
+                'select count(session) '
+                'from p0f '
+                'where session = "' + session_value + '"').fetchall()
+            if session_recorded_p0f[0][0] > 0:
+                where_string = 'where session = ' + '"' + session_value + '"'
+                update_data(table_name, insert_list, table_schema, where_string)
+            else:
+                insert_data(table_name, insert_list, session_value, has_id)
+
     elif table_name == 'ipInfo':
         count_query = ('select count(*) ' +
                        'from ipInfo ' +
@@ -117,5 +125,6 @@ def prepare_data_for_insertion(schema, data):
             pass
         else:
             insert_data(table_name, insert_list, None , has_id)
+
     connection.commit()
     connection.close()
