@@ -1,6 +1,7 @@
 from reportserver.manager.IpsManager import IpsManager
 from reportserver.manager import utilities
 from common.logger import Logger
+from common.globalconfig import GlobalConfig
 
 
 badIpAddress = {
@@ -28,9 +29,17 @@ class WorldmapServiceHandler():
         if len(path_tokens) >= 5:
             rqst.badRequest()
             return
+        else:
+            self.construct_worldmap(rqst, uom, units)
+
+    def construct_worldmap(self, rqst, uom, units):
+        #call to construct port list
+        #find unique ips by port
+        #merge the results togoether
+        #build the map
+        #probably want to look at the PortsServiceHandler.py or IpsServiceHandler.py to follow those patterns.
+
+        rqst.sendPngResponse("reportserver/test.png", 200)
 
 
-    def get_ips_latlong_by_time(self, rqst, ipaddress, uom, units):
-        #TODO: implement me!
 
-        rqst.sendPngResponse("./test.png", 200)
