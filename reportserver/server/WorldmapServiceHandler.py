@@ -3,6 +3,10 @@ from reportserver.manager import utilities
 from common.logger import Logger
 from common.globalconfig import GlobalConfig
 from reportserver.manager import dateTimeUtility
+from mpl_toolkits.basemap import Basemap
+import matplotlib.pyplot as plt
+import numpy as np
+
 import sqlite3
 
 badIpAddress = {
@@ -44,7 +48,20 @@ class WorldmapServiceHandler():
         #build the map
         #probably want to look at the PortsServiceHandler.py or IpsServiceHandler.py to follow those patterns.
 
-        rqst.sendPngResponse("reportserver/test.png", 200)
+        pts = self.get_point_list(uom, units)
+        ip_map = Basemap(projection='robin', lon_0=0, resolution='c')
+
+        for pt in pts:
+            srclat, srclong = pt
+            x, y = ip_map(srclong, srclat)
+            plt.plot(x, y, 'o', color='#ff0000', ms=2.7, markeredgewidth=0.5)
+
+#        ip_map.fillcontinents(color='#cccccc', lake_color='#99ccff')
+        ip_map.drawlsmask(ocean_color="#99ccff", land_color="#009900")
+        ip_map.drawcountries(color='#ffff00')
+
+        plt.savefig('reportserver/worldmap.png', dpi=600)
+        rqst.sendPngResponse("reportserver/worldmap.png", 200)
 
     def get_point_list(self, uom, units):
         begin_date = dateTimeUtility.get_begin_date_iso(uom, units)
