@@ -10,3 +10,4 @@ TestDB.db
 *.log
 honeyDB*
 *.png
+ip_map.pickle
